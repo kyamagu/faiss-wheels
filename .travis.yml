@@ -1,0 +1,127 @@
+env:
+    global:
+        - REPO_DIR=faiss
+        # Commit from your-project that you want to build
+        - BUILD_COMMIT=v1.5.3
+        # pip dependencies to _build_ your project
+        - BUILD_DEPENDS="numpy"
+        # pip dependencies to _test_ your project.  Include any dependencies
+        # that you need, that are also specified in BUILD_DEPENDS, this will be
+        # a separate install.
+        - TEST_DEPENDS="numpy pytest"
+        - PLAT=x86_64
+        - UNICODE_WIDTH=32
+        # - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
+        # Following generated with
+        # travis encrypt -r your-org/your-project-wheels WHEELHOUSE_UPLOADER_SECRET=<the api key>
+        # This is for Rackspace uploads.  Contact Matthew Brett, or the
+        # scikit-learn team, for # permission (and the API key) to upload to
+        # the Rackspace account used here, or use your own account.
+        # - secure:
+        #     "MNKyBWOzu7JAUmC0Y+JhPKfytXxY/ADRmUIMEWZV977FLZPgYctqd+lqel2QIFgdHDO1CIdTSymOOFZckM9ICUXg9Ta+8oBjSvAVWO1ahDcToRM2DLq66fKg+NKimd2OfK7x597h/QmUSl4k8XyvyyXgl5jOiLg/EJxNE2r83IA="
+
+language: python
+# The Travis Python version is unrelated to the version we build and test
+# with.  This is set with the MB_PYTHON_VERSION variable. For some builds,
+# For CPython macOS builds only, the minimum supported macOS version and
+# architectures of any C extensions in the wheel are set with the variable
+# MB_PYTHON_OSX_VER: 10.9 (64-bit only) or 10.6 (64/32-bit dual arch).
+# All PyPy macOS builds are 64-bit only.
+python: 3.5
+dist: trusty
+services: docker
+
+matrix:
+  exclude:
+    # Exclude the default Python 3.5 build
+    - python: 3.5
+  include:
+    - os: linux
+      env: MB_PYTHON_VERSION=2.7
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - UNICODE_WIDTH=16
+    # - os: linux
+    #   env:
+    #     - MB_PYTHON_VERSION=2.7
+    #     - PLAT=i686
+    # - os: linux
+    #   env:
+    #     - MB_PYTHON_VERSION=2.7
+    #     - PLAT=i686
+    #     - UNICODE_WIDTH=16
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.4
+    # - os: linux
+    #   env:
+    #     - MB_PYTHON_VERSION=3.4
+    #     - PLAT=i686
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.5
+    # - os: linux
+    #   env:
+    #     - MB_PYTHON_VERSION=3.5
+    #     - PLAT=i686
+    - os: linux
+      env:
+        - MB_PYTHON_VERSION=3.6
+    # - os: linux
+    #   env:
+    #     - MB_PYTHON_VERSION=3.6
+    #     - PLAT=i686
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=2.7
+    - os: osx
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - MB_PYTHON_OSX_VER=10.9
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.4
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.5
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.6
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=3.7
+        - MB_PYTHON_OSX_VER=10.9
+    - os: osx
+      language: generic
+      env:
+        - MB_PYTHON_VERSION=pypy-5.7
+
+before_install:
+    - source multibuild/common_utils.sh
+    - source multibuild/travis_steps.sh
+    - before_install
+
+install:
+    # Maybe get and clean and patch source
+    - clean_code $REPO_DIR $BUILD_COMMIT
+    - build_wheel $REPO_DIR $PLAT
+
+script:
+    - install_run $PLAT
+
+after_success:
+    # Upload wheels to Rackspace container
+    # - pip install wheelhouse-uploader
+    # This uploads the wheels to a Rackspace container owned by the
+    # scikit-learn team, available at http://wheels.scipy.org.  See above
+    # for information on using this account or choosing another.
+    # - python -m wheelhouse_uploader upload --local-folder
+    #     ${TRAVIS_BUILD_DIR}/wheelhouse/
+    #     --no-update-index
+    #     wheels

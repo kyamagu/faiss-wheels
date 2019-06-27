@@ -1,0 +1,6 @@
+[submodule "faiss"]
+	path = faiss
+	url = https://github.com/facebookresearch/faiss.git
+[submodule "multibuild"]
+	path = multibuild
+	url = https://github.com/matthew-brett/multibuild.git
