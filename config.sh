@@ -31,6 +31,7 @@ function pre_build {
     # Install build dependencies.
     build_swig
     build_openblas
+    echo $CWD
 
     # Build binary.
     export NUMPY_INCLUDE=$(python -c 'import numpy as np; print(np.get_include())')
@@ -42,6 +43,7 @@ function pre_build {
 }
 
 function run_tests {
+    build_openblas
     python --version
     python -c 'import faiss'
 }

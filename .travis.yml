@@ -76,10 +76,10 @@ matrix:
       language: generic
       env:
         - MB_PYTHON_VERSION=2.7
-    - os: osx
-      env:
-        - MB_PYTHON_VERSION=2.7
-        - MB_PYTHON_OSX_VER=10.9
+    # - os: osx
+    #   env:
+    #     - MB_PYTHON_VERSION=2.7
+    #     - MB_PYTHON_OSX_VER=10.9
     - os: osx
       language: generic
       env:
