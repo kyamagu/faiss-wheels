@@ -1,3 +1,4 @@
+# BUILD_DEPENDS must happen before our pre_build for Makefile build.
 function build_wheel_cmd {
     # Builds wheel with named command, puts into $WHEEL_SDIR
     #
@@ -42,4 +43,5 @@ function pre_build {
 
 function run_tests {
     python --version
+    python -c 'import faiss'
 }
