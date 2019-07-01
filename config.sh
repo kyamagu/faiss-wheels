@@ -5,6 +5,7 @@ function pre_build {
     # autoconf
     ./configure --without-cuda
     make -j2
+    make -C python
     cd ..
 }
 
