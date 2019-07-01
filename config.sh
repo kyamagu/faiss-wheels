@@ -2,10 +2,11 @@ function pre_build {
     # Runs in the root directory.
 
     # Install newer swig. RPM package is too old.
-    yum -y install curl
-    curl -sS -o rel-4.0.0.tar.gz https://github.com/swig/swig/archive/rel-4.0.0.tar.gz
+    yum -y install pcre-devel
+    curl -sSLO https://github.com/swig/swig/archive/rel-4.0.0.tar.gz
     tar xzf rel-4.0.0.tar.gz
-    cd rel-4.0.0
+    cd swig-rel-4.0.0
+    ./autogen.sh
     ./configure
     make -j2
     make install
