@@ -47,7 +47,6 @@ function pre_build {
 }
 
 function run_tests {
-    build_openblas
     python --version
     python -c "import faiss"
 }
