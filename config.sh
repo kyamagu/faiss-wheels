@@ -1,6 +1,8 @@
 function pre_build {
     build_swig
-    if [ ! -n "$IS_OSX" ]; then
+    if [ -n "$IS_OSX" ]; then
+        brew install libomp
+    else
         build_openblas
     fi
 }
