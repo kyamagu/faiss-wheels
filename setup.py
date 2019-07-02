@@ -105,7 +105,7 @@ class CustomBuildExt(build_ext):
 
 def get_config():
     config = {
-        'include_dirs': [np.get_include(), '-I/usr/local/include/faiss'],
+        'include_dirs': [np.get_include(), '/usr/local/include/faiss'],
         'libraries': [':libfaiss.a'],
         'extra_compile_args': [
             '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
