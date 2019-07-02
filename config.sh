@@ -1,15 +1,17 @@
 function pre_build {
     build_swig
     build_openblas
-    if [ -n "$IS_OSX" ]; then
-        export LDFLAGS="-L/usr/local/opt/openblas/lib $LDFLAGS"
-    fi
 }
 
 function pip_wheel_cmd {
     local abs_wheelhouse=$1
-    local with_blas="-pthread -lgfortran -static-libgfortran -l:libopenblas.a"
     local np_include=$(python -c "import numpy as np; print(np.get_include())")
+
+    if [ -n "$IS_OSX" ]; then
+        local with_blas="-lopenblas -L/usr/local/opt/openblas/lib"
+    else
+        local with_blas="-pthread -lgfortran -static-libgfortran -l:libopenblas.a"
+    fi
 
     (./configure \
         --without-cuda \
