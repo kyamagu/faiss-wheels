@@ -41,7 +41,7 @@ function pre_build {
     (cd $REPO_DIR/.. \
         && ./configure \
             --without-cuda \
-            --with-blas=$with_blas \
+            --with-blas="$with_blas" \
         && make -j4 \
         && make -C python)
 }
