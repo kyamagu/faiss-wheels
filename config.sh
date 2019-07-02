@@ -29,15 +29,19 @@ function build_wheel_cmd {
 
 function pre_build {
     # Install build dependencies.
+    local with_blas="-pthread -lgfortran -static-libgfortran -l:libopenblas.a"
     build_swig
     build_openblas
     echo $CWD
 
     # Build binary.
-    export NUMPY_INCLUDE=$(python -c 'import numpy as np; print(np.get_include())')
+    export NUMPY_INCLUDE=$(python -c "import numpy as np; print(np.get_include())")
     export CFLAGS="-I$NUMPY_INCLUDE $CFLAGS"
+    # export LDFLAGS="-static -pthread"  # libgfortran dependency.
     (cd $REPO_DIR/.. \
-        && ./configure --without-cuda \
+        && ./configure \
+            --without-cuda \
+            --with-blas=$with_blas \
         && make -j4 \
         && make -C python)
 }
@@ -45,5 +49,5 @@ function pre_build {
 function run_tests {
     build_openblas
     python --version
-    python -c 'import faiss'
+    python -c "import faiss"
 }
