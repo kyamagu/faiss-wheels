@@ -105,9 +105,9 @@ class CustomBuildExt(build_ext):
 
 def get_config():
     config = {
-        'include_dirs': ['.', np.get_include()],
+        'include_dirs': [np.get_include()],
         'libraries': [':libfaiss.a'],
-        'extra_compile_args': ['-std=c++11']
+        'extra_compile_args': ['-std=c++11', '-msse4', '-mpopcnt', '-m64']
     }
     return config
 
@@ -116,11 +116,9 @@ _swigfaiss = Extension(
     '_swigfaiss',
     sources=SOURCES,
     depends=HEADERS,
-    define_macros=[
-        ('FINTEGER', 'int'),
-    ],
+    define_macros=[('FINTEGER', 'int')],
     language='c++',
-    swig_opts=['-c++', '-I.', '-I' + np.get_include()],
+    swig_opts=['-c++', '-I' + np.get_include()],
     **get_config()
 )
 
