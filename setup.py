@@ -105,9 +105,7 @@ class CustomBuildExt(build_ext):
 
 def get_config():
     config = {
-        '': [],
         'include_dirs': ['.', np.get_include()],
-        'library_dirs': ['.'],
         'libraries': [':libfaiss.a'],
         'extra_compile_args': ['-std=c++11']
     }
