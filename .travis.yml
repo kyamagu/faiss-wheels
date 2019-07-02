@@ -8,7 +8,7 @@ env:
         # pip dependencies to _test_ your project.  Include any dependencies
         # that you need, that are also specified in BUILD_DEPENDS, this will be
         # a separate install.
-        - TEST_DEPENDS="numpy==1.13.3 pytest"
+        - TEST_DEPENDS="numpy==1.13.3"
         - PLAT=x86_64
         - UNICODE_WIDTH=32
         # - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
