@@ -1,6 +1,8 @@
 function pre_build {
     build_swig
-    build_openblas
+    if [ ! -n "$IS_OSX" ]; then
+        build_openblas
+    fi
 }
 
 function pip_wheel_cmd {
@@ -8,7 +10,7 @@ function pip_wheel_cmd {
     local np_include=$(python -c "import numpy as np; print(np.get_include())")
 
     if [ -n "$IS_OSX" ]; then
-        local with_blas="-lopenblas -L/usr/local/opt/openblas/lib"
+        local with_blas="-framework Accelerate"
     else
         local with_blas="-pthread -lgfortran -static-libgfortran -l:libopenblas.a"
     fi
