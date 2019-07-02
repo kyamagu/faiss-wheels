@@ -110,6 +110,10 @@ before_install:
 install:
     # Maybe get and clean and patch source
     - clean_code $REPO_DIR $BUILD_COMMIT
+    # Distutils does not recognize .swig file extension
+    - cp $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
+    # The default setup.py is not useful
+    - cp setup.py $REPO_DIR
     - build_wheel $REPO_DIR $PLAT
 
 script:
