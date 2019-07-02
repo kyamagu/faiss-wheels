@@ -32,11 +32,11 @@ function pre_build {
     local with_blas="-pthread -lgfortran -static-libgfortran -l:libopenblas.a"
     build_swig
     build_openblas
-    echo $CWD
+    echo $PWD
 
     # Build binary.
-    export NUMPY_INCLUDE=$(python -c "import numpy as np; print(np.get_include())")
-    export CFLAGS="-I$NUMPY_INCLUDE $CFLAGS"
+    local np_include=$(python -c "import numpy as np; print(np.get_include())")
+    export CFLAGS="-I$np_include $CFLAGS"
     # export LDFLAGS="-static -pthread"  # libgfortran dependency.
     (cd $REPO_DIR/.. \
         && ./configure \
