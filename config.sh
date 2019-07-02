@@ -1,4 +1,5 @@
 function build_faiss {
+    echo $PWD
     if [ -n "$IS_OSX" ]; then
         local with_blas="-framework Accelerate"
     else
