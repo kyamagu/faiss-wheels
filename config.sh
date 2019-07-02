@@ -1,7 +1,7 @@
 function pre_build {
     build_swig
     build_openblas
-    if [ ! -n "$IS_OSX" ]; then
+    if [ -n "$IS_OSX" ]; then
         export LDFLAGS="-L/usr/local/opt/openblas/lib $LDFLAGS"
     fi
 }
