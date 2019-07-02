@@ -47,6 +47,11 @@ function pre_build {
 }
 
 function run_tests {
+    if [ ! -n "$IS_OSX" ]; then
+        apt-get update \
+            && apt-get install -y libgfortran3 \
+            && rm -rf /var/lib/apt/lists/*
+    fi
     python --version
     python -c "import faiss"
 }
