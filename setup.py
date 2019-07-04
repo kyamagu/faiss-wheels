@@ -73,13 +73,12 @@ class CustomBuildExt(build_ext):
     """Customize extension build by injecting nvcc.
     """
 
-    def build_extensions(self):
+    def run(self):
         import numpy
         self.include_dirs.append(numpy.get_include())
-        self.swig_opts.append('-c++')
-        self.swig_opts.append('-DSWIGWORDSIZE64')
-        self.swig_opts.append('-I' + numpy.get_include())
+        super(CustomBuildExt, self).run()
 
+    def build_extensions(self):
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
         self._remove_flag('-Wstrict-prototypes')
@@ -91,7 +90,7 @@ class CustomBuildExt(build_ext):
             self._remove_flag('-Wshorten-64-to-32')
 
         self.swig = self.swig or os.getenv('SWIG')
-        build_ext.build_extensions(self)
+        super(CustomBuildExt, self).build_extensions()
 
     def _remove_flag(self, flag):
         compiler = self.compiler.compiler
@@ -114,7 +113,7 @@ _swigfaiss = Extension(
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare'
     ],
-    # swig_opts=['-c++', '-DSWIGWORDSIZE64'],  # This gets overwritten above.
+    swig_opts=['-c++', '-DSWIGWORDSIZE64'],
 )
 
 LONG_DESCRIPTION = """
