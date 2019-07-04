@@ -14,7 +14,6 @@ function build_faiss {
 
 
 function pre_build {
-    build_swig
     if [ -n "$IS_OSX" ]; then
         brew install libomp llvm
         local prefix=$(brew --prefix llvm)
