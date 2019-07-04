@@ -14,14 +14,14 @@ function build_faiss {
 
 
 function pre_build {
-    build_swig
+    build_swig > /dev/null
     if [ -n "$IS_OSX" ]; then
-        brew install libomp llvm
+        brew install libomp llvm > /dev/null
         local prefix=$(brew --prefix llvm)
         export CC="$prefix/bin/clang"
         export CXX="$prefix/bin/clang++"
     else
-        build_openblas
+        build_openblas > /dev/null
     fi
     (cd $REPO_DIR && build_faiss)
 }
