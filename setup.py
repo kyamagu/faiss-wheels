@@ -76,7 +76,10 @@ class CustomBuildExt(build_ext):
     def build_extensions(self):
         import numpy
         self.include_dirs.append(numpy.get_include())
+        self.swig_opts.append('-c++')
+        self.swig_opts.append('-DSWIGWORDSIZE64')
         self.swig_opts.append('-I' + numpy.get_include())
+        build_ext.run(self)
 
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
@@ -106,13 +109,13 @@ _swigfaiss = Extension(
     depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
-    swig_opts=['-c++', '-DSWIGWORDSIZE64'],
     include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
     libraries=[':libfaiss.a'],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare'
     ],
+    # swig_opts=['-c++', '-DSWIGWORDSIZE64'],  # This gets overwritten above.
 )
 
 LONG_DESCRIPTION = """
