@@ -33,5 +33,5 @@ function run_tests {
             && rm -rf /var/lib/apt/lists/*
     fi
     python --version
-    python -c "import faiss"
+    python -c "import faiss, numpy; faiss.Kmeans(10, 20).train(numpy.random.rand(1000, 10).astype('float32'))"
 }
