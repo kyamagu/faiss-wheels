@@ -5,9 +5,9 @@ function build_faiss {
     else
         local with_blas="-pthread -lgfortran -static-libgfortran -l:libopenblas.a"
     fi
-    (./configure \
-        --without-cuda \
-        --with-blas="$with_blas" \
+    (aclocal \
+        && autoconf \
+        && ./configure --without-cuda --with-blas="$with_blas" \
         && make -j4 \
         && make install)
 }
@@ -17,8 +17,9 @@ function pre_build {
     build_swig
     if [ -n "$IS_OSX" ]; then
         brew install libomp llvm
-        export CC="/usr/local/opt/llvm/bin/clang"
-        export CXX="/usr/local/opt/llvm/bin/clang++"
+        local prefix=$(brew --prefix llvm)
+        export CC="$prefix/bin/clang"
+        export CXX="$prefix/bin/clang++"
     else
         build_openblas
     fi
