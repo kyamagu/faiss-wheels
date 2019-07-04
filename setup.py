@@ -76,6 +76,7 @@ class CustomBuildExt(build_ext):
     def build_extensions(self):
         import numpy
         self.include_dirs.append(numpy.get_include())
+        self.swig_opts.append('-I' + numpy.get_include())
 
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
