@@ -79,7 +79,6 @@ class CustomBuildExt(build_ext):
         self.swig_opts.append('-c++')
         self.swig_opts.append('-DSWIGWORDSIZE64')
         self.swig_opts.append('-I' + numpy.get_include())
-        build_ext.run(self)
 
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
