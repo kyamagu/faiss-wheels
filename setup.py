@@ -23,14 +23,7 @@ from setuptools import setup
 from setuptools.extension import Extension
 from distutils.command.build import build
 from distutils.command.build_ext import build_ext
-from distutils.util import get_platform
 import os
-import subprocess
-
-try:
-    import numpy as np
-except ImportError:
-    pass
 
 SOURCES = [
     'python/swigfaiss.i',
@@ -81,6 +74,9 @@ class CustomBuildExt(build_ext):
     """
 
     def build_extensions(self):
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
         self._remove_flag('-Wstrict-prototypes')
@@ -103,26 +99,19 @@ class CustomBuildExt(build_ext):
                 args.remove(flag)
 
 
-def get_config():
-    config = {
-        'include_dirs': [np.get_include(), '/usr/local/include/faiss'],
-        'libraries': [':libfaiss.a'],
-        'extra_compile_args': [
-            '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
-            '-Wno-sign-compare'
-        ]
-    }
-    return config
-
-
 _swigfaiss = Extension(
     '_swigfaiss',
     sources=SOURCES,
     depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
-    swig_opts=['-c++', '-DSWIGWORDSIZE64', '-I' + np.get_include()],
-    **get_config()
+    swig_opts=['-c++', '-DSWIGWORDSIZE64'],
+    include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
+    libraries=[':libfaiss.a'],
+    extra_compile_args=[
+        '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
+        '-Wno-sign-compare'
+    ],
 )
 
 LONG_DESCRIPTION = """
