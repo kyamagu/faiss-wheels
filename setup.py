@@ -121,7 +121,7 @@ _swigfaiss = Extension(
     depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
-    swig_opts=['-c++', '-I' + np.get_include()],
+    swig_opts=['-c++', '-DSWIGWORDSIZE64', '-I' + np.get_include()],
     **get_config()
 )
 
