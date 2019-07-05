@@ -23,6 +23,7 @@ from setuptools import setup
 from setuptools.extension import Extension
 from distutils.command.build import build
 from distutils.command.build_ext import build_ext
+from distutils.util import get_platform
 import os
 
 SOURCES = [
@@ -108,12 +109,13 @@ _swigfaiss = Extension(
     define_macros=[('FINTEGER', 'int')],
     language='c++',
     include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
-    libraries=[':libfaiss.a'],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare', '-fopenmp'
     ],
-    swig_opts=['-c++', '-DSWIGWORDSIZE64'],
+    extra_link_args=[os.getenv('FAISS_LIB', '/usr/local/lib/libfaiss.a')],
+    swig_opts=['-c++', '-Doverride='] +
+    ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']),
 )
 
 LONG_DESCRIPTION = """
