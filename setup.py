@@ -76,7 +76,7 @@ class CustomBuildExt(build_ext):
     def run(self):
         import numpy
         self.include_dirs.append(numpy.get_include())
-        super(CustomBuildExt, self).run()
+        build_ext.run(self)
 
     def build_extensions(self):
         # Suppress -Wstrict-prototypes bug in python.
@@ -90,7 +90,7 @@ class CustomBuildExt(build_ext):
             self._remove_flag('-Wshorten-64-to-32')
 
         self.swig = self.swig or os.getenv('SWIG')
-        super(CustomBuildExt, self).build_extensions()
+        build_ext.build_extensions(self)
 
     def _remove_flag(self, flag):
         compiler = self.compiler.compiler
