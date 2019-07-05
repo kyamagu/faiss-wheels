@@ -113,7 +113,7 @@ _swigfaiss = Extension(
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare'
     ],
-    swig_opts=['-c++', '-DSWIGWORDSIZE64'],
+    swig_opts=['-c++', '-DSWIGWORDSIZE64', '-fopenmp'],
 )
 
 LONG_DESCRIPTION = """
