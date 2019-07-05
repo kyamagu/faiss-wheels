@@ -103,7 +103,7 @@ class CustomBuildExt(build_ext):
 
 
 _swigfaiss = Extension(
-    '_swigfaiss',
+    'faiss._swigfaiss',
     sources=SOURCES,
     depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
