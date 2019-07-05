@@ -111,9 +111,9 @@ _swigfaiss = Extension(
     libraries=[':libfaiss.a'],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
-        '-Wno-sign-compare'
+        '-Wno-sign-compare', '-fopenmp'
     ],
-    swig_opts=['-c++', '-DSWIGWORDSIZE64', '-fopenmp'],
+    swig_opts=['-c++', '-DSWIGWORDSIZE64'],
 )
 
 LONG_DESCRIPTION = """
