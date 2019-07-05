@@ -113,7 +113,9 @@ _swigfaiss = Extension(
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare', '-fopenmp'
     ],
-    extra_link_args=[os.getenv('FAISS_LIB', '/usr/local/lib/libfaiss.a')],
+    extra_link_args=[
+        os.getenv('FAISS_LIB', '/usr/local/lib/libfaiss.a'), '-fopenmp'
+    ],
     swig_opts=['-c++', '-Doverride='] +
     ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']),
 )
