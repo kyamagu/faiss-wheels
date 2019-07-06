@@ -75,6 +75,7 @@ class CustomBuildExt(build_ext):
     """
 
     def run(self):
+        # Import NumPy only at runtime.
         import numpy
         self.include_dirs.append(numpy.get_include())
         build_ext.run(self)
@@ -89,8 +90,6 @@ class CustomBuildExt(build_ext):
         compiler_name = self.compiler.compiler[0]
         if 'gcc' in compiler_name or 'g++' in compiler_name:
             self._remove_flag('-Wshorten-64-to-32')
-
-        self.swig = self.swig or os.getenv('SWIG')
         build_ext.build_extensions(self)
 
     def _remove_flag(self, flag):
@@ -108,13 +107,14 @@ _swigfaiss = Extension(
     depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
-    include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare', '-fopenmp'
     ],
     extra_link_args=[
-        os.getenv('FAISS_LIB', '/usr/local/lib/libfaiss.a'), '-fopenmp'
+        '-fopenmp',
+        os.getenv('FAISS_LIB', '/usr/local/lib/libfaiss.a'),
+        os.getenv('BLAS_LIB', ''),
     ],
     swig_opts=['-c++', '-Doverride='] +
     ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']),
