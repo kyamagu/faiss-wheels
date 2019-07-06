@@ -29,8 +29,7 @@ function pip_wheel_cmd {
     if [ ! -n "$IS_OSX" ]; then
         export BLAS_LIB="-pthread /usr/lib/libopenblas.a -lgfortran"
     fi
-    pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps . \
-        --include-dirs=/usr/local/include/faiss
+    pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
 }
 
 function run_tests {

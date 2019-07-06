@@ -107,6 +107,7 @@ _swigfaiss = Extension(
     depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
+    include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare', '-fopenmp'
