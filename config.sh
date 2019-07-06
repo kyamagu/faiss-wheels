@@ -27,7 +27,7 @@ function pre_build {
 function pip_wheel_cmd {
     local abs_wheelhouse=$1
     if [ ! -n "$IS_OSX" ]; then
-        export BLAS_LIB="-pthread /usr/lib/libopenblas.a -lgfortran"
+        export BLAS_LIB='/usr/lib/libopenblas.a'
     fi
     pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
 }
