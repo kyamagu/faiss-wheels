@@ -18,7 +18,7 @@ function pre_build {
         export CXX="$prefix/bin/clang++"
         if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
             export CXXFLAGS="-stdlib=libc++"
-            export ARCHFLAGS="-arch x86_64"
+            export CFLAGS="-stdlib=libc++"
         fi
     else
         build_openblas > /dev/null
@@ -31,9 +31,6 @@ function pip_wheel_cmd {
     export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a"
     if [ -n "$IS_OSX" ]; then
         export FAISS_LDFLAGS="$FAISS_LDFLAGS -framework Accelerate"
-        if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
-            export CFLAGS="-stdlib=libc++"
-        fi
     else
         export FAISS_LDFLAGS="$FAISS_LDFLAGS /usr/local/lib/libopenblas.a -lgfortran"
     fi
