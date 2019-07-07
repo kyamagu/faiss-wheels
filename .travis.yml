@@ -72,11 +72,12 @@ matrix:
     #   env:
     #     - MB_PYTHON_VERSION=3.6
     #     - PLAT=i686
+    # - os: osx
+    #   language: generic
+    #   env:
+    #     - MB_PYTHON_VERSION=2.7
     - os: osx
       language: generic
-      env:
-        - MB_PYTHON_VERSION=2.7
-    - os: osx
       env:
         - MB_PYTHON_VERSION=2.7
         - MB_PYTHON_OSX_VER=10.9
@@ -84,14 +85,17 @@ matrix:
       language: generic
       env:
         - MB_PYTHON_VERSION=3.4
+        - MB_PYTHON_OSX_VER=10.9
     - os: osx
       language: generic
       env:
         - MB_PYTHON_VERSION=3.5
+        - MB_PYTHON_OSX_VER=10.9
     - os: osx
       language: generic
       env:
         - MB_PYTHON_VERSION=3.6
+        - MB_PYTHON_OSX_VER=10.9
     - os: osx
       language: generic
       env:

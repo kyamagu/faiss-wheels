@@ -1,7 +1,7 @@
 function build_faiss {
     aclocal && autoconf
     if [ -n "$IS_OSX" ]; then
-        ./configure --without-cuda --with-blas='-framework Accelerate'
+        ./configure --without-cuda --with-blas="-framework Accelerate"
     else
         ./configure --without-cuda
     fi
@@ -23,8 +23,11 @@ function pre_build {
 
 function pip_wheel_cmd {
     local abs_wheelhouse=$1
-    if [ ! -n "$IS_OSX" ]; then
-        export FAISS_LDFLAGS='/usr/local/lib/libfaiss.a /usr/local/lib/libopenblas.a -lgfortran'
+    export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a"
+    if [ -n "$IS_OSX" ]; then
+        export FAISS_LDFLAGS="$FAISS_LDFLAGS -framework Accelerate"
+    else
+        export FAISS_LDFLAGS="$FAISS_LDFLAGS /usr/local/lib/libopenblas.a -lgfortran"
     fi
     pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
 }
