@@ -1,14 +1,11 @@
 function build_faiss {
+    aclocal && autoconf
     if [ -n "$IS_OSX" ]; then
-        local extra_args="--with-blas='-framework Accelerate'"
+        ./configure --without-cuda --with-blas='-framework Accelerate'
     else
-        local extra_args=""
+        ./configure --without-cuda
     fi
-    (aclocal \
-        && autoconf \
-        && ./configure --without-cuda $extra_args \
-        && make -j4 \
-        && make install)
+    make -j4 && make install
 }
 
 function pre_build {
