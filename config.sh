@@ -15,6 +15,9 @@ function pre_build {
         local prefix=$(brew --prefix llvm)
         export CC="$prefix/bin/clang"
         export CXX="$prefix/bin/clang++"
+        if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
+            export CFLAGS="-stdlib=libc++"
+        fi
     else
         build_openblas > /dev/null
     fi
