@@ -2,6 +2,7 @@ function build_faiss {
     aclocal && autoconf
     if [ -n "$IS_OSX" ]; then
         ./configure --without-cuda --with-blas="-framework Accelerate"
+        cat makefile.inc
     else
         ./configure --without-cuda
     fi
@@ -16,7 +17,7 @@ function pre_build {
         export CC="$prefix/bin/clang"
         export CXX="$prefix/bin/clang++"
         if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
-            export CFLAGS="-stdlib=libc++"
+            export CXXFLAGS="-stdlib=libc++"
             export ARCHFLAGS="-arch x86_64"
         fi
     else
