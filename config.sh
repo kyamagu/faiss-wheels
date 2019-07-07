@@ -38,11 +38,11 @@ function pip_wheel_cmd {
 }
 
 function run_tests {
-    if [ ! -n "$IS_OSX" ]; then
-        apt-get update \
-            && apt-get install -y libgfortran3 \
-            && rm -rf /var/lib/apt/lists/*
-    fi
+    # if [ ! -n "$IS_OSX" ]; then
+    #     apt-get update \
+    #         && apt-get install -y libgfortran3 \
+    #         && rm -rf /var/lib/apt/lists/*
+    # fi
     python --version
     python -c "import faiss, numpy; faiss.Kmeans(10, 20).train(numpy.random.rand(1000, 10).astype(numpy.float32))"
 }
