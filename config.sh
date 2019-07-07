@@ -31,6 +31,9 @@ function pip_wheel_cmd {
     export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a"
     if [ -n "$IS_OSX" ]; then
         export FAISS_LDFLAGS="$FAISS_LDFLAGS -framework Accelerate"
+        if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
+            export CFLAGS="-stdlib=libc++"
+        fi
     else
         export FAISS_LDFLAGS="$FAISS_LDFLAGS /usr/local/lib/libopenblas.a -lgfortran"
     fi
