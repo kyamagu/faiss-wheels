@@ -17,6 +17,7 @@ function pre_build {
         export CXX="$prefix/bin/clang++"
         if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
             export CFLAGS="-stdlib=libc++"
+            export ARCHFLAGS="-arch x86_64"
         fi
     else
         build_openblas > /dev/null
