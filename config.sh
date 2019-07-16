@@ -33,9 +33,9 @@ function pip_wheel_cmd {
         export FAISS_LDFLAGS="$FAISS_LDFLAGS -framework Accelerate"
     else
         export FAISS_LDFLAGS="$FAISS_LDFLAGS /usr/local/lib/libopenblas.a -lgfortran"
-    fi
-    if [ -n "$BUILD_SDIST" ]; then
-        python setup.py sdist --dist-dir $abs_wheelhouse
+        if [ "$PYTHON_VERSION" = "3.6" ]; then
+            python setup.py sdist --dist-dir $abs_wheelhouse
+        fi
     fi
     pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
 }
