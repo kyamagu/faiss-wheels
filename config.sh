@@ -34,6 +34,9 @@ function pip_wheel_cmd {
     else
         export FAISS_LDFLAGS="$FAISS_LDFLAGS /usr/local/lib/libopenblas.a -lgfortran"
     fi
+    if [ -n "$BUILD_SDIST" ]; then
+        python setup.py sdist --dist-dir $abs_wheelhouse
+    fi
     pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
 }
 
