@@ -107,5 +107,5 @@ after_success:
         --provider GOOGLE_STORAGE
         --region asia-northeast1
         --user faiss-wheels@cyberagent-050.iam.gserviceaccount.com
-        --secret $(cat secret.txt)
+        --secret "$(cat secret.txt)"
         ailab-wheels
