@@ -100,7 +100,7 @@ script:
 
 after_success:
     # Upload wheels to Google Cloud Storage
-    - pip install wheelhouse-uploader cryptography
+    - pip install wheelhouse-uploader pycrypto
     - python -m wheelhouse_uploader upload --local-folder
         ${TRAVIS_BUILD_DIR}/wheelhouse/
         --no-update-index
