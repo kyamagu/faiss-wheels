@@ -77,4 +77,3 @@ deploy:
   local-dir: ${TRAVIS_BUILD_DIR}/wheelhouse/
   on:
     repo: kyamagu/faiss-wheels
-    all_branches: true
