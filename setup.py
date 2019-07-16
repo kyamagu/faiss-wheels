@@ -1,23 +1,4 @@
 """faiss build for python.
-
-Build
------
-
-On Linux:
-
-GPU support is automatically built when nvcc compiler is available. Set
-`CUDA_HOME` environment variable to specify where CUDA is installed.
-
-    apt-get install swig libblas-dev liblapack-dev
-    pip install numpy setuptools
-    python setup.py bdist_wheel
-
-On macOS:
-
-    brew install llvm swig openblas
-    pip install numpy setuptools
-    python setup.py bdist_wheel
-
 """
 from setuptools import setup
 from setuptools.extension import Extension
