@@ -8,7 +8,7 @@ env:
         # pip dependencies to _test_ your project.  Include any dependencies
         # that you need, that are also specified in BUILD_DEPENDS, this will be
         # a separate install.
-        - TEST_DEPENDS="numpy==1.15.0 cryptography"
+        - TEST_DEPENDS="numpy==1.15.0"
         - PLAT=x86_64
         - UNICODE_WIDTH=32
         # - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
@@ -100,7 +100,7 @@ script:
 
 after_success:
     # Upload wheels to Google Cloud Storage
-    - pip install wheelhouse-uploader
+    - pip install wheelhouse-uploader cryptography
     - python -m wheelhouse_uploader upload --local-folder
         ${TRAVIS_BUILD_DIR}/wheelhouse/
         --no-update-index
