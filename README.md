@@ -13,3 +13,7 @@ This repository provides pre-built wheel packages for
 [faiss](https://github.com/facebookresearch/faiss) library.
 
 The packages are uploaded to https://storage.cloud.google.com/ailab-wheels/
+
+- CPU-only builds
+- Bundles OpenBLAS in Linux using `auditwheel`
+- Uses Accelerate framework on macOS
