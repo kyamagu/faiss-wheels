@@ -8,15 +8,12 @@ env:
         # pip dependencies to _test_ your project.  Include any dependencies
         # that you need, that are also specified in BUILD_DEPENDS, this will be
         # a separate install.
-        - TEST_DEPENDS="numpy==1.15.0"
+        - TEST_DEPENDS="numpy==1.15.0 cryptography"
         - PLAT=x86_64
         - UNICODE_WIDTH=32
         # - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
         # Following generated with
         # travis encrypt -r your-org/your-project-wheels WHEELHOUSE_UPLOADER_SECRET=<the api key>
-        # This is for Rackspace uploads.  Contact Matthew Brett, or the
-        # scikit-learn team, for # permission (and the API key) to upload to
-        # the Rackspace account used here, or use your own account.
         # - secure:
         #     "MNKyBWOzu7JAUmC0Y+JhPKfytXxY/ADRmUIMEWZV977FLZPgYctqd+lqel2QIFgdHDO1CIdTSymOOFZckM9ICUXg9Ta+8oBjSvAVWO1ahDcToRM2DLq66fKg+NKimd2OfK7x597h/QmUSl4k8XyvyyXgl5jOiLg/EJxNE2r83IA="
 
@@ -101,12 +98,14 @@ script:
     - install_run $PLAT
 
 after_success:
-    # Upload wheels to Rackspace container
+    # Upload wheels to Google Cloud Storage
+    - openssl aes-256-cbc -K $encrypted_cb2a0a565dd2_key -iv $encrypted_cb2a0a565dd2_iv -in secret.txt.enc -out secret.txt -d
+    - export WHEELHOUSE_UPLOADER_USERNAME faiss-wheels@cyberagent-050.iam.gserviceaccount.com
+    - export WHEELHOUSE_UPLOADER_SECRET=$(cat secret.txt)
     - pip install wheelhouse-uploader
-    # This uploads the wheels to a Rackspace container owned by the
-    # scikit-learn team, available at http://wheels.scipy.org.  See above
-    # for information on using this account or choosing another.
-    # - python -m wheelhouse_uploader upload --local-folder
-    #     ${TRAVIS_BUILD_DIR}/wheelhouse/
-    #     --no-update-index
-    #     wheels
+    - python -m wheelhouse_uploader upload --local-folder
+        ${TRAVIS_BUILD_DIR}/wheelhouse/
+        --no-update-index
+        --provider GOOGLE_STORAGE
+        --region asia-northeast1
+        ailab-wheels
