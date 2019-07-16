@@ -1,110 +1,78 @@
 env:
-    global:
-        - REPO_DIR=faiss
-        # Commit from your-project that you want to build
-        - BUILD_COMMIT=v1.5.3
-        # pip dependencies to _build_ your project
-        - BUILD_DEPENDS="numpy==1.15.0"
-        # pip dependencies to _test_ your project.  Include any dependencies
-        # that you need, that are also specified in BUILD_DEPENDS, this will be
-        # a separate install.
-        - TEST_DEPENDS="numpy==1.15.0"
-        - PLAT=x86_64
-        - UNICODE_WIDTH=32
-        # - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
-        # Following generated with
-        # travis encrypt -r your-org/your-project-wheels WHEELHOUSE_UPLOADER_SECRET=<the api key>
-        # - secure:
-        #     "MNKyBWOzu7JAUmC0Y+JhPKfytXxY/ADRmUIMEWZV977FLZPgYctqd+lqel2QIFgdHDO1CIdTSymOOFZckM9ICUXg9Ta+8oBjSvAVWO1ahDcToRM2DLq66fKg+NKimd2OfK7x597h/QmUSl4k8XyvyyXgl5jOiLg/EJxNE2r83IA="
-
+  global:
+  - REPO_DIR=faiss
+  - BUILD_COMMIT=v1.5.3
+  - BUILD_DEPENDS="numpy==1.15.0"
+  - TEST_DEPENDS="numpy==1.15.0"
+  - PLAT=x86_64
+  - UNICODE_WIDTH=32
 language: python
-# The Travis Python version is unrelated to the version we build and test
-# with.  This is set with the MB_PYTHON_VERSION variable. For some builds,
-# For CPython macOS builds only, the minimum supported macOS version and
-# architectures of any C extensions in the wheel are set with the variable
-# MB_PYTHON_OSX_VER: 10.9 (64-bit only) or 10.6 (64/32-bit dual arch).
-# All PyPy macOS builds are 64-bit only.
 python: 3.5
 dist: trusty
 services: docker
-
 matrix:
   exclude:
-    # Exclude the default Python 3.5 build
-    - python: 3.5
+  - python: 3.5
   include:
-    - os: linux
-      env: MB_PYTHON_VERSION=2.7
-    - os: linux
-      env:
-        - MB_PYTHON_VERSION=2.7
-        - UNICODE_WIDTH=16
-    - os: linux
-      env:
-        - MB_PYTHON_VERSION=3.4
-    - os: linux
-      env:
-        - MB_PYTHON_VERSION=3.5
-    - os: linux
-      env:
-        - MB_PYTHON_VERSION=3.6
-    - os: osx
-      language: generic
-      env:
-        - MB_PYTHON_VERSION=2.7
-    - os: osx
-      language: generic
-      env:
-        - MB_PYTHON_VERSION=2.7
-        - MB_PYTHON_OSX_VER=10.9
-    - os: osx
-      language: generic
-      env:
-        - MB_PYTHON_VERSION=3.4
-    - os: osx
-      language: generic
-      env:
-        - MB_PYTHON_VERSION=3.5
-    - os: osx
-      language: generic
-      env:
-        - MB_PYTHON_VERSION=3.6
-    - os: osx
-      language: generic
-      env:
-        - MB_PYTHON_VERSION=3.7
-        - MB_PYTHON_OSX_VER=10.9
-    # - os: osx
-    #   language: generic
-    #   env:
-    #     - MB_PYTHON_VERSION=pypy-5.7
-
+  - os: linux
+    env: MB_PYTHON_VERSION=2.7
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - UNICODE_WIDTH=16
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.4
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.5
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.6
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=2.7
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - MB_PYTHON_OSX_VER=10.9
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.4
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.5
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.6
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.7
+    - MB_PYTHON_OSX_VER=10.9
 before_install:
-    - openssl aes-256-cbc -K $encrypted_cb2a0a565dd2_key -iv $encrypted_cb2a0a565dd2_iv -in secret.txt.enc -out secret.txt -d
-    - source multibuild/common_utils.sh
-    - source multibuild/travis_steps.sh
-    - before_install
-
+- source multibuild/common_utils.sh
+- source multibuild/travis_steps.sh
+- before_install
 install:
-    # Maybe get and clean and patch source
-    - clean_code $REPO_DIR $BUILD_COMMIT
-    # Distutils does not recognize .swig file extension
-    # The default setup.py is not useful
-    - cp setup.py $REPO_DIR
-    - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
-    - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
-    - build_wheel $REPO_DIR $PLAT
-
+- clean_code $REPO_DIR $BUILD_COMMIT
+- cp setup.py $REPO_DIR
+- mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
+- mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
+- build_wheel $REPO_DIR $PLAT
 script:
-    - install_run $PLAT
-
-after_success:
-    # Upload wheels to Google Cloud Storage
-    - pip install wheelhouse-uploader pycrypto
-    - python -m wheelhouse_uploader upload --local-folder
-        ${TRAVIS_BUILD_DIR}/wheelhouse/
-        --no-update-index
-        --provider GOOGLE_STORAGE
-        --user faiss-wheels@cyberagent-050.iam.gserviceaccount.com
-        --secret "$(cat secret.txt)"
-        ailab-wheels
+- install_run $PLAT
+deploy:
+  provider: gcs
+  access_key_id: GOOGHYKQEFMW6H6UA4PSWLPQ
+  secret_access_key:
+    secure: hGBWKz2jAo0tCTjtOBuuq/6b+DgajpLv4yvDuvaDAl1eB+bp1jBJOqtgLFOuNtS9Yv7M4RT0xHeRl9wUUu1GRLacBhpxuzw70sBlLNhb303TB0hMTb7Y+16NwXADru+/cWxzS3sHghzts5XJ4WdWGe48WvG3KmTqgDcTZVBUuQHAMT3zbixZvTbGQGRKbjrPPv5a/Eg78ARDvXOIORHQPZkO6ABLpmRk5Bckbyyh0DJyeKH+6naxhhnrnUzPhPQR0c9mKXSz6rV2r4gf0niUCLvlYcevqVE8cd1y0j5h3Rubh54o6tMtcj/bP7X3dtFEbuxj2CqOjOduGobL8J0K/pljuKBsaZHLn7jpw598ipPWAry6VGrXyLO/122zTvLFyhq42a74/5ONrKOLoXewsmmCaq2y/UL5D3zGMYIpthHJDMzL+cXkDL3YIBmzzh0Z05KGG+eARA8ad/BYvcSPK2bOjtL8b++Zl1Z0U24Vm4L1J5eRT/9sz5iGu2XK9MxVFL0sz9hrwgxla/2DyoOSWog5BsVPtjYn5jnPsEa07r+LTzSDVLWdUQ+URJFvUq2KCVXzozlxmWtvM/r/D3DOnYEwKN2X1urY5NSnpWsLaQlBwTlKY2AieyWzAkx//mYaNehr1UTHEgmUDfr9lSH3Ts+Sv7WlcNLJqikVvSizI88=
+  bucket: ailab-wheels
+  local-dir: ${TRAVIS_BUILD_DIR}/wheelhouse/
+  on:
+    repo: kyamagu/faiss-wheels
