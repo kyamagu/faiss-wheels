@@ -11,34 +11,6 @@ SOURCES = [
     'python/swigfaiss.i',
 ]
 
-HEADERS = [
-    'AutoTune.h',
-    'AuxIndexStructures.h',
-    'Clustering.h',
-    'FaissException.h',
-    'Heap.h',
-    'Index.h',
-    'IndexBinary.h',
-    'IndexBinaryFlat.h',
-    'IndexBinaryIVF.h',
-    'IndexFlat.h',
-    'IndexHNSW.h',
-    'IndexIVF.h',
-    'IndexIVFFlat.h',
-    'IndexIVFPQ.h',
-    'IndexLSH.h',
-    'IndexPQ.h',
-    'IndexScalarQuantizer.h',
-    'MetaIndexes.h',
-    'OnDiskInvertedLists.h',
-    'PolysemousTraining.h',
-    'ProductQuantizer.h',
-    'VectorTransform.h',
-    'hamming.h',
-    'index_io.h',
-    'utils.h',
-]
-
 
 class CustomBuild(build):
     """Build ext first so that swig-generated file is packaged.
@@ -93,7 +65,6 @@ class CustomBuildExt(build_ext):
 _swigfaiss = Extension(
     'faiss._swigfaiss',
     sources=SOURCES,
-    depends=HEADERS,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
     include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
