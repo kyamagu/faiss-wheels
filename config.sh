@@ -28,9 +28,11 @@ function pre_build {
 
 function pip_wheel_cmd {
     local abs_wheelhouse=$1
+    export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a"
     if [ -n "$IS_OSX" ]; then
-        export FAISS_LDFLAGS="libfaiss.a -framework Accelerate"
+        export FAISS_LDFLAGS="$FAISS_LDFLAGS -framework Accelerate"
     else
+        export FAISS_LDFLAGS="$FAISS_LDFLAGS /usr/local/lib/libopenblas.a -lgfortran"
         if [ "$PYTHON_VERSION" = "3.6" ]; then
             python setup.py sdist --dist-dir $abs_wheelhouse
         fi
