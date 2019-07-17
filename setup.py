@@ -45,8 +45,6 @@ class CustomBuildExt(build_ext):
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
         self._remove_flag('-Wstrict-prototypes')
-        # GCC with -fwrapv will result in segfault.
-        self._remove_flag('-fwrapv')
         # Clang-specific flag.
         compiler_name = self.compiler.compiler[0]
         if 'gcc' in compiler_name or 'g++' in compiler_name:
