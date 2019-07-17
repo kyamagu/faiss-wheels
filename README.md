@@ -2,7 +2,7 @@
 
 [![Travis-CI](https://img.shields.io/travis/kyamagu/faiss-wheels.svg)](https://travis-ci.org/kyamagu/faiss-wheels)
 
-Unofficial faiss builder based on multibuild.
+Unofficial CPU-only faiss wheels based on multibuild.
 
 - [faiss](https://github.com/facebookresearch/faiss)
 - [multibuild](https://github.com/matthew-brett/multibuild)
