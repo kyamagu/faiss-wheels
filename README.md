@@ -9,14 +9,30 @@ Unofficial CPU-only faiss wheels based on multibuild.
 
 ## Overview
 
-This repository provides pre-built wheel packages for
+This repository provides scripts to create wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
-
-The packages are uploaded to https://storage.cloud.google.com/ailab-wheels/
 
 - CPU-only builds
 - Bundles OpenBLAS in Linux using static linking and `auditwheel`
 - Uses Accelerate framework on macOS
+
+There is also source package to customize the build process.
+
+
+### Prerequisite
+
+On macOS, install `libomp` via Homebrew to use the wheel.
+
+```bash
+brew install libomp
+```
+
+### Install
+
+```bash
+pip install faiss-cpu
+```
+
 
 ## Building source package
 
