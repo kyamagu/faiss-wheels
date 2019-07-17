@@ -71,8 +71,10 @@ _swigfaiss = Extension(
         '-Wno-sign-compare', '-fopenmp'
     ],
     extra_link_args=['-fopenmp'],
-    swig_opts=['-c++', '-Doverride='] +
-    ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']),
+    swig_opts=[
+        '-c++', '-Doverride=',
+        '-I' + os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')
+    ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']),
 )
 
 LONG_DESCRIPTION = """
