@@ -96,7 +96,7 @@ setup(
     url='https://github.com/kyamagu/faiss-wheels',
     author='Kota Yamaguchi',
     author_email='KotaYamaguchi1984@gmail.com',
-    license='BSD',
+    license='MIT',
     keywords='search nearest neighbors',
     cmdclass={
         'build': CustomBuild,
