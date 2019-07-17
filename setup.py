@@ -1,5 +1,3 @@
-"""faiss build for python.
-"""
 from setuptools import setup
 from setuptools.extension import Extension
 from distutils.command.build import build
@@ -24,7 +22,7 @@ class CustomBuild(build):
 
 
 class CustomBuildExt(build_ext):
-    """Customize extension build by injecting nvcc.
+    """Customize extension build.
     """
 
     def run(self):
@@ -45,7 +43,7 @@ class CustomBuildExt(build_ext):
         # Suppress -Wstrict-prototypes bug in python.
         # https://stackoverflow.com/questions/8106258/
         self._remove_flag('-Wstrict-prototypes')
-        # Clang-specific flag.
+        # Remove clang-specific flag.
         compiler_name = self.compiler.compiler[0]
         if 'gcc' in compiler_name or 'g++' in compiler_name:
             self._remove_flag('-Wshorten-64-to-32')
