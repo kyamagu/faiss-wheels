@@ -33,6 +33,7 @@ function install_devtoolset3 {
         && yum install -y \
             devtoolset-3-gcc \
             devtoolset-3-gcc-c++ \
+            devtoolset-3-gcc-gfortran \
         && source scl_source enable devtoolset-3 \
         && rm -rf /var/cache/yum/*
 }
