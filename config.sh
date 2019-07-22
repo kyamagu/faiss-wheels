@@ -28,8 +28,8 @@ function install_cuda_libs {
 }
 
 function install_devtoolset3 {
-    yum -y install yum-utils \
-        && yum-config-manager --enable centos-sclo-rh-testing \
+    curl -O https://copr.fedorainfracloud.org/coprs/rhscl/devtoolset-3/repo/epel-6/rhscl-devtoolset-3-epel-6.repo \
+        && mv rhscl-devtoolset-3-epel-6.repo /etc/yum.repos.d/ \
         && yum install -y \
             devtoolset-3-gcc \
             devtoolset-3-gcc-c++ \
