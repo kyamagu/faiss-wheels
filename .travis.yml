@@ -37,27 +37,39 @@ matrix:
   - os: linux
     env:
     - MB_PYTHON_VERSION=2.7
+    - CUDA_VERSION=7.5
+    - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=2.7
     - UNICODE_WIDTH=16
+    - CUDA_VERSION=7.5
+    - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.4
+    - CUDA_VERSION=7.5
+    - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.5
+    - CUDA_VERSION=7.5
+    - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.6
+    - CUDA_VERSION=7.5
+    - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.7
+    - CUDA_VERSION=7.5
+    - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   # mac wheels
   - os: osx
@@ -95,6 +107,10 @@ install:
 - cp setup.py $REPO_DIR
 - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
 - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
+- if [ -n "$CUDA_VERSION" ]; then
+    echo export CUDA_VERSION=$CUDA_VERSION > env_vars.sh
+    echo export CUDA_PKG_VERSION=$CUDA_PKG_VERSION >> env_vars.sh
+  fi
 - build_wheel $REPO_DIR $PLAT
 script:
 - install_run $PLAT

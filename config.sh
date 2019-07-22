@@ -10,9 +10,12 @@ function install_devtoolset3 {
         && rm -rf /var/cache/yum/*
 }
 
+# Check available package versions at
+# https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/
 function install_cuda_libs {
     local cuda_version=${CUDA_VERSION:-7.5}
     local cuda_pkg_version=${CUDA_PKG_VERSION:-7-5-7.5-18}
+    local cublas_pkg_version=${CUBLAS_PKG_VERSION:-$cuda_pkg_version}
     NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
     curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
     echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
@@ -26,7 +29,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
 EOF
     yum -y install \
         cuda-command-line-tools-$cuda_pkg_version \
-        cuda-cublas-dev-$cuda_pkg_version \
+        cuda-cublas-dev-$cublas_pkg_version \
         cuda-cudart-dev-$cuda_pkg_version \
         && rm -rf /var/cache/yum/* \
     ln -s cuda-$cuda_version /usr/local/cuda \
