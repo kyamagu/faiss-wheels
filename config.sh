@@ -28,8 +28,8 @@ function install_cuda_libs {
 }
 
 function install_devtoolset3 {
-    cd /etc/yum.repos.d/ \
-        && curl -O https://copr.fedorainfracloud.org/coprs/rhscl/devtoolset-3/repo/epel-6/rhscl-devtoolset-3-epel-6.repo \
+    curl -O https://copr.fedorainfracloud.org/coprs/rhscl/devtoolset-3/repo/epel-6/rhscl-devtoolset-3-epel-6.repo \
+        && mv rhscl-devtoolset-3-epel-6.repo /etc/yum.repos.d/ \
         && yum remove -y devtoolset-8* > /dev/null \
         && yum install -y \
             devtoolset-3-gcc \
