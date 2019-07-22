@@ -28,15 +28,13 @@ function install_cuda_libs {
 }
 
 function install_devtoolset3 {
-    curl -O https://copr.fedorainfracloud.org/coprs/rhscl/devtoolset-3/repo/epel-6/rhscl-devtoolset-3-epel-6.repo \
-        && mv rhscl-devtoolset-3-epel-6.repo /etc/yum.repos.d/ \
-        && yum remove -y devtoolset-8* > /dev/null \
+    yum -y install yum-utils \
+        && yum-config-manager --enable centos-sclo-rh-testing \
         && yum install -y \
             devtoolset-3-gcc \
             devtoolset-3-gcc-c++ \
+        && source scl_source enable devtoolset-3 \
         && rm -rf /var/cache/yum/*
-    export PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
-    export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:/opt/rh/devtoolset-3/root/usr/lib64/dyninst:/opt/rh/devtoolset-3/root/usr/lib/dyninst:/usr/local/lib64:/usr/local/lib
 }
 
 function build_faiss {
@@ -64,7 +62,7 @@ function pre_build {
             export CFLAGS="-stdlib=libc++"
         fi
     else
-        build_openblas > /dev/null
+        build_openblas  # > /dev/null
         install_devtoolset3
         install_cuda_repo
         install_cuda_libs
