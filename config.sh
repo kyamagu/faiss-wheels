@@ -44,8 +44,7 @@ function build_faiss {
     else
         ./configure \
             --with-cuda="/usr/local/cuda" \
-            --with-cuda-arch="-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52" \
-            --with-blas="-l:libopenblas.a"
+            --with-cuda-arch="-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52"
     fi
     cat makefile.inc
     make -j4 && make install
@@ -63,7 +62,7 @@ function pre_build {
             export CFLAGS="-stdlib=libc++"
         fi
     else
-        yum install -y openblas-static
+        yum install -y openblas-devel openblas-static
         install_devtoolset3
         install_cuda_repo
         install_cuda_libs
