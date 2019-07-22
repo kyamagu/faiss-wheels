@@ -69,6 +69,9 @@ _swigfaiss = Extension(
     sources=SOURCES,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
+    library_dirs=[
+        os.getenv('CUDA_HOME', '/usr/local/cuda') + '/lib64',
+    ],
     include_dirs=[
         os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
         os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include',
