@@ -9,6 +9,8 @@ SOURCES = [
     'python/swigfaiss.i',
 ]
 
+GPU_WRAPPER = ('GPU_WRAPPER' in os.environ)
+
 
 class CustomBuild(build):
     """Build ext first so that swig-generated file is packaged.
@@ -37,6 +39,10 @@ class CustomBuildExt(build_ext):
                 self.link_objects.append(flag.strip())
         else:
             self.libraries.append('faiss')
+            if GPU_WRAPPER:
+                self.libraries.extend([
+                    'cudart_static', 'cublas_static', 'culibos'
+                ])
         build_ext.run(self)
 
     def build_extensions(self):
@@ -63,7 +69,10 @@ _swigfaiss = Extension(
     sources=SOURCES,
     define_macros=[('FINTEGER', 'int')],
     language='c++',
-    include_dirs=[os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')],
+    include_dirs=[
+        os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
+        os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include',
+    ],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
         '-Wno-sign-compare', '-fopenmp'
@@ -71,8 +80,10 @@ _swigfaiss = Extension(
     extra_link_args=['-fopenmp'],
     swig_opts=[
         '-c++', '-Doverride=',
-        '-I' + os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')
-    ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']),
+        '-I' + os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
+        '-I' + os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include'
+    ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']) +
+    (['-DGPU_WRAPPER'] if GPU_WRAPPER else []),
 )
 
 LONG_DESCRIPTION = """
@@ -84,8 +95,8 @@ for Python/numpy. It is developed by Facebook AI Research.
 """
 
 setup(
-    name='faiss-cpu',
-    version='1.5.3',
+    name='faiss-gpu',
+    version='1.5.2',
     description=(
         'A library for efficient similarity search and clustering of dense '
         'vectors.'

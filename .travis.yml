@@ -1,11 +1,12 @@
 env:
   global:
   - REPO_DIR=faiss
-  - BUILD_COMMIT=v1.5.3
+  - BUILD_COMMIT=v1.5.2
   - BUILD_DEPENDS="numpy==1.15.0"
   - TEST_DEPENDS="numpy==1.15.0"
   - PLAT=x86_64
   - UNICODE_WIDTH=32
+  - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
 language: python
 python: 3.5
 dist: trusty
@@ -29,32 +30,32 @@ matrix:
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.6
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - MB_PYTHON_OSX_VER=10.9
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.4
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.5
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.6
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.7
-    - MB_PYTHON_OSX_VER=10.9
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  #   - MB_PYTHON_OSX_VER=10.9
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.4
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.5
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.6
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.7
+  #   - MB_PYTHON_OSX_VER=10.9
 before_install:
 - source multibuild/common_utils.sh
 - source multibuild/travis_steps.sh
