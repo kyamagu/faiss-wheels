@@ -98,7 +98,7 @@ for Python/numpy. It is developed by Facebook AI Research.
 """
 
 setup(
-    name='faiss-gpu',
+    name='faiss-gpu' if GPU_WRAPPER else 'faiss-cpu',
     version='1.5.2',
     description=(
         'A library for efficient similarity search and clustering of dense '
