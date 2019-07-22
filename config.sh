@@ -35,6 +35,8 @@ function install_devtoolset3 {
             devtoolset-3-gcc \
             devtoolset-3-gcc-c++ \
         && rm -rf /var/cache/yum/*
+    export ENV PATH /opt/rh/devtoolset-3/root/usr/bin:$PATH
+    export ENV LD_LIBRARY_PATH /opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:/opt/rh/devtoolset-3/root/usr/lib64/dyninst:/opt/rh/devtoolset-3/root/usr/lib/dyninst:/usr/local/lib64:/usr/local/lib
 }
 
 function build_faiss {
