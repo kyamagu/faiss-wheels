@@ -97,21 +97,23 @@ function pip_wheel_cmd {
 
 # Add AUDITWHEEL_PLAT for manylinux2010 support
 # https://github.com/matthew-brett/multibuild/issues/238
-function repair_wheelhouse {
-    local in_dir=$1
-    local out_dir=${2:-$in_dir}
-    local plat=${AUDITWHEEL_PLAT:-manylinux1_x86_64}
-    for whl in $in_dir/*.whl; do
-        if [[ $whl == *none-any.whl ]]; then  # Pure Python wheel
-            if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
-        else
-            auditwheel repair $whl -w $out_dir/ --plat $plat
-            # Remove unfixed if writing into same directory
-            if [ "$in_dir" == "$out_dir" ]; then rm $whl; fi
-        fi
-    done
-    chmod -R a+rwX $out_dir
-}
+if [ ! -n "$IS_OSX" ]; then
+    function repair_wheelhouse {
+        local in_dir=$1
+        local out_dir=${2:-$in_dir}
+        local plat=${AUDITWHEEL_PLAT:-manylinux1_x86_64}
+        for whl in $in_dir/*.whl; do
+            if [[ $whl == *none-any.whl ]]; then  # Pure Python wheel
+                if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
+            else
+                auditwheel repair $whl -w $out_dir/ --plat $plat
+                # Remove unfixed if writing into same directory
+                if [ "$in_dir" == "$out_dir" ]; then rm $whl; fi
+            fi
+        done
+        chmod -R a+rwX $out_dir
+    }
+fi
 
 function run_tests {
     python --version
