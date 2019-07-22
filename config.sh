@@ -75,7 +75,7 @@ function pre_build {
             echo "Installing cuda libraries"
             install_cuda_libs > /dev/null
             export FAISS_LDFLAGS="$FAISS_LDFLAGS -lcublas_static -lcudart_static -lculibos"
-            export GPU_WRAPPER=true
+            export FAISS_GPU_WRAPPER=true
         else
             build_openblas > /dev/null
         fi

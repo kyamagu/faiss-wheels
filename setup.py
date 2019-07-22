@@ -9,7 +9,7 @@ SOURCES = [
     'python/swigfaiss.i',
 ]
 
-GPU_WRAPPER = ('GPU_WRAPPER' in os.environ)
+GPU_WRAPPER = ('FAISS_GPU_WRAPPER' in os.environ)
 
 
 class CustomBuild(build):
