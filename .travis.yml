@@ -51,48 +51,48 @@ matrix:
   #   - MB_PYTHON_VERSION=3.7
   #   - CUDA_VERSION=7.5
   #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # cuda 8.0 wheels
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - CUDA_VERSION=8.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.5
-    - CUDA_VERSION=8.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.6
-    - CUDA_VERSION=8.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.7
-    - CUDA_VERSION=8.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # cuda 9.0 wheels
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - CUDA_VERSION=9.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.5
-    - CUDA_VERSION=9.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.6
-    - CUDA_VERSION=9.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.7
-    - CUDA_VERSION=9.0
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # # cuda 8.0 wheels
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  #   - CUDA_VERSION=8.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.5
+  #   - CUDA_VERSION=8.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.6
+  #   - CUDA_VERSION=8.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.7
+  #   - CUDA_VERSION=8.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # # cuda 9.0 wheels
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  #   - CUDA_VERSION=9.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.5
+  #   - CUDA_VERSION=9.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.6
+  #   - CUDA_VERSION=9.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.7
+  #   - CUDA_VERSION=9.0
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   # cuda 10.0 wheels
   - os: linux
     env:
