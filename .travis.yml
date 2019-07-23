@@ -108,8 +108,8 @@ install:
 - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
 - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
 - if [ -n "$CUDA_VERSION" ]; then
-    echo export CUDA_VERSION=$CUDA_VERSION > env_vars.sh
-    echo export CUDA_PKG_VERSION=$CUDA_PKG_VERSION >> env_vars.sh
+    echo export CUDA_VERSION=$CUDA_VERSION > env_vars.sh;
+    echo export CUDA_PKG_VERSION=$CUDA_PKG_VERSION >> env_vars.sh;
   fi
 - build_wheel $REPO_DIR $PLAT
 script:
