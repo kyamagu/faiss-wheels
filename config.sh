@@ -28,14 +28,14 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
 EOF
     yum -y install \
-        cuda-command-line-tools-$cuda_pkg_version \
-        cuda-cublas-dev-$cublas_pkg_version \
-        cuda-cudart-dev-$cuda_pkg_version \
-        && rm -rf /var/cache/yum/* \
-    ln -s cuda-$cuda_version /usr/local/cuda \
-    echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf \
-    echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
-    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
+        cuda-command-line-tools-${cuda_pkg_version} \
+        cuda-cublas-dev-${cublas_pkg_version} \
+        cuda-cudart-dev-${cuda_pkg_version}
+    rm -rf /var/cache/yum/*
+    ln -s cuda-$cuda_version /usr/local/cuda
+    echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
+    echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
     ldconfig
 }
 
