@@ -109,7 +109,7 @@ matrix:
   #   - MB_PYTHON_VERSION=3.6
   #   - CUDA_VERSION=10.0
   #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
+  - os: linux
     env:
     - MB_PYTHON_VERSION=3.7
     - CUDA_VERSION=10.0
