@@ -141,11 +141,10 @@ matrix:
 before_install:
 - source multibuild/common_utils.sh
 - source multibuild/travis_steps.sh
-- pip install j2cli
 - before_install
 install:
 - clean_code $REPO_DIR $BUILD_COMMIT
-- j2 setup.py --undefined > $REPO_DIR/setup.py
+- pip install j2cli && j2 setup.py --undefined > $REPO_DIR/setup.py
 - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
 - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
 - if [ -n "$CUDA_VERSION" ]; then
