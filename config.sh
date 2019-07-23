@@ -55,10 +55,10 @@ function build_faiss {
     aclocal && autoconf
     if [ -n "$IS_OSX" ]; then
         ./configure --without-cuda --with-blas="-framework Accelerate"
-    elif [ "$AUDITWHEEL_PLAT" = "manylinux2010_x86_64" ]; then
+    elif [ -n "$CUDA_VERSION" ]; then
         ./configure \
             --with-cuda="/usr/local/cuda" \
-            --with-cuda-arch="-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52"
+            --with-cuda-arch="${CUDA_ARCH_FLAGS:--gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52}"
     else
         ./configure --without-cuda
     fi
