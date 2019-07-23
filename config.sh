@@ -1,4 +1,4 @@
-# CUDA only supports old compilers.
+# Install GCC 4.9 for CUDA 7.5.
 function install_devtoolset3 {
     curl -O https://copr.fedorainfracloud.org/coprs/rhscl/devtoolset-3/repo/epel-6/rhscl-devtoolset-3-epel-6.repo \
         && mv rhscl-devtoolset-3-epel-6.repo /etc/yum.repos.d/ \
@@ -10,9 +10,21 @@ function install_devtoolset3 {
         && rm -rf /var/cache/yum/*
 }
 
+# Install GCC 5.3.1 for CUDA 8.0+.
+function install_devtoolset4 {
+    yum install -y yum-utils \
+        && yum-config-manager --enable centos-sclo-rh-testing \
+        && yum install -y \
+            devtoolset-4-gcc \
+            devtoolset-4-gcc-c++ \
+            devtoolset-4-gcc-gfortran \
+        && source scl_source enable devtoolset-4 \
+        && rm -rf /var/cache/yum/*
+}
+
 # Check available package versions at
 # https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/
-function install_cuda_libs {
+function install_cudart_cublas {
     local cuda_version=${CUDA_VERSION:-7.5}
     local cuda_pkg_version=${CUDA_PKG_VERSION:-7-5-7.5-18}
     local cublas_pkg_version=${CUBLAS_PKG_VERSION:-$cuda_pkg_version}
@@ -67,20 +79,29 @@ function pre_build {
         fi
         export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a -framework Accelerate"
     else
-        export FAISS_LDFLAGS="-l:libfaiss.a -l:libopenblas.a -lgfortran"
-        # Build with CUDA in manylinux2010 environment
+        echo "Installing openblas"
         if [ "$AUDITWHEEL_PLAT" = "manylinux2010_x86_64" ]; then
             # build_openblas does not work in manylinux2010
-            echo "Installing openblas"
             yum install -y openblas-devel openblas-static > /dev/null
-            echo "Installing devtoolset-3"
-            install_devtoolset3 > /dev/null
-            echo "Installing cuda libraries"
-            install_cuda_libs > /dev/null
-            export FAISS_LDFLAGS="$FAISS_LDFLAGS -lcublas_static -lcudart_static -lculibos"
-            export FAISS_GPU_WRAPPER=true
         else
             build_openblas > /dev/null
+        fi
+
+        export FAISS_LDFLAGS="-l:libfaiss.a -l:libopenblas.a -lgfortran"
+
+        # If CUDA_VERSION is specified, install gcc and cuda toolkit.
+        if [ -n "$CUDA_VERSION" ]; then
+            echo "Installing devtoolset"
+            if [ "$CUDA_VERSION" = "7.5" ]; then
+                install_devtoolset3 > /dev/null
+            else
+                install_devtoolset4 > /dev/null
+            fi
+            echo "Installing cuda libraries"
+            install_cudart_cublas > /dev/null
+            export FAISS_LDFLAGS="$FAISS_LDFLAGS -lcublas_static -lcudart_static -lculibos"
+            export FAISS_BUILD_CUDA=true
+        else
         fi
     fi
     (cd $REPO_DIR && build_faiss)

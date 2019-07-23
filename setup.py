@@ -5,11 +5,18 @@ from distutils.command.build_ext import build_ext
 from distutils.util import get_platform
 import os
 
-SOURCES = [
-    'python/swigfaiss.i',
-]
 
-GPU_WRAPPER = ('FAISS_GPU_WRAPPER' in os.environ)
+BUILD_CUDA = ('FAISS_BUILD_CUDA' in os.environ)
+PACKAGE_NAME = 'faiss-cu%s' % os.getenv('CUDA_VERSION', '7.5').replace(
+    '.', ''
+) if BUILD_CUDA else 'faiss-cpu'
+LONG_DESCRIPTION = """
+Faiss is a library for efficient similarity search and clustering of dense
+vectors. It contains algorithms that search in sets of vectors of any size, up
+to ones that possibly do not fit in RAM. It also contains supporting code for
+evaluation and parameter tuning. Faiss is written in C++ with complete wrappers
+for Python/numpy. It is developed by Facebook AI Research.
+"""
 
 
 class CustomBuild(build):
@@ -39,7 +46,7 @@ class CustomBuildExt(build_ext):
                 self.link_objects.append(flag.strip())
         else:
             self.libraries.append('faiss')
-            if GPU_WRAPPER:
+            if BUILD_CUDA:
                 self.libraries.extend([
                     'cudart_static', 'cublas_static', 'culibos'
                 ])
@@ -66,7 +73,7 @@ class CustomBuildExt(build_ext):
 
 _swigfaiss = Extension(
     'faiss._swigfaiss',
-    sources=SOURCES,
+    sources=['python/swigfaiss.i'],
     define_macros=[('FINTEGER', 'int')],
     language='c++',
     library_dirs=[
@@ -86,19 +93,11 @@ _swigfaiss = Extension(
         '-I' + os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
         '-I' + os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include'
     ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']) +
-    (['-DGPU_WRAPPER'] if GPU_WRAPPER else []),
+    (['-DGPU_WRAPPER'] if BUILD_CUDA else []),
 )
 
-LONG_DESCRIPTION = """
-Faiss is a library for efficient similarity search and clustering of dense
-vectors. It contains algorithms that search in sets of vectors of any size, up
-to ones that possibly do not fit in RAM. It also contains supporting code for
-evaluation and parameter tuning. Faiss is written in C++ with complete wrappers
-for Python/numpy. It is developed by Facebook AI Research.
-"""
-
 setup(
-    name='faiss-gpu' if GPU_WRAPPER else 'faiss-cpu',
+    name=PACKAGE_NAME,
     version='1.5.2',
     description=(
         'A library for efficient similarity search and clustering of dense '

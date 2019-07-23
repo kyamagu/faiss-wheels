@@ -15,76 +15,128 @@ matrix:
   - python: 3.5
   include:
   # manylinux1 wheels
-  - os: linux
-    env: MB_PYTHON_VERSION=2.7
+  # - os: linux
+  #   env: MB_PYTHON_VERSION=2.7
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  #   - UNICODE_WIDTH=16
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.5
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.6
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.7
+  # cuda 7.5 wheels
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  #   - CUDA_VERSION=7.5
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.5
+  #   - CUDA_VERSION=7.5
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.6
+  #   - CUDA_VERSION=7.5
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # - os: linux
+  #   env:
+  #   - MB_PYTHON_VERSION=3.7
+  #   - CUDA_VERSION=7.5
+  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # cuda 8.0 wheels
   - os: linux
     env:
     - MB_PYTHON_VERSION=2.7
-    - UNICODE_WIDTH=16
+    - CUDA_VERSION=8.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.5
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.6
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.7
-  # manylinux2010 wheels
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - CUDA_VERSION=7.5
-    - CUDA_PKG_VERSION=7-5-7.5-18
+    - CUDA_VERSION=8.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
+    - MB_PYTHON_VERSION=3.6
+    - CUDA_VERSION=8.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.7
+    - CUDA_VERSION=8.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # cuda 9.0 wheels
+  - os: linux
+    env:
     - MB_PYTHON_VERSION=2.7
-    - UNICODE_WIDTH=16
-    - CUDA_VERSION=7.5
-    - CUDA_PKG_VERSION=7-5-7.5-18
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.5
-    - CUDA_VERSION=7.5
-    - CUDA_PKG_VERSION=7-5-7.5-18
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.6
-    - CUDA_VERSION=7.5
-    - CUDA_PKG_VERSION=7-5-7.5-18
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.7
-    - CUDA_VERSION=7.5
-    - CUDA_PKG_VERSION=7-5-7.5-18
+    - CUDA_VERSION=9.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  # cuda 10.0 wheels
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - CUDA_VERSION=10.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.5
+    - CUDA_VERSION=10.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.6
+    - CUDA_VERSION=10.0
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.7
+    - CUDA_VERSION=10.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   # mac wheels
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - MB_PYTHON_OSX_VER=10.9
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.5
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.6
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.7
-    - MB_PYTHON_OSX_VER=10.9
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=2.7
+  #   - MB_PYTHON_OSX_VER=10.9
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.5
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.6
+  # - os: osx
+  #   language: generic
+  #   env:
+  #   - MB_PYTHON_VERSION=3.7
+  #   - MB_PYTHON_OSX_VER=10.9
 before_install:
 - source multibuild/common_utils.sh
 - source multibuild/travis_steps.sh
@@ -94,10 +146,7 @@ install:
 - cp setup.py $REPO_DIR
 - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
 - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
-- if [ -n "$CUDA_VERSION" ]; then
-    echo export CUDA_VERSION=$CUDA_VERSION >> env_vars.sh;
-    echo export CUDA_PKG_VERSION=$CUDA_PKG_VERSION >> env_vars.sh;
-  fi
+- source config_env_vars.sh
 - build_wheel $REPO_DIR $PLAT
 script:
 - install_run $PLAT
