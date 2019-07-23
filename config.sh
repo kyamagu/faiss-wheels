@@ -22,6 +22,16 @@ function install_devtoolset4 {
         && rm -rf /var/cache/yum/*
 }
 
+# Install GCC 6.2 for CUDA 9.0+.
+function install_devtoolset6 {
+    yum install -y \
+        devtoolset-6-gcc \
+        devtoolset-6-gcc-c++ \
+        devtoolset-6-gcc-gfortran \
+        && source scl_source enable devtoolset-6 \
+        && rm -rf /var/cache/yum/*
+}
+
 # Check available package versions at
 # https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/
 function install_cudart_cublas {
@@ -93,13 +103,9 @@ function pre_build {
         # If CUDA_VERSION is specified, install gcc and cuda toolkit.
         if [ -n "$CUDA_VERSION" ]; then
             echo "Installing devtoolset"
-            if [ "$CUDA_VERSION" = "7.5" ]; then
-                install_devtoolset3 > /dev/null
-            else
-                install_devtoolset4 > /dev/null
-            fi
+            install_devtoolset${DEVTOOLSET_VERSION} > /dev/null
             echo "Installing cuda libraries"
-            install_cudart_cublas # > /dev/null
+            install_cudart_cublas > /dev/null
             export FAISS_LDFLAGS="$FAISS_LDFLAGS -lcublas_static -lcudart_static -lculibos"
             export FAISS_BUILD_CUDA=true
         fi
