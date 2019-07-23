@@ -23,9 +23,6 @@ matrix:
     - UNICODE_WIDTH=16
   - os: linux
     env:
-    - MB_PYTHON_VERSION=3.4
-  - os: linux
-    env:
     - MB_PYTHON_VERSION=3.5
   - os: linux
     env:
@@ -44,12 +41,6 @@ matrix:
     env:
     - MB_PYTHON_VERSION=2.7
     - UNICODE_WIDTH=16
-    - CUDA_VERSION=7.5
-    - CUDA_PKG_VERSION=7-5-7.5-18
-    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  - os: linux
-    env:
-    - MB_PYTHON_VERSION=3.4
     - CUDA_VERSION=7.5
     - CUDA_PKG_VERSION=7-5-7.5-18
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
@@ -81,10 +72,6 @@ matrix:
     env:
     - MB_PYTHON_VERSION=2.7
     - MB_PYTHON_OSX_VER=10.9
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.4
   - os: osx
     language: generic
     env:
