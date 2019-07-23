@@ -146,7 +146,9 @@ install:
 - cp setup.py $REPO_DIR
 - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
 - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
-- source config_env_vars.sh
+- if [ -n "$CUDA_VERSION" ]; then
+    cat conf/cuda${CUDA_VERSION}.sh >> env_vars.sh;
+  fi
 - build_wheel $REPO_DIR $PLAT
 script:
 - install_run $PLAT

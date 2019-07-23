@@ -1,4 +1,4 @@
-export USE_CCACHE=1
+# Pascal
 export CUDA_VERSION=8.0
 export CUDA_PKG_VERSION=8-0-8.0.61-1
 export CUBLAS_PKG_VERSION=8-0-8.0.61.2-1
