@@ -6,10 +6,6 @@ from distutils.util import get_platform
 import os
 
 
-BUILD_CUDA = ('FAISS_BUILD_CUDA' in os.environ)
-PACKAGE_NAME = 'faiss-cu%s' % os.getenv('CUDA_VERSION', '7.5').replace(
-    '.', ''
-) if BUILD_CUDA else 'faiss-cpu'
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
 vectors. It contains algorithms that search in sets of vectors of any size, up
@@ -46,10 +42,9 @@ class CustomBuildExt(build_ext):
                 self.link_objects.append(flag.strip())
         else:
             self.libraries.append('faiss')
-            if BUILD_CUDA:
-                self.libraries.extend([
-                    'cudart_static', 'cublas_static', 'culibos'
-                ])
+            {%- if BUILD_CUDA %}
+            self.libraries.extend(['cudart_static', 'cublas_static', 'culibos'])
+            {%- endif %}
         build_ext.run(self)
 
     def build_extensions(self):
@@ -77,11 +72,15 @@ _swigfaiss = Extension(
     define_macros=[('FINTEGER', 'int')],
     language='c++',
     library_dirs=[
+        {%- if BUILD_CUDA %}
         os.getenv('CUDA_HOME', '/usr/local/cuda') + '/lib64',
+        {%- endif %}
     ],
     include_dirs=[
         os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
+        {%- if BUILD_CUDA %}
         os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include',
+        {%- endif %}
     ],
     extra_compile_args=[
         '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
@@ -91,14 +90,16 @@ _swigfaiss = Extension(
     swig_opts=[
         '-c++', '-Doverride=',
         '-I' + os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
-        '-I' + os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include'
-    ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64']) +
-    (['-DGPU_WRAPPER'] if BUILD_CUDA else []),
+        {%- if BUILD_CUDA %}
+        '-I' + os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include',
+        '-DGPU_WRAPPER',
+        {%- endif %}
+    ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64'])
 )
 
 setup(
-    name=PACKAGE_NAME,
-    version='1.5.2',
+    name={% if BUILD_CUDA  %}'faiss-gpu'{% else %}'faiss-cpu'{% endif %},
+    version='1.5.3',
     description=(
         'A library for efficient similarity search and clustering of dense '
         'vectors.'
