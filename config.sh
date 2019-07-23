@@ -99,7 +99,7 @@ function pre_build {
                 install_devtoolset4 > /dev/null
             fi
             echo "Installing cuda libraries"
-            install_cudart_cublas > /dev/null
+            install_cudart_cublas # > /dev/null
             export FAISS_LDFLAGS="$FAISS_LDFLAGS -lcublas_static -lcudart_static -lculibos"
             export FAISS_BUILD_CUDA=true
         fi
