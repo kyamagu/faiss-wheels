@@ -101,7 +101,6 @@ function pre_build {
             install_cudart_cublas > /dev/null
             export FAISS_LDFLAGS="$FAISS_LDFLAGS -lcublas_static -lcudart_static -lculibos"
             export FAISS_BUILD_CUDA=true
-        else
         fi
     fi
     (cd $REPO_DIR && build_faiss)
