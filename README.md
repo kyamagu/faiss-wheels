@@ -67,7 +67,7 @@ See the official
 [faiss installation instruction](https://github.com/facebookresearch/faiss/blob/master/INSTALL.md)
 for more on how to build and install faiss.
 
-For building sdist, `swig` needs to be available.
+For building sdist, swig 3.0.12 or later needs to be available.
 
 ### Linux
 
