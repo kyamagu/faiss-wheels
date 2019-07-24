@@ -144,12 +144,13 @@ before_install:
 - before_install
 install:
 - clean_code $REPO_DIR $BUILD_COMMIT
-- pip install j2cli && j2 setup.py --undefined > $REPO_DIR/setup.py
 - mv $REPO_DIR/python/swigfaiss.swig $REPO_DIR/python/swigfaiss.i
 - mv $REPO_DIR/python/faiss.py $REPO_DIR/python/__init__.py
 - if [ -n "$CUDA_VERSION" ]; then
     cat conf/cuda${CUDA_VERSION}.sh >> env_vars.sh;
+    export BUILD_CUDA=True;
   fi
+- pip install j2cli && j2 setup.py --undefined > $REPO_DIR/setup.py
 - build_wheel $REPO_DIR $PLAT
 script:
 - install_run $PLAT

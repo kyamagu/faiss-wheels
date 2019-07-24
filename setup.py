@@ -42,9 +42,6 @@ class CustomBuildExt(build_ext):
                 self.link_objects.append(flag.strip())
         else:
             self.libraries.append('faiss')
-            {%- if BUILD_CUDA %}
-            self.libraries.extend(['cudart_static', 'cublas_static', 'culibos'])
-            {%- endif %}
         build_ext.run(self)
 
     def build_extensions(self):
