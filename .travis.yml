@@ -31,6 +31,28 @@ matrix:
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.7
+  # manylinux2010 wheels
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+    - UNICODE_WIDTH=16
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.5
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.6
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  - os: linux
+    env:
+    - MB_PYTHON_VERSION=3.7
+    - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   # # cuda 7.5 wheels
   # - os: linux
   #   env:
