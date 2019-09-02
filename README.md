@@ -1,6 +1,8 @@
 # faiss-wheels
 
 [![Travis-CI](https://img.shields.io/travis/kyamagu/faiss-wheels.svg)](https://travis-ci.org/kyamagu/faiss-wheels)
+[![PyPI](https://img.shields.io/pypi/v/faiss-cpu?label=faiss-cpu)](https://pypi.org/project/faiss-cpu/)
+[![PyPI](https://img.shields.io/pypi/v/faiss-gpu?label=faiss-gpu)](https://pypi.org/project/faiss-gpu/)
 
 faiss python wheel packages based on multibuild.
 
