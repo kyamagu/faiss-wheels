@@ -1,7 +1,7 @@
 env:
   global:
   - REPO_DIR=faiss
-  - BUILD_COMMIT=v1.5.3
+  - BUILD_COMMIT=v1.6.0
   - BUILD_DEPENDS="numpy==1.15.0"
   - TEST_DEPENDS="numpy==1.15.0"
   - PLAT=x86_64
