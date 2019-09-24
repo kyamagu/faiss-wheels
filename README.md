@@ -14,7 +14,7 @@ faiss python wheel packages based on multibuild.
 This repository provides scripts to create wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
-- Builds CPU-only or CUDA-8.0+ compatible wheels.
+- Builds CPU-only or CUDA-9.0+ compatible wheels.
 - Bundles OpenBLAS in Linux using static linking and `auditwheel`
 - Uses Accelerate framework on macOS
 - CUDA runtime and cuBLAS are statically linked
@@ -37,7 +37,7 @@ Install CPU-only version:
 pip install faiss-cpu
 ```
 
-Or, install CUDA-8.0+ compatible version:
+Or, install CUDA-9.0+ compatible version:
 
 ```bash
 pip install faiss-gpu
@@ -45,7 +45,8 @@ pip install faiss-gpu
 
 Note that CUDA toolkit is not required to run the GPU wheel. Only NVIDIA drivers
 should be installed to use gpu index. One can also install faiss-gpu to run
-cpu-only methods without a NVIDIA driver.
+cpu-only methods without a NVIDIA driver. For compatible NVIDIA driver versions,
+check [the developer documentation](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver).
 
 ## Building source package
 
