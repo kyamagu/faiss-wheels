@@ -118,7 +118,6 @@ deploy:
   user: kyamagu
   password:
     secure: fmbjmdhG0wkczVB8sJQwB7RbccVV3hN8fO4x/QwbTIlwQvnRd1XDKANTXn8NORdiJMeTTcJ21qNudjYOSCgC3gg9kbOA2b/mYycFMOcSXLLWOuO3AZHYrAq2KZmB+BX3Scsb1StjUNy4rHV64vk22JK8vx3TmHJDZ2GtmitmJ4qITkxn8EJqsD++e40iUw83GYNuL57Gj2G6XF0kCqUONYWCt+Fk4rjExce+dORzQLHYpr2Owinus5Y34nV1adZmML+L+KZw9kKVHGNC9/UGyT2REz0c8Ei3Jvt5xfoLcJB6lMlK2XS+p7KOO/tgRXB9i7KFej7TUsX0QtgnIpg9AS9c783F+pzh4upKt72McwR8wbUQwJ71pKSuZWgxrKjnXXJpo72Qtu667BSKN2TQjjSnb3wwEECOCCYSAw1fVXjjKo2fnyRsYtdttDDDbvrp+Y7imAgVK0NyUCAxEpYjofkZDF6EHLa5f2+2VVyDPFK1qdiK02uxGHObtMfDFyzzRs4IZEwPIuas98wkiEWp3uP2mY/wG24LgVClKe5jc/JuhUhr6nXdQnVDQNn4TyUTImWoh+4rnYxMMgLvJ+7b0ZFRkdlAowKOznyUxZ04zSXpSjsa0S14gPt5/L5dqka2SprmKe6IUjMfHTetRS23VZPQWcxPeTeO5sWd/2gf5YM=
-  local-dir: "${TRAVIS_BUILD_DIR}/wheelhouse/"
   skip_cleanup: true
   skip_existing: true
   on:
