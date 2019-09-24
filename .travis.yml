@@ -127,7 +127,7 @@ deploy:
   skip_existing: true
   on:
     tags: true
-  distributions: 'sdist bdist_wheel'
+  distributions: sdist
 deploy:
   provider: gcs
   access_key_id: GOOGHYKQEFMW6H6UA4PSWLPQ
