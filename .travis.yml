@@ -127,13 +127,3 @@ deploy:
   on:
     tags: true
   distributions: sdist
-deploy:
-  provider: gcs
-  access_key_id: GOOGHYKQEFMW6H6UA4PSWLPQ
-  secret_access_key:
-    secure: hGBWKz2jAo0tCTjtOBuuq/6b+DgajpLv4yvDuvaDAl1eB+bp1jBJOqtgLFOuNtS9Yv7M4RT0xHeRl9wUUu1GRLacBhpxuzw70sBlLNhb303TB0hMTb7Y+16NwXADru+/cWxzS3sHghzts5XJ4WdWGe48WvG3KmTqgDcTZVBUuQHAMT3zbixZvTbGQGRKbjrPPv5a/Eg78ARDvXOIORHQPZkO6ABLpmRk5Bckbyyh0DJyeKH+6naxhhnrnUzPhPQR0c9mKXSz6rV2r4gf0niUCLvlYcevqVE8cd1y0j5h3Rubh54o6tMtcj/bP7X3dtFEbuxj2CqOjOduGobL8J0K/pljuKBsaZHLn7jpw598ipPWAry6VGrXyLO/122zTvLFyhq42a74/5ONrKOLoXewsmmCaq2y/UL5D3zGMYIpthHJDMzL+cXkDL3YIBmzzh0Z05KGG+eARA8ad/BYvcSPK2bOjtL8b++Zl1Z0U24Vm4L1J5eRT/9sz5iGu2XK9MxVFL0sz9hrwgxla/2DyoOSWog5BsVPtjYn5jnPsEa07r+LTzSDVLWdUQ+URJFvUq2KCVXzozlxmWtvM/r/D3DOnYEwKN2X1urY5NSnpWsLaQlBwTlKY2AieyWzAkx//mYaNehr1UTHEgmUDfr9lSH3Ts+Sv7WlcNLJqikVvSizI88=
-  bucket: ailab-wheels
-  skip_cleanup: true
-  local-dir: ${TRAVIS_BUILD_DIR}/${WHEEL_SDIR}/
-  on:
-    repo: kyamagu/faiss-wheels
