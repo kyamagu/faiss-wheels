@@ -84,10 +84,8 @@ function pre_build {
         local prefix=$(brew --prefix llvm)
         export CC="$prefix/bin/clang"
         export CXX="$prefix/bin/clang++"
-        if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
-            export CXXFLAGS="-stdlib=libc++"
-            export CFLAGS="-stdlib=libc++"
-        fi
+        export CXXFLAGS="-stdlib=libc++"
+        export CFLAGS="-stdlib=libc++"
         export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a -framework Accelerate"
     else
         echo "Installing openblas"

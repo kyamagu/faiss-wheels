@@ -14,6 +14,29 @@ matrix:
   exclude:
   - python: 3.5
   include:
+  # mac wheels
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=2.7
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - MB_PYTHON_OSX_VER=10.9
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.5
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.6
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.7
+    - MB_PYTHON_OSX_VER=10.9
   # manylinux1 wheels
   - os: linux
     env:
@@ -74,29 +97,6 @@ matrix:
     - MB_PYTHON_VERSION=3.7
     - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # mac wheels
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - MB_PYTHON_OSX_VER=10.9
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.5
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.6
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.7
-    - MB_PYTHON_OSX_VER=10.9
 before_install:
 - source multibuild/common_utils.sh
 - source multibuild/travis_steps.sh
