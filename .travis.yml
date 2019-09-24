@@ -116,6 +116,8 @@ script:
 - install_run $PLAT
 before_deploy:
 - cd $REPO_DIR
+- ln -s build ../build
+- ln -s dist ../$WHEEL_SDIR
 deploy:
   provider: pypi
   user: kyamagu
