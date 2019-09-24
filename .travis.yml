@@ -113,6 +113,9 @@ install:
 - build_wheel $REPO_DIR $PLAT
 script:
 - install_run $PLAT
+before_deploy:
+- ln -s $REPO_DIR/wheelhouse dist
+- mv $REPO_DIR/setup.py .
 deploy:
   provider: pypi
   user: kyamagu
