@@ -111,15 +111,6 @@ function pre_build {
     (cd $REPO_DIR && build_faiss)
 }
 
-function pip_wheel_cmd {
-    local abs_wheelhouse=$1
-    # Create sdist in one of the linux env.
-    if [ ! -n "$IS_OSX" ] && [ "$PYTHON_VERSION" = "3.6" ]; then
-        python setup.py sdist --dist-dir $abs_wheelhouse
-    fi
-    pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
-}
-
 function run_tests {
     python --version
     python -c "import faiss, numpy; faiss.Kmeans(10, 20).train(numpy.random.rand(1000, 10).astype(numpy.float32))"
