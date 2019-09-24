@@ -117,7 +117,6 @@ script:
 before_deploy:
 - cd $REPO_DIR
 - ln -s dist ../$WHEEL_SDIR
-- pip install $BUILD_DEPENDS
 deploy:
   provider: pypi
   user: kyamagu
