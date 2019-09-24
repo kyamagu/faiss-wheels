@@ -1,7 +1,8 @@
 env:
   global:
   - REPO_DIR=faiss
-  - BUILD_COMMIT=v1.5.3
+  - WHEEL_SDIR=dist
+  - BUILD_COMMIT=v1.6.0
   - BUILD_DEPENDS="numpy==1.15.0"
   - TEST_DEPENDS="numpy==1.15.0"
   - PLAT=x86_64
@@ -14,6 +15,29 @@ matrix:
   exclude:
   - python: 3.5
   include:
+  # mac wheels
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=2.7
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=2.7
+    - MB_PYTHON_OSX_VER=10.9
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.5
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.6
+  - os: osx
+    language: generic
+    env:
+    - MB_PYTHON_VERSION=3.7
+    - MB_PYTHON_OSX_VER=10.9
   # manylinux1 wheels
   - os: linux
     env:
@@ -53,113 +77,27 @@ matrix:
     env:
     - MB_PYTHON_VERSION=3.7
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # # cuda 7.5 wheels
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=2.7
-  #   - CUDA_VERSION=7.5
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.5
-  #   - CUDA_VERSION=7.5
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.6
-  #   - CUDA_VERSION=7.5
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.7
-  #   - CUDA_VERSION=7.5
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # cuda 8.0 wheels
+  # manylinux2010 + cuda 9.0 wheels
   - os: linux
     env:
     - MB_PYTHON_VERSION=2.7
-    - CUDA_VERSION=8.0
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.5
-    - CUDA_VERSION=8.0
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.6
-    - CUDA_VERSION=8.0
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
   - os: linux
     env:
     - MB_PYTHON_VERSION=3.7
-    - CUDA_VERSION=8.0
+    - CUDA_VERSION=9.0
     - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # # cuda 9.0 wheels
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=2.7
-  #   - CUDA_VERSION=9.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.5
-  #   - CUDA_VERSION=9.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.6
-  #   - CUDA_VERSION=9.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.7
-  #   - CUDA_VERSION=9.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # # cuda 10.0 wheels
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=2.7
-  #   - CUDA_VERSION=10.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.5
-  #   - CUDA_VERSION=10.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.6
-  #   - CUDA_VERSION=10.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # - os: linux
-  #   env:
-  #   - MB_PYTHON_VERSION=3.7
-  #   - CUDA_VERSION=10.0
-  #   - DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  # mac wheels
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=2.7
-    - MB_PYTHON_OSX_VER=10.9
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.5
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.6
-  - os: osx
-    language: generic
-    env:
-    - MB_PYTHON_VERSION=3.7
-    - MB_PYTHON_OSX_VER=10.9
 before_install:
 - source multibuild/common_utils.sh
 - source multibuild/travis_steps.sh
@@ -176,13 +114,15 @@ install:
 - build_wheel $REPO_DIR $PLAT
 script:
 - install_run $PLAT
+before_deploy:
+- cd $REPO_DIR
 deploy:
-  provider: gcs
-  access_key_id: GOOGHYKQEFMW6H6UA4PSWLPQ
-  secret_access_key:
-    secure: hGBWKz2jAo0tCTjtOBuuq/6b+DgajpLv4yvDuvaDAl1eB+bp1jBJOqtgLFOuNtS9Yv7M4RT0xHeRl9wUUu1GRLacBhpxuzw70sBlLNhb303TB0hMTb7Y+16NwXADru+/cWxzS3sHghzts5XJ4WdWGe48WvG3KmTqgDcTZVBUuQHAMT3zbixZvTbGQGRKbjrPPv5a/Eg78ARDvXOIORHQPZkO6ABLpmRk5Bckbyyh0DJyeKH+6naxhhnrnUzPhPQR0c9mKXSz6rV2r4gf0niUCLvlYcevqVE8cd1y0j5h3Rubh54o6tMtcj/bP7X3dtFEbuxj2CqOjOduGobL8J0K/pljuKBsaZHLn7jpw598ipPWAry6VGrXyLO/122zTvLFyhq42a74/5ONrKOLoXewsmmCaq2y/UL5D3zGMYIpthHJDMzL+cXkDL3YIBmzzh0Z05KGG+eARA8ad/BYvcSPK2bOjtL8b++Zl1Z0U24Vm4L1J5eRT/9sz5iGu2XK9MxVFL0sz9hrwgxla/2DyoOSWog5BsVPtjYn5jnPsEa07r+LTzSDVLWdUQ+URJFvUq2KCVXzozlxmWtvM/r/D3DOnYEwKN2X1urY5NSnpWsLaQlBwTlKY2AieyWzAkx//mYaNehr1UTHEgmUDfr9lSH3Ts+Sv7WlcNLJqikVvSizI88=
-  bucket: ailab-wheels
+  provider: pypi
+  user: kyamagu
+  password:
+    secure: fmbjmdhG0wkczVB8sJQwB7RbccVV3hN8fO4x/QwbTIlwQvnRd1XDKANTXn8NORdiJMeTTcJ21qNudjYOSCgC3gg9kbOA2b/mYycFMOcSXLLWOuO3AZHYrAq2KZmB+BX3Scsb1StjUNy4rHV64vk22JK8vx3TmHJDZ2GtmitmJ4qITkxn8EJqsD++e40iUw83GYNuL57Gj2G6XF0kCqUONYWCt+Fk4rjExce+dORzQLHYpr2Owinus5Y34nV1adZmML+L+KZw9kKVHGNC9/UGyT2REz0c8Ei3Jvt5xfoLcJB6lMlK2XS+p7KOO/tgRXB9i7KFej7TUsX0QtgnIpg9AS9c783F+pzh4upKt72McwR8wbUQwJ71pKSuZWgxrKjnXXJpo72Qtu667BSKN2TQjjSnb3wwEECOCCYSAw1fVXjjKo2fnyRsYtdttDDDbvrp+Y7imAgVK0NyUCAxEpYjofkZDF6EHLa5f2+2VVyDPFK1qdiK02uxGHObtMfDFyzzRs4IZEwPIuas98wkiEWp3uP2mY/wG24LgVClKe5jc/JuhUhr6nXdQnVDQNn4TyUTImWoh+4rnYxMMgLvJ+7b0ZFRkdlAowKOznyUxZ04zSXpSjsa0S14gPt5/L5dqka2SprmKe6IUjMfHTetRS23VZPQWcxPeTeO5sWd/2gf5YM=
   skip_cleanup: true
-  local-dir: ${TRAVIS_BUILD_DIR}/wheelhouse/
+  skip_existing: true
   on:
-    repo: kyamagu/faiss-wheels
+    tags: true
+  distributions: 'sdist bdist_wheel'

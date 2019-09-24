@@ -84,10 +84,8 @@ function pre_build {
         local prefix=$(brew --prefix llvm)
         export CC="$prefix/bin/clang"
         export CXX="$prefix/bin/clang++"
-        if [ "$MB_PYTHON_OSX_VER" != "10.9" ]; then
-            export CXXFLAGS="-stdlib=libc++"
-            export CFLAGS="-stdlib=libc++"
-        fi
+        export CXXFLAGS="-stdlib=libc++"
+        export CFLAGS="-stdlib=libc++"
         export FAISS_LDFLAGS="/usr/local/lib/libfaiss.a -framework Accelerate"
     else
         echo "Installing openblas"
@@ -112,35 +110,6 @@ function pre_build {
     fi
     (cd $REPO_DIR && build_faiss)
 }
-
-function pip_wheel_cmd {
-    local abs_wheelhouse=$1
-    # Create sdist in one of the linux env.
-    if [ ! -n "$IS_OSX" ] && [ "$PYTHON_VERSION" = "3.6" ]; then
-        python setup.py sdist --dist-dir $abs_wheelhouse
-    fi
-    pip wheel $(pip_opts) -w $abs_wheelhouse --no-deps .
-}
-
-# Add AUDITWHEEL_PLAT for manylinux2010 support
-# https://github.com/matthew-brett/multibuild/issues/238
-if [ ! -n "$IS_OSX" ]; then
-    function repair_wheelhouse {
-        local in_dir=$1
-        local out_dir=${2:-$in_dir}
-        local plat=${AUDITWHEEL_PLAT:-manylinux1_x86_64}
-        for whl in $in_dir/*.whl; do
-            if [[ $whl == *none-any.whl ]]; then  # Pure Python wheel
-                if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
-            else
-                auditwheel repair $whl -w $out_dir/ --plat $plat
-                # Remove unfixed if writing into same directory
-                if [ "$in_dir" == "$out_dir" ]; then rm $whl; fi
-            fi
-        done
-        chmod -R a+rwX $out_dir
-    }
-fi
 
 function run_tests {
     python --version
