@@ -117,6 +117,9 @@ script:
 before_deploy:
 - cd $REPO_DIR
 - ln -s ../$WHEEL_SDIR dist
+- if [ "$TRAVIS_OS_NAME" == "osx" -a "$MB_PYTHON_VERSION" == "3.5" ]; then
+    pip install -U pyOpenSSL;
+  fi
 deploy:
   provider: pypi
   user: kyamagu
