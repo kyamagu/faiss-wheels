@@ -96,7 +96,7 @@ _swigfaiss = Extension(
 
 setup(
     name={% if BUILD_CUDA  %}'faiss-gpu'{% else %}'faiss-cpu'{% endif %},
-    version='1.6.1',
+    version='1.6.3',
     description=(
         'A library for efficient similarity search and clustering of dense '
         'vectors.'
