@@ -2,18 +2,16 @@ env:
   global:
   - REPO_DIR=faiss
   - WHEEL_SDIR=dist
-  - BUILD_COMMIT=v1.6.3
+  - BUILD_COMMIT=c6bc8c46f1decc109573978ad2b6d616b07b8eac
   - BUILD_DEPENDS="numpy==1.15.0"
   - TEST_DEPENDS="numpy==1.15.0"
   - PLAT=x86_64
   - UNICODE_WIDTH=32
-language: python
+language: generic
 python: 3.5
-dist: trusty
+dist: xenial
 services: docker
 matrix:
-  exclude:
-  - python: 3.5
   include:
   # mac wheels
   - os: osx
