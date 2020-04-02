@@ -2,7 +2,7 @@ env:
   global:
   - REPO_DIR=faiss
   - WHEEL_SDIR=dist
-  - BUILD_COMMIT=v1.6.3
+  - BUILD_COMMIT=c6bc8c46f1decc109573978ad2b6d616b07b8eac
   - BUILD_DEPENDS="numpy==1.15.0"
   - TEST_DEPENDS="numpy==1.15.0"
   - PLAT=x86_64
