@@ -7,13 +7,11 @@ env:
   - TEST_DEPENDS="numpy==1.15.0"
   - PLAT=x86_64
   - UNICODE_WIDTH=32
-language: python
+language: generic
 python: 3.5
-dist: trusty
+dist: xenial
 services: docker
 matrix:
-  exclude:
-  - python: 3.5
   include:
   # mac wheels
   - os: osx
