@@ -50,7 +50,7 @@ jobs:
         NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
         NVIDIA_GPGKEY_URL: https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
       run: |
-        curl -fsSL $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
+        curl -fsSL --retry 3 $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
         echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
         tee /etc/yum.repos.d/cuda.repo <<EOF
         [cuda]
