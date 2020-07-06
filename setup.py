@@ -37,8 +37,8 @@ if sys.platform != 'darwin':
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 
 
-swigfaiss = Extension(
-    'faiss.swigfaiss',
+_swigfaiss = Extension(
+    'faiss._swigfaiss',
     sources=['faiss/python/swigfaiss.i'],
     define_macros=[('FINTEGER', 'int')],
     language='c++',
@@ -66,5 +66,5 @@ setup(
     setup_requires=['numpy'],
     package_dir={'faiss': 'faiss/python'},
     packages=['faiss'],
-    ext_modules=[swigfaiss]
+    ext_modules=[_swigfaiss]
 )
