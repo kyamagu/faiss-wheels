@@ -40,6 +40,7 @@ jobs:
         make -j2
         make install
         cd ..
+        echo ::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
@@ -69,8 +70,11 @@ jobs:
         echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-        echo "ldconfig"
         ldconfig
+        scl enable devtoolset-6
+        echo ::set-env name=BUILD_CUDA::1
+        echo ::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos
+        echo ::set-env name=CUDA_ARCH_FLAGS::-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
     - name: Build and install faiss
       if: ${{ !matrix.cuda }}
       run: |
@@ -83,10 +87,7 @@ jobs:
         cd ..
     - name: Build and install faiss (CUDA)
       if: matrix.cuda
-      env:
-        CUDA_ARCH_FLAGS: -gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
       run: |
-        source scl_source enable devtoolset-6
         cd faiss
         aclocal
         autoconf
@@ -95,20 +96,6 @@ jobs:
         make install
         cd ..
     - name: Build package
-      if: ${{ !matrix.cuda }}
-      env:
-        FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran
-      run: |
-        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
-        mv faiss/python/faiss.py faiss/python/__init__.py
-        python -m pip install -U pip
-        python -m pip install wheel numpy==1.15.0 pytest
-        python setup.py install
-    - name: Build package (CUDA)
-      if: matrix.cuda
-      env:
-        BUILD_CUDA: ${{ matrix.cuda }}
-        FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran -lcublas_static -lcudart_static -lculibos
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
