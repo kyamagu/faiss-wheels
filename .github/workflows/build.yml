@@ -17,6 +17,7 @@ jobs:
         manylinux:
           - manylinux2010
         cuda:
+          - true
           - false
     container: quay.io/pypa/${{ matrix.manylinux }}_x86_64
     steps:
@@ -68,6 +69,7 @@ jobs:
         echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+        yum update scl-utils
         source scl_source enable devtoolset-6
         ldconfig
     - name: Build and install faiss
