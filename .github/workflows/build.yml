@@ -26,7 +26,7 @@ jobs:
         submodules: true
     - name: Install build dependency
       run: |
-        yum --disablerepo=epel install -y \
+        yum install -y \
             openblas-devel \
             openblas-static \
             pcre-devel
@@ -124,7 +124,7 @@ jobs:
       with:
         submodules: true
     - name: Install build dependency
-      run: brew install libomp llvm swig
+      run: brew install libomp llvm swig automake
     - name: Build and install faiss
       env:
         CC: /usr/local/opt/llvm/clang
