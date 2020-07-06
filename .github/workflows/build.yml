@@ -35,7 +35,7 @@ jobs:
         tar xzf swig-4.0.2.tar.gz
         cd swig-4.0.2
         ./configure
-        make -j4 install
+        make -j2 install
         cd ..
     - name: Install CUDA build tools
       if: matrix.cuda
@@ -75,7 +75,7 @@ jobs:
         aclocal
         autoconf
         ./configure --without-cuda
-        make -j4 install
+        make -j2 install
         cd ..
     - name: Build and install faiss (CUDA)
       if: matrix.cuda
@@ -86,7 +86,7 @@ jobs:
         aclocal
         autoconf
         ./configure --with-cuda="/usr/local/cuda" --with-cuda-arch="${CUDA_ARCH_FLAGS}"
-        make -j4 install
+        make -j2 install
         cd ..
     - name: Set up Python
       run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
@@ -126,10 +126,7 @@ jobs:
         submodules: true
     - name: Install build dependency
       run: |
-        brew install libomp llvm swig automake
-        echo ::set-env LLVM_PREFIX=$(brew --prefix llvm)
-        echo ::set-env name=CC::${LLVM_PREFIX}/bin/clang
-        echo ::set-env name=CXX::${LLVM_PREFIX}/bin/clang++
+        brew install libomp swig automake
         echo ::set-env name=CFLAGS::-stdlib=libc++
         echo ::set-env name=CXXFLAGS::-stdlib=libc++
     - name: Build and install faiss
@@ -138,7 +135,7 @@ jobs:
         aclocal
         autoconf
         ./configure --without-cuda --with-blas="-framework Accelerate"
-        make -j4 install
+        make -j2 install
         cd ..
     - name: Set up Python
       uses: actions/setup-python@v2
