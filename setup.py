@@ -14,7 +14,6 @@ evaluation and parameter tuning. Faiss is written in C++ with complete wrappers
 for Python/numpy. It is developed by Facebook AI Research.
 """
 
-
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', '/usr/local/include')
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-lfaiss')
 
@@ -38,8 +37,8 @@ if sys.platform != 'darwin':
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 
 
-_swigfaiss = Extension(
-    'faiss._swigfaiss',
+swigfaiss = Extension(
+    'faiss.swigfaiss',
     sources=['faiss/python/swigfaiss.i'],
     define_macros=[('FINTEGER', 'int')],
     language='c++',
@@ -67,5 +66,5 @@ setup(
     setup_requires=['numpy'],
     package_dir={'faiss': 'faiss/python'},
     packages=['faiss'],
-    ext_modules=[_swigfaiss]
+    ext_modules=[swigfaiss]
 )

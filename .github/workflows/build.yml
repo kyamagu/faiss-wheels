@@ -134,6 +134,7 @@ jobs:
         echo ::set-env name=CXX::${LLVM_PREFIX}/bin/clang++
         echo ::set-env name=CFLAGS::-stdlib=libc++
         echo ::set-env name=CXXFLAGS::-stdlib=libc++
+        echo ::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a $(brew --prefix libomp)/lib/libomp.a -framework Accelerate
     - name: Build and install faiss
       run: |
         cd faiss
@@ -148,8 +149,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Build package
-      env:
-        FAISS_LDFLAGS: /usr/local/lib/libfaiss.a -framework Accelerate
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
