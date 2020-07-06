@@ -69,8 +69,7 @@ jobs:
         echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-        yum update scl-utils
-        source scl_source enable devtoolset-6
+        echo "ldconfig"
         ldconfig
     - name: Build and install faiss
       if: ${{ !matrix.cuda }}
@@ -87,6 +86,7 @@ jobs:
       env:
         CUDA_ARCH_FLAGS: -gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
       run: |
+        source scl_source enable devtoolset-6
         cd faiss
         aclocal
         autoconf
