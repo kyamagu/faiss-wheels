@@ -25,7 +25,7 @@ jobs:
         submodules: true
     - name: Install build dependency
       run: |
-        sed -i 's/(mirrorlist=http)s/\1/' /etc/yum.repos.d/epel.repo
+        sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
         yum install -y \
             openblas-devel \
             openblas-static \
@@ -101,7 +101,8 @@ jobs:
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
         python -m pip install wheel numpy==1.15.0 pytest
-        python setup.py install
+        python setup.py bdist_wheel
+        python -m pip install dist/faiss*.whl
     - name: Build package (CUDA)
       if: matrix.cuda
       env:
@@ -112,7 +113,8 @@ jobs:
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
         python -m pip install wheel numpy==1.15.0 pytest
-        python setup.py install
+        python setup.py bdist_wheel
+        python -m pip install dist/faiss*.whl
     - name: Test
       run: |
         python -m pytest tests
@@ -156,7 +158,8 @@ jobs:
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
         python -m pip install wheel numpy==1.15.0 pytest
-        python setup.py install
+        python setup.py bdist_wheel
+        python -m pip install dist/faiss*.whl
     - name: Test
       run: |
         python -m pytest tests
