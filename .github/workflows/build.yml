@@ -1,0 +1,160 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - cp37-cp37m
+        manylinux:
+          - manylinux2010
+        cuda:
+          - true
+          - false
+    container: quay.io/pypa/${{ matrix.manylinux }}_x86_64
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Install build dependency
+      run: |
+        yum --disablerepo=epel install -y \
+            openblas-devel \
+            openblas-static \
+            pcre-devel
+        curl -fsSLO http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
+        tar xzf swig-4.0.2.tar.gz
+        cd swig-4.0.2
+        ./configure
+        make -j4 install
+        cd ..
+    - name: Install CUDA build tools
+      if: matrix.cuda
+      env:
+        - CUDA_VERSION: 9.0
+        - CUDA_PKG_VERSION: 9-0-9.0.176-1
+        - CUBLAS_PKG_VERSION: 9-0-9.0.176.4-1
+        - NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
+        - NVIDIA_GPGKEY_URL: https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
+      run: |
+        curl -fsSL $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
+        echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
+        tee /etc/yum.repos.d/cuda.repo <<EOF
+        [cuda]
+        name=cuda
+        baseurl=http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64
+        enabled=1
+        gpgcheck=1
+        gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
+        EOF
+        yum --disablerepo=epel install -y \
+            devtoolset-6-gcc \
+            devtoolset-6-gcc-c++ \
+            devtoolset-6-gcc-gfortran \
+            cuda-command-line-tools-${CUDA_PKG_VERSION} \
+            cuda-cublas-dev-${CUBLAS_PKG_VERSION}
+        ln -s cuda-${CUDA_VERSION} /usr/local/cuda
+        echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
+        echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
+        echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+        source scl_source enable devtoolset-6
+        ldconfig
+    - name: Build and install faiss
+      if: !matrix.cuda
+      run: |
+        cd faiss
+        aclocal
+        autoconf
+        ./configure --without-cuda
+        make -j4 install
+        cd ..
+    - name: Build and install faiss (CUDA)
+      if: matrix.cuda
+      env:
+        - CUDA_ARCH_FLAGS: -gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
+      run: |
+        cd faiss
+        aclocal
+        autoconf
+        ./configure --with-cuda="/usr/local/cuda" --with-cuda-arch="${CUDA_ARCH_FLAGS}"
+        make -j4 install
+        cd ..
+    - name: Set up Python
+      run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
+    - name: Build package
+      if: !matrix.cuda
+      env:
+        - FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran
+      run: |
+        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
+        mv faiss/python/faiss.py faiss/python/__init__.py
+        python -m pip install -U pip
+        python -m pip install wheel numpy pytest
+        python setup.py install
+    - name: Build package (CUDA)
+      if: matrix.cuda
+      env:
+        - BUILD_CUDA: ${{ matrix.cuda }}
+        - FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran -lcublas_static -lcudart_static -lculibos
+      run: |
+        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
+        mv faiss/python/faiss.py faiss/python/__init__.py
+        python -m pip install -U pip
+        python -m pip install wheel numpy pytest
+        python setup.py install
+    - name: Test
+      run: |
+        python -m pytest tests
+  build-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.7
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install build dependency
+      run: brew install libomp llvm swig
+    - name: Build and install faiss
+      env:
+        - CC: /usr/local/opt/llvm/clang
+        - CXX: /usr/local/opt/llvm/clang++
+        - CFLAGS: -stdlib=libc++
+        - CXXFLAGS: -stdlib=libc++
+      run: |
+        cd faiss
+        aclocal
+        autoconf
+        ./configure --without-cuda --with-blas="-framework Accelerate"
+        make -j4 install
+        cd ..
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Build package
+      env:
+        - CC: /usr/local/opt/llvm/clang
+        - CXX: /usr/local/opt/llvm/clang++
+        - CFLAGS: -stdlib=libc++
+        - CXXFLAGS: -stdlib=libc++
+        - FAISS_LDFLAGS: /usr/local/lib/libfaiss.a -framework Accelerate
+      run: |
+        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
+        mv faiss/python/faiss.py faiss/python/__init__.py
+        python -m pip install -U pip
+        python -m pip install wheel numpy pytest
+        python setup.py install
+    - name: Test
+      run: |
+        python -m pytest tests
