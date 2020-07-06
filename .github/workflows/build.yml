@@ -17,7 +17,6 @@ jobs:
         manylinux:
           - manylinux2010
         cuda:
-          - true
           - false
     container: quay.io/pypa/${{ matrix.manylinux }}_x86_64
     steps:

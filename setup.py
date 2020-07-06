@@ -15,7 +15,7 @@ for Python/numpy. It is developed by Facebook AI Research.
 """
 
 
-FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss')
+FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', '/usr/local/include')
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-lfaiss')
 
 INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
@@ -24,7 +24,7 @@ EXTRA_COMPILE_ARGS = [
     '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
     '-Wno-sign-compare', '-fopenmp'
 ]
-EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
+EXTRA_LINK_ARGS = ['-fopenmp', '-s'] + FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
 if os.getenv('BUILD_CUDA'):
