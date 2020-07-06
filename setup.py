@@ -34,7 +34,7 @@ if os.getenv('BUILD_CUDA'):
     LIBRARY_DIRS += [CUDA_HOME + '/lib64']
     SWIG_OPTS += ['-I' + CUDA_HOME + '/include', '-DGPU_WRAPPER']
 
-if sys.platform == 'darwin':
+if sys.platform != 'darwin':
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 
 
