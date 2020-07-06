@@ -1,6 +1,6 @@
 import pytest
-import faiss
 import numpy as np
+import faiss
 
 
 def test_cpu():

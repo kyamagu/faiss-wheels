@@ -130,11 +130,12 @@ jobs:
         brew install libomp swig automake
         brew reinstall llvm
         export LLVM_PREFIX=$(brew --prefix llvm)
+        export LIBOMP_PREFIX=$(brew --prefix libomp)
         echo ::set-env name=CC::${LLVM_PREFIX}/bin/clang
         echo ::set-env name=CXX::${LLVM_PREFIX}/bin/clang++
         echo ::set-env name=CFLAGS::-stdlib=libc++
         echo ::set-env name=CXXFLAGS::-stdlib=libc++
-        echo ::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a $(brew --prefix libomp)/lib/libomp.a -framework Accelerate
+        echo ::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate
     - name: Build and install faiss
       run: |
         cd faiss
