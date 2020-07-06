@@ -33,7 +33,7 @@ jobs:
             openblas-devel \
             openblas-static \
             pcre-devel
-        curl -fsSLO http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
+        curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
         tar xzf swig-4.0.2.tar.gz
         cd swig-4.0.2
         ./configure
@@ -71,7 +71,7 @@ jobs:
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
-        scl enable devtoolset-6
+        source /opt/rh/devtoolset-6/enable
         echo ::set-env name=BUILD_CUDA::1
         echo ::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos
         echo ::set-env name=CUDA_ARCH_FLAGS::-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
