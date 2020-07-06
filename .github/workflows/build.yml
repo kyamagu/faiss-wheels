@@ -56,13 +56,13 @@ jobs:
         gpgcheck=1
         gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
         EOF
-        yum --disablerepo=epel install -y \
+        yum install -y \
             devtoolset-6-gcc \
             devtoolset-6-gcc-c++ \
             devtoolset-6-gcc-gfortran \
             cuda-command-line-tools-${CUDA_PKG_VERSION} \
             cuda-cublas-dev-${CUBLAS_PKG_VERSION}
-        ln -s cuda-${CUDA_VERSION} /usr/local/cuda
+        ln -s /usr/local/cuda-${CUDA_VERSION} /usr/local/cuda
         echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
@@ -129,6 +129,10 @@ jobs:
     - name: Install build dependency
       run: |
         brew install libomp swig automake
+        brew reinstall llvm
+        export LLVM_PREFIX=$(brew --prefix llvm)
+        echo ::set-env name=CC::${LLVM_PREFIX}/bin/clang
+        echo ::set-env name=CXX::${LLVM_PREFIX}/bin/clang++
         echo ::set-env name=CFLAGS::-stdlib=libc++
         echo ::set-env name=CXXFLAGS::-stdlib=libc++
     - name: Build and install faiss
