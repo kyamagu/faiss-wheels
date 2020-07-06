@@ -23,6 +23,8 @@ jobs:
     - uses: actions/checkout@v1
       with:
         submodules: true
+    - name: Set up Python
+      run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
     - name: Install build dependency
       run: |
         sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
@@ -90,8 +92,6 @@ jobs:
         make -j2
         make install
         cd ..
-    - name: Set up Python
-      run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
     - name: Build package
       if: ${{ !matrix.cuda }}
       env:
@@ -128,6 +128,10 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
     - name: Install build dependency
       run: |
         brew install libomp swig automake
@@ -148,10 +152,6 @@ jobs:
         make -j2
         make install
         cd ..
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Build package
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i

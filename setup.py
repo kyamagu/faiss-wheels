@@ -1,5 +1,7 @@
 from setuptools import setup
 from setuptools.extension import Extension
+from distutils.command.build import build as _build
+from setuptools.command.install import install as _install
 import sys
 import os
 import numpy as np
@@ -37,6 +39,18 @@ if sys.platform != 'darwin':
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 
 
+class CustomBuild(_build):
+    def run(self):
+        self.run_command('build_ext')
+        _build.run(self)
+
+
+class CustomInstall(_install):
+    def run(self):
+        self.run_command('build_ext')
+        self.do_egg_install()
+
+
 _swigfaiss = Extension(
     'faiss._swigfaiss',
     sources=['faiss/python/swigfaiss.i'],
@@ -66,5 +80,6 @@ setup(
     setup_requires=['numpy'],
     package_dir={'faiss': 'faiss/python'},
     packages=['faiss'],
-    ext_modules=[_swigfaiss]
+    ext_modules=[_swigfaiss],
+    cmdclass={'build': CustomBuild, 'install': CustomInstall},
 )
