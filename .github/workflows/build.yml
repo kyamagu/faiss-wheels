@@ -61,9 +61,6 @@ jobs:
         gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
         EOF
         yum install -y \
-            devtoolset-6-gcc \
-            devtoolset-6-gcc-c++ \
-            devtoolset-6-gcc-gfortran \
             cuda-command-line-tools-${CUDA_PKG_VERSION} \
             cuda-cublas-dev-${CUBLAS_PKG_VERSION}
         ln -s /usr/local/cuda-${CUDA_VERSION} /usr/local/cuda
@@ -71,7 +68,6 @@ jobs:
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
-        source /opt/rh/devtoolset-6/enable
         echo ::set-env name=BUILD_CUDA::1
         echo ::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos
         echo ::set-env name=CUDA_ARCH_FLAGS::-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
