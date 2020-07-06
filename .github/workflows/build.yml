@@ -29,7 +29,8 @@ jobs:
         yum install -y \
             openblas-devel \
             openblas-static \
-            pcre-devel
+            pcre-devel \
+            zlib-devel
         curl -fsSLO http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
         tar xzf swig-4.0.2.tar.gz
         cd swig-4.0.2
@@ -124,13 +125,14 @@ jobs:
       with:
         submodules: true
     - name: Install build dependency
-      run: brew install libomp llvm swig automake
+      run: |
+        brew install libomp llvm swig automake
+        echo ::set-env LLVM_PREFIX=$(brew --prefix llvm)
+        echo ::set-env name=CC::${LLVM_PREFIX}/bin/clang
+        echo ::set-env name=CXX::${LLVM_PREFIX}/bin/clang++
+        echo ::set-env name=CFLAGS::-stdlib=libc++
+        echo ::set-env name=CXXFLAGS::-stdlib=libc++
     - name: Build and install faiss
-      env:
-        CC: /usr/local/opt/llvm/clang
-        CXX: /usr/local/opt/llvm/clang++
-        CFLAGS: -stdlib=libc++
-        CXXFLAGS: -stdlib=libc++
       run: |
         cd faiss
         aclocal
@@ -144,10 +146,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Build package
       env:
-        CC: /usr/local/opt/llvm/clang
-        CXX: /usr/local/opt/llvm/clang++
-        CFLAGS: -stdlib=libc++
-        CXXFLAGS: -stdlib=libc++
         FAISS_LDFLAGS: /usr/local/lib/libfaiss.a -framework Accelerate
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
