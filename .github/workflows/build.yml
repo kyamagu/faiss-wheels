@@ -29,13 +29,13 @@ jobs:
         yum install -y \
             openblas-devel \
             openblas-static \
-            pcre-devel \
-            zlib-devel
+            pcre-devel
         curl -fsSLO http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
         tar xzf swig-4.0.2.tar.gz
         cd swig-4.0.2
         ./configure
-        make -j2 install
+        make -j2
+        make install
         cd ..
     - name: Install CUDA build tools
       if: matrix.cuda
@@ -75,7 +75,8 @@ jobs:
         aclocal
         autoconf
         ./configure --without-cuda
-        make -j2 install
+        make -j2
+        make install
         cd ..
     - name: Build and install faiss (CUDA)
       if: matrix.cuda
@@ -86,7 +87,8 @@ jobs:
         aclocal
         autoconf
         ./configure --with-cuda="/usr/local/cuda" --with-cuda-arch="${CUDA_ARCH_FLAGS}"
-        make -j2 install
+        make -j2
+        make install
         cd ..
     - name: Set up Python
       run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
@@ -135,7 +137,8 @@ jobs:
         aclocal
         autoconf
         ./configure --without-cuda --with-blas="-framework Accelerate"
-        make -j2 install
+        make -j2
+        make install
         cd ..
     - name: Set up Python
       uses: actions/setup-python@v2
