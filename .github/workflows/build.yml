@@ -68,7 +68,7 @@ jobs:
         source scl_source enable devtoolset-6
         ldconfig
     - name: Build and install faiss
-      if: !matrix.cuda
+      if: ${{ !matrix.cuda }}
       run: |
         cd faiss
         aclocal
@@ -90,7 +90,7 @@ jobs:
     - name: Set up Python
       run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
     - name: Build package
-      if: !matrix.cuda
+      if: ${{ !matrix.cuda }}
       env:
         FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran
       run: |
