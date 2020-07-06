@@ -39,11 +39,11 @@ jobs:
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
-        - CUDA_VERSION: 9.0
-        - CUDA_PKG_VERSION: 9-0-9.0.176-1
-        - CUBLAS_PKG_VERSION: 9-0-9.0.176.4-1
-        - NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
-        - NVIDIA_GPGKEY_URL: https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
+        CUDA_VERSION: 9.0
+        CUDA_PKG_VERSION: 9-0-9.0.176-1
+        CUBLAS_PKG_VERSION: 9-0-9.0.176.4-1
+        NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
+        NVIDIA_GPGKEY_URL: https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
       run: |
         curl -fsSL $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
         echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
@@ -79,7 +79,7 @@ jobs:
     - name: Build and install faiss (CUDA)
       if: matrix.cuda
       env:
-        - CUDA_ARCH_FLAGS: -gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
+        CUDA_ARCH_FLAGS: -gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
       run: |
         cd faiss
         aclocal
@@ -92,7 +92,7 @@ jobs:
     - name: Build package
       if: !matrix.cuda
       env:
-        - FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran
+        FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
@@ -102,8 +102,8 @@ jobs:
     - name: Build package (CUDA)
       if: matrix.cuda
       env:
-        - BUILD_CUDA: ${{ matrix.cuda }}
-        - FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran -lcublas_static -lcudart_static -lculibos
+        BUILD_CUDA: ${{ matrix.cuda }}
+        FAISS_LDFLAGS: -l:libfaiss.a -l:libopenblas.a -lgfortran -lcublas_static -lcudart_static -lculibos
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
@@ -127,10 +127,10 @@ jobs:
       run: brew install libomp llvm swig
     - name: Build and install faiss
       env:
-        - CC: /usr/local/opt/llvm/clang
-        - CXX: /usr/local/opt/llvm/clang++
-        - CFLAGS: -stdlib=libc++
-        - CXXFLAGS: -stdlib=libc++
+        CC: /usr/local/opt/llvm/clang
+        CXX: /usr/local/opt/llvm/clang++
+        CFLAGS: -stdlib=libc++
+        CXXFLAGS: -stdlib=libc++
       run: |
         cd faiss
         aclocal
@@ -144,11 +144,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Build package
       env:
-        - CC: /usr/local/opt/llvm/clang
-        - CXX: /usr/local/opt/llvm/clang++
-        - CFLAGS: -stdlib=libc++
-        - CXXFLAGS: -stdlib=libc++
-        - FAISS_LDFLAGS: /usr/local/lib/libfaiss.a -framework Accelerate
+        CC: /usr/local/opt/llvm/clang
+        CXX: /usr/local/opt/llvm/clang++
+        CFLAGS: -stdlib=libc++
+        CXXFLAGS: -stdlib=libc++
+        FAISS_LDFLAGS: /usr/local/lib/libfaiss.a -framework Accelerate
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
