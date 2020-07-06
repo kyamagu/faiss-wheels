@@ -25,6 +25,7 @@ jobs:
         submodules: true
     - name: Install build dependency
       run: |
+        sed -i 's/(mirrorlist=http)s/\1/' /etc/yum.repos.d/epel.repo
         yum install -y \
             openblas-devel \
             openblas-static \
@@ -99,7 +100,7 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install wheel numpy pytest
+        python -m pip install wheel numpy==1.15.0 pytest
         python setup.py install
     - name: Build package (CUDA)
       if: matrix.cuda
@@ -110,7 +111,7 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install wheel numpy pytest
+        python -m pip install wheel numpy==1.15.0 pytest
         python setup.py install
     - name: Test
       run: |
@@ -154,7 +155,7 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install wheel numpy pytest
+        python -m pip install wheel numpy==1.15.0 pytest
         python setup.py install
     - name: Test
       run: |
