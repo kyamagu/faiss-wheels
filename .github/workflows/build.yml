@@ -1,0 +1,178 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types: [created]
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - cp35-cp35m
+          - cp36-cp36m
+          - cp37-cp37m
+          - cp38-cp38
+        cuda:
+          - true
+          - false
+    container: quay.io/pypa/manylinux2010_x86_64
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Set up Python
+      run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
+    - name: Install build dependency
+      env:
+        SWIG_VERSION: '4.0.2'
+      run: |
+        sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
+        yum install -y \
+            openblas-devel \
+            openblas-static \
+            pcre-devel
+        curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz
+        tar xzf swig-${SWIG_VERSION}.tar.gz
+        cd swig-${SWIG_VERSION}
+        ./configure
+        make -j4
+        make install
+        cd ..
+        echo "::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran"
+        echo "::set-env name=WITH_CUDA::no"
+        echo "::set-env name=CXXFLAGS::-fvisibility=hidden -fdata-sections -ffunction-sections"
+    - name: Install CUDA build tools
+      if: matrix.cuda
+      env:
+        CUDA_VERSION: '10.0'
+        CUDA_PKG_VERSION: 10-0-10.0.130-1
+        CUBLAS_PKG_VERSION: 10-0-10.0.130-1
+        NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
+        NVIDIA_GPGKEY_URL: http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
+      run: |
+        curl -fsSL --retry 3 $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
+        echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
+        tee /etc/yum.repos.d/cuda.repo <<EOF
+        [cuda]
+        name=cuda
+        baseurl=http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64
+        enabled=1
+        gpgcheck=1
+        gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
+        EOF
+        yum install -y \
+            cuda-command-line-tools-${CUDA_PKG_VERSION} \
+            cuda-cublas-dev-${CUBLAS_PKG_VERSION} \
+            devtoolset-7-gcc \
+            devtoolset-7-gcc-c++ \
+            devtoolset-7-gcc-gfortran \
+            devtoolset-7-binutils
+        ln -s cuda-${CUDA_VERSION} /usr/local/cuda
+        echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
+        echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
+        echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+        ldconfig
+        echo "::set-env name=BUILD_CUDA::true"
+        echo "::set-env name=WITH_CUDA::/usr/local/cuda"
+        echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
+        echo "::add-path::/usr/local/cuda/bin"
+        echo "::add-path::/opt/rh/devtoolset-7/root/usr/bin"
+    - name: Build and install faiss
+      run: |
+        cd faiss
+        aclocal
+        autoconf
+        ./configure --with-cuda=${WITH_CUDA} --without-python
+        make -j4
+        make install
+        cd ..
+    - name: Build package
+      env:
+        NUMPY_VERSION: '1.15.0'
+      run: |
+        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
+        mv faiss/python/faiss.py faiss/python/__init__.py
+        pip install --no-cache-dir -U pip
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        python setup.py sdist
+        pip wheel . -w wheelhouse --no-deps --verbose
+        auditwheel repair wheelhouse/faiss*.whl -w dist
+        ls -lh dist/
+    - name: Install and test
+      run: |
+        pip install --no-cache-dir dist/faiss*.whl
+        pytest tests
+    - name: Publish to PyPI
+      if: github.event_name == 'release' && github.event.action == 'created'
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        pip install --no-cache-dir twine
+        twine upload --skip-existing dist/*
+  build-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.5
+          - 3.6
+          - 3.7
+          - 3.8
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install build dependency
+      run: |
+        brew install libomp swig automake
+        brew reinstall llvm
+        export LLVM_PREFIX=$(brew --prefix llvm)
+        export LIBOMP_PREFIX=$(brew --prefix libomp)
+        echo "::set-env name=CC::${LLVM_PREFIX}/bin/clang"
+        echo "::set-env name=CXX::${LLVM_PREFIX}/bin/clang++"
+        echo "::set-env name=CFLAGS::-stdlib=libc++"
+        echo "::set-env name=CXXFLAGS::-stdlib=libc++"
+        echo "::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"
+    - name: Build and install faiss
+      run: |
+        cd faiss
+        aclocal
+        autoconf
+        ./configure --without-cuda --with-blas="-framework Accelerate"
+        make -j4
+        make install
+        cd ..
+    - name: Build package
+      env:
+        NUMPY_VERSION: '1.15.0'
+      run: |
+        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
+        mv faiss/python/faiss.py faiss/python/__init__.py
+        pip install --no-cache-dir -U pip
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        pip wheel . -w dist --no-deps --verbose
+        ls -lh dist/
+    - name: Install and test
+      run: |
+        pip install --no-cache-dir dist/faiss*.whl
+        pytest tests
+    - name: Publish to PyPI
+      if: github.event_name == 'release' && github.event.action == 'created'
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        pip install --no-cache-dir twine
+        twine upload --skip-existing dist/*

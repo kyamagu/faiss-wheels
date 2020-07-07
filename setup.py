@@ -1,10 +1,11 @@
 from setuptools import setup
 from setuptools.extension import Extension
-from distutils.command.build import build
-from distutils.command.build_ext import build_ext
-from distutils.util import get_platform
+from setuptools.command.build_py import build_py
+import sys
 import os
+import numpy as np
 
+NAME = 'faiss-cpu'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
@@ -14,88 +15,54 @@ evaluation and parameter tuning. Faiss is written in C++ with complete wrappers
 for Python/numpy. It is developed by Facebook AI Research.
 """
 
+FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', '/usr/local/include')
+FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-lfaiss')
 
-class CustomBuild(build):
-    """Build ext first so that swig-generated file is packaged.
-    """
-    sub_commands = [
-        ('build_ext', build.has_ext_modules),
-        ('build_py', build.has_pure_modules),
-        ('build_clib', build.has_c_libraries),
-        ('build_scripts', build.has_scripts),
-    ]
+INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
+LIBRARY_DIRS = []
+EXTRA_COMPILE_ARGS = [
+    '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
+    '-Wno-sign-compare', '-fopenmp',
+]
+EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
+SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
+
+if os.getenv('BUILD_CUDA'):
+    NAME = 'faiss-gpu'
+    CUDA_HOME = os.getenv('CUDA_HOME', '/usr/local/cuda')
+    INCLUDE_DIRS += [CUDA_HOME + '/include']
+    LIBRARY_DIRS += [CUDA_HOME + '/lib64']
+    SWIG_OPTS += ['-I' + CUDA_HOME + '/include', '-DGPU_WRAPPER']
+
+if sys.platform == 'linux':
+    EXTRA_COMPILE_ARGS += ['-fdata-sections', '-ffunction-sections']
+    EXTRA_LINK_ARGS += ['-s', '-Wl,--gc-sections']
+    SWIG_OPTS += ['-DSWIGWORDSIZE64']
+elif sys.platform == 'darwin':
+    EXTRA_LINK_ARGS += ['-dead_strip']
 
 
-class CustomBuildExt(build_ext):
-    """Customize extension build.
-    """
-
+class CustomBuildPy(build_py):
     def run(self):
-        # Import NumPy only at runtime.
-        import numpy
-        self.include_dirs.append(numpy.get_include())
-        link_flags = os.getenv('FAISS_LDFLAGS')
-        if link_flags:
-            if self.link_objects is None:
-                self.link_objects = []
-            for flag in link_flags.split():
-                self.link_objects.append(flag.strip())
-        else:
-            self.libraries.append('faiss')
-        build_ext.run(self)
-
-    def build_extensions(self):
-        # Suppress -Wstrict-prototypes bug in python.
-        # https://stackoverflow.com/questions/8106258/
-        self._remove_flag('-Wstrict-prototypes')
-        # Remove clang-specific flag.
-        compiler_name = self.compiler.compiler[0]
-        if 'gcc' in compiler_name or 'g++' in compiler_name:
-            self._remove_flag('-Wshorten-64-to-32')
-        build_ext.build_extensions(self)
-
-    def _remove_flag(self, flag):
-        compiler = self.compiler.compiler
-        compiler_cxx = self.compiler.compiler_cxx
-        compiler_so = self.compiler.compiler_so
-        for args in (compiler, compiler_cxx, compiler_so):
-            while flag in args:
-                args.remove(flag)
+        self.run_command("build_ext")
+        return build_py.run(self)
 
 
 _swigfaiss = Extension(
     'faiss._swigfaiss',
-    sources=['python/swigfaiss.i'],
+    sources=['faiss/python/swigfaiss.i'],
     define_macros=[('FINTEGER', 'int')],
     language='c++',
-    library_dirs=[
-        {%- if BUILD_CUDA %}
-        os.getenv('CUDA_HOME', '/usr/local/cuda') + '/lib64',
-        {%- endif %}
-    ],
-    include_dirs=[
-        os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
-        {%- if BUILD_CUDA %}
-        os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include',
-        {%- endif %}
-    ],
-    extra_compile_args=[
-        '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
-        '-Wno-sign-compare', '-fopenmp'
-    ],
-    extra_link_args=['-fopenmp'],
-    swig_opts=[
-        '-c++', '-Doverride=',
-        '-I' + os.getenv('FAISS_INCLUDE', '/usr/local/include/faiss'),
-        {%- if BUILD_CUDA %}
-        '-I' + os.getenv('CUDA_HOME', '/usr/local/cuda') + '/include',
-        '-DGPU_WRAPPER',
-        {%- endif %}
-    ] + ([] if 'macos' in get_platform() else ['-DSWIGWORDSIZE64'])
+    include_dirs=INCLUDE_DIRS,
+    library_dirs=LIBRARY_DIRS,
+    extra_compile_args=EXTRA_COMPILE_ARGS,
+    extra_link_args=EXTRA_LINK_ARGS,
+    swig_opts=SWIG_OPTS,
 )
 
+
 setup(
-    name={% if BUILD_CUDA  %}'faiss-gpu'{% else %}'faiss-cpu'{% endif %},
+    name=NAME,
     version='1.6.3',
     description=(
         'A library for efficient similarity search and clustering of dense '
@@ -107,12 +74,9 @@ setup(
     author_email='KotaYamaguchi1984@gmail.com',
     license='MIT',
     keywords='search nearest neighbors',
-    cmdclass={
-        'build': CustomBuild,
-        'build_ext': CustomBuildExt,
-    },
-    install_requires=['numpy'],
-    package_dir={'faiss': 'python'},
+    setup_requires=['numpy'],
+    package_dir={'faiss': 'faiss/python'},
     packages=['faiss'],
-    ext_modules=[_swigfaiss]
+    ext_modules=[_swigfaiss],
+    cmdclass={'build_py': CustomBuildPy},
 )
