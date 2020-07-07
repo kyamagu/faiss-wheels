@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - master
+  release:
+    types: [created]
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -14,7 +16,9 @@ jobs:
       matrix:
         python-version:
           - cp35-cp35m
+          - cp36-cp36m
           - cp37-cp37m
+          - cp38-cp38
         cuda:
           - true
           - false
@@ -47,7 +51,7 @@ jobs:
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
-        CUDA_VERSION: "10.0"
+        CUDA_VERSION: '10.0'
         CUDA_PKG_VERSION: 10-0-10.0.130-1
         CUBLAS_PKG_VERSION: 10-0-10.0.130-1
         NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
@@ -76,7 +80,7 @@ jobs:
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
         echo "::set-env name=BUILD_CUDA::true"
-        echo "::set-env name=WITH_CUDA::/usr/local/cuda-${CUDA_VERSION}"
+        echo "::set-env name=WITH_CUDA::/usr/local/cuda"
         echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
         echo "::add-path::/usr/local/cuda/bin"
         echo "::add-path::/opt/rh/devtoolset-7/root/usr/bin"
@@ -90,24 +94,38 @@ jobs:
         make install
         cd ..
     - name: Build package
+      env:
+        NUMPY_VERSION: '1.15.0'
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
-        python -m pip install -U pip
-        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest wheel
-        python -m pip wheel . -w dist --no-deps --verbose
+        pip install --no-cache-dir -U pip
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        python setup.py sdist
+        pip wheel . -w wheelhouse --no-deps --verbose
+        auditwheel repair wheelhouse/faiss*.whl -w dist
         ls -lh dist/
-        auditwheel repair dist/faiss*.whl -w wheelhouse
-        python -m pip install wheelhouse/faiss*.whl
-    - name: Test
+    - name: Install and test
       run: |
-        python -m pytest tests
+        pip install --no-cache-dir dist/faiss*.whl
+        pytest tests
+    - name: Publish to PyPI
+      if: github.event_name == 'release' && github.event.action == 'created'
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        pip install --no-cache-dir twine
+        twine upload --skip-existing dist/*
   build-mac:
     runs-on: macos-latest
     strategy:
       matrix:
         python-version:
+          - 3.5
+          - 3.6
           - 3.7
+          - 3.8
     steps:
     - uses: actions/checkout@v2
       with:
@@ -137,14 +155,24 @@ jobs:
         make install
         cd ..
     - name: Build package
+      env:
+        NUMPY_VERSION: '1.15.0'
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
-        python -m pip install -U pip
-        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest wheel
-        python -m pip wheel . -w dist --no-deps --verbose
+        pip install --no-cache-dir -U pip
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        pip wheel . -w dist --no-deps --verbose
         ls -lh dist/
-        python -m pip install dist/faiss*.whl
-    - name: Test
+    - name: Install and test
       run: |
-        python -m pytest tests
+        pip install --no-cache-dir dist/faiss*.whl
+        pytest tests
+    - name: Publish to PyPI
+      if: github.event_name == 'release' && github.event.action == 'created'
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        pip install --no-cache-dir twine
+        twine upload --skip-existing dist/*
