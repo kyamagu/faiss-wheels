@@ -1,20 +1,19 @@
 # faiss-wheels
 
-[![Travis-CI](https://img.shields.io/travis/kyamagu/faiss-wheels.svg)](https://travis-ci.org/kyamagu/faiss-wheels)
+![Build and test](https://github.com/kyamagu/faiss-wheels/workflows/Build%20and%20test/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/faiss-cpu?label=faiss-cpu)](https://pypi.org/project/faiss-cpu/)
 [![PyPI](https://img.shields.io/pypi/v/faiss-gpu?label=faiss-gpu)](https://pypi.org/project/faiss-gpu/)
 
-faiss python wheel packages based on multibuild.
+faiss python wheel packages.
 
 - [faiss](https://github.com/facebookresearch/faiss)
-- [multibuild](https://github.com/matthew-brett/multibuild)
 
 ## Overview
 
 This repository provides scripts to create wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
-- Builds CPU-only or CUDA-9.0+ compatible wheels.
+- Builds CPU-only or CUDA-10.0+ compatible wheels.
 - Bundles OpenBLAS in Linux using static linking and `auditwheel`
 - Uses Accelerate framework on macOS
 - CUDA runtime and cuBLAS are statically linked
@@ -108,7 +107,7 @@ can only use absolute path for sdist package. CUDA is not supported on macOS.
 brew install llvm libomp
 export CC=/usr/local/opt/llvm/bin/clang
 export CXX=/usr/local/opt/llvm/bin/clang++
-export FAISS_INCLUDE=/usr/local/include/faiss
+export FAISS_INCLUDE=/usr/local/include
 export FAISS_LDFLAGS='-lfaiss -framework Accelerate'
 pip install --no-binary :all: faiss-cpu
 ```
