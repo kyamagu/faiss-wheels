@@ -45,7 +45,7 @@ elif sys.platform == 'darwin':
 class CustomBuildPy(build_py):
     def run(self):
         self.run_command("build_ext")
-        return build_py.run()
+        return build_py.run(self)
 
 
 _swigfaiss = Extension(
