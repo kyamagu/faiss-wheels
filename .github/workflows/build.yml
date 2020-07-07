@@ -63,7 +63,11 @@ jobs:
         EOF
         yum install -y \
             cuda-command-line-tools-${CUDA_PKG_VERSION} \
-            cuda-cublas-dev-${CUBLAS_PKG_VERSION}
+            cuda-cublas-dev-${CUBLAS_PKG_VERSION} \
+            devtoolset-7-gcc \
+            devtoolset-7-gcc-c++ \
+            devtoolset-7-gcc-gfortran \
+            devtoolset-7-binutils
         ln -s cuda-${CUDA_VERSION} /usr/local/cuda
         echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
@@ -75,6 +79,9 @@ jobs:
         echo "::add-path::/usr/local/cuda/bin"
     - name: Build and install faiss
       run: |
+        if [ ! -z "$BUILD_CUDA" ]; then
+          source scl_source enable devtoolset-7
+        fi
         cd faiss
         aclocal
         autoconf
