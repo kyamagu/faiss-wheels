@@ -97,7 +97,7 @@ jobs:
         python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest wheel
         python -m pip wheel . -w dist --no-deps --verbose
         ls -lh dist/
-        auditwheel repair dist/skia*.whl -w wheelhouse
+        auditwheel repair dist/faiss*.whl -w wheelhouse
         python -m pip install wheelhouse/faiss*.whl
     - name: Test
       run: |
