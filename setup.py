@@ -37,7 +37,7 @@ if os.getenv('BUILD_CUDA'):
 
 if sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += ['-fdata-sections', '-ffunction-sections']
-    EXTRA_LINK_ARGS += ['--strip-all', '-Wl,--gc-sections']
+    EXTRA_LINK_ARGS += ['-s', '-Wl,--gc-sections']
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_LINK_ARGS += ['-dead_strip']
