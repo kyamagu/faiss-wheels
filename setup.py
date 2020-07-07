@@ -23,9 +23,9 @@ INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
 LIBRARY_DIRS = []
 EXTRA_COMPILE_ARGS = [
     '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
-    '-Wno-sign-compare', '-fopenmp'
+    '-Wno-sign-compare', '-fopenmp', '-fvisibility=hidden'
 ]
-EXTRA_LINK_ARGS = ['-fopenmp', '-s'] + FAISS_LDFLAGS.split()
+EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
 if os.getenv('BUILD_CUDA'):
@@ -35,8 +35,12 @@ if os.getenv('BUILD_CUDA'):
     LIBRARY_DIRS += [CUDA_HOME + '/lib64']
     SWIG_OPTS += ['-I' + CUDA_HOME + '/include', '-DGPU_WRAPPER']
 
-if sys.platform != 'darwin':
+if sys.platform == 'linux':
+    EXTRA_COMPILE_ARGS += ['-fdata-sections', '-ffunction-sections']
+    EXTRA_LINK_ARGS += ['--strip-all', '-Wl,--gc-sections']
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
+elif sys.platform == 'darwin':
+    EXTRA_LINK_ARGS += ['-dead_strip']
 
 
 class CustomBuild(_build):
