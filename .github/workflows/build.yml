@@ -76,6 +76,7 @@ jobs:
         echo ::add-path::/usr/local/cuda/bin
     - name: Build and install faiss
       run: |
+        if [ "$BUILD_CUDA" == "true" ]; then nvcc --version; fi
         cd faiss
         aclocal
         autoconf
