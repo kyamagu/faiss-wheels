@@ -85,5 +85,5 @@ setup(
     package_dir={'faiss': 'faiss/python'},
     packages=['faiss'],
     ext_modules=[_swigfaiss],
-    cmdclass={'build': CustomBuild, 'install': CustomInstall},
+    cmdclass={'build': CustomBuild},
 )
