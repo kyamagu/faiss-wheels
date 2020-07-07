@@ -40,12 +40,12 @@ jobs:
         make -j2
         make install
         cd ..
-        echo ::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran
-        echo ::set-env name=WITH_CUDA::no
+        echo "::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran"
+        echo "::set-env name=WITH_CUDA::no"
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
-        CUDA_VERSION: 9.0
+        CUDA_VERSION: "9.0"
         CUDA_PKG_VERSION: 9-0-9.0.176-1
         CUBLAS_PKG_VERSION: 9-0-9.0.176.4-1
         NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
@@ -69,11 +69,11 @@ jobs:
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
-        echo ::set-env name=BUILD_CUDA::true
-        echo ::set-env name=WITH_CUDA::/usr/local/cuda-${CUDA_VERSION}
-        echo ::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos
-        echo ::set-env name=CUDA_ARCH_FLAGS::-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
-        echo ::add-path::/usr/local/cuda/bin
+        echo "::set-env name=BUILD_CUDA::true"
+        echo "::set-env name=WITH_CUDA::/usr/local/cuda-${CUDA_VERSION}"
+        echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
+        echo "::set-env name=CUDA_ARCH_FLAGS::-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70"
+        echo "::add-path::/usr/local/cuda/bin"
     - name: Build and install faiss
       run: |
         if [ "$BUILD_CUDA" == "true" ]; then nvcc --version; fi
@@ -114,11 +114,11 @@ jobs:
         brew reinstall llvm
         export LLVM_PREFIX=$(brew --prefix llvm)
         export LIBOMP_PREFIX=$(brew --prefix libomp)
-        echo ::set-env name=CC::${LLVM_PREFIX}/bin/clang
-        echo ::set-env name=CXX::${LLVM_PREFIX}/bin/clang++
-        echo ::set-env name=CFLAGS::-stdlib=libc++
-        echo ::set-env name=CXXFLAGS::-stdlib=libc++
-        echo ::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate
+        echo "::set-env name=CC::${LLVM_PREFIX}/bin/clang"
+        echo "::set-env name=CXX::${LLVM_PREFIX}/bin/clang++"
+        echo "::set-env name=CFLAGS::-stdlib=libc++"
+        echo "::set-env name=CXXFLAGS::-stdlib=libc++"
+        echo "::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"
     - name: Build and install faiss
       run: |
         cd faiss
