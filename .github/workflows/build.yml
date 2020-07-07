@@ -77,11 +77,9 @@ jobs:
         echo "::set-env name=WITH_CUDA::/usr/local/cuda-${CUDA_VERSION}"
         echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
         echo "::add-path::/usr/local/cuda/bin"
+        echo "::add-path::/opt/rh/devtoolset-7/root/usr/bin"
     - name: Build and install faiss
       run: |
-        if [ ! -z "$BUILD_CUDA" ]; then
-          source scl_source enable devtoolset-7
-        fi
         cd faiss
         aclocal
         autoconf
