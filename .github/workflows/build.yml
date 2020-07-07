@@ -94,9 +94,11 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest
-        python setup.py install
-        ls -lh build/lib.*/faiss/
+        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest wheel
+        python -m pip wheel . -w dist --no-deps --verbose
+        ls -lh dist/
+        auditwheel repair dist/skia*.whl -w wheelhouse
+        python -m pip install wheelhouse/faiss*.whl
     - name: Test
       run: |
         python -m pytest tests
@@ -139,9 +141,10 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest
-        python setup.py install
-        ls -lh build/lib.*/faiss/
+        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest wheel
+        python -m pip wheel . -w dist --no-deps --verbose
+        ls -lh dist/
+        python -m pip install dist/faiss*.whl
     - name: Test
       run: |
         python -m pytest tests
