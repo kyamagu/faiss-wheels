@@ -13,13 +13,12 @@ jobs:
     strategy:
       matrix:
         python-version:
+          - cp35-cp35m
           - cp37-cp37m
-        manylinux:
-          - manylinux2010
         cuda:
           - true
           - false
-    container: quay.io/pypa/${{ matrix.manylinux }}_x86_64
+    container: quay.io/pypa/manylinux2010_x86_64
     steps:
     - uses: actions/checkout@v1
       with:
@@ -27,15 +26,17 @@ jobs:
     - name: Set up Python
       run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
     - name: Install build dependency
+      env:
+        SWIG_VERSION: '4.0.2'
       run: |
         sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
         yum install -y \
             openblas-devel \
             openblas-static \
             pcre-devel
-        curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
-        tar xzf swig-4.0.2.tar.gz
-        cd swig-4.0.2
+        curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz
+        tar xzf swig-${SWIG_VERSION}.tar.gz
+        cd swig-${SWIG_VERSION}
         ./configure
         make -j4
         make install
@@ -92,8 +93,9 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install wheel numpy==1.15.0 pytest
+        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest
         python setup.py install
+        ls -lh build/lib.*/faiss/
     - name: Test
       run: |
         python -m pytest tests
@@ -136,8 +138,9 @@ jobs:
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
         mv faiss/python/faiss.py faiss/python/__init__.py
         python -m pip install -U pip
-        python -m pip install wheel numpy==1.15.0 pytest
+        python -m pip install --no-cache-dir wheel numpy==1.15.0 pytest
         python setup.py install
+        ls -lh build/lib.*/faiss/
     - name: Test
       run: |
         python -m pytest tests
