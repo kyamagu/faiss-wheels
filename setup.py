@@ -23,7 +23,7 @@ INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
 LIBRARY_DIRS = []
 EXTRA_COMPILE_ARGS = [
     '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
-    '-Wno-sign-compare', '-fopenmp', '-fvisibility=hidden'
+    '-Wno-sign-compare', '-fopenmp',
 ]
 EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]

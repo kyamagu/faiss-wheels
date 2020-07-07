@@ -43,6 +43,7 @@ jobs:
         cd ..
         echo "::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran"
         echo "::set-env name=WITH_CUDA::no"
+        echo "::set-env name=CXXFLAGS::-fvisibility=hidden -fdata-sections -ffunction-sections"
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
