@@ -41,6 +41,7 @@ jobs:
         make install
         cd ..
         echo ::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran
+        echo ::set-env name=WITH_CUDA::no
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
@@ -63,32 +64,22 @@ jobs:
         yum install -y \
             cuda-command-line-tools-${CUDA_PKG_VERSION} \
             cuda-cublas-dev-${CUBLAS_PKG_VERSION}
-        ln -s /usr/local/cuda-${CUDA_VERSION} /usr/local/cuda
+        ln -s cuda-${CUDA_VERSION} /usr/local/cuda
         echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
-        echo ::set-env name=BUILD_CUDA::1
+        echo ::set-env name=BUILD_CUDA::true
+        echo ::set-env name=WITH_CUDA::/usr/local/cuda
         echo ::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos
         echo ::set-env name=CUDA_ARCH_FLAGS::-gencode=arch=compute_35,code=compute_35 -gencode=arch=compute_52,code=compute_52 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_70,code=compute_70
         echo ::add-path::/usr/local/cuda/bin
     - name: Build and install faiss
-      if: ${{ !matrix.cuda }}
       run: |
         cd faiss
         aclocal
         autoconf
-        ./configure --without-cuda
-        make -j2
-        make install
-        cd ..
-    - name: Build and install faiss (CUDA)
-      if: matrix.cuda
-      run: |
-        cd faiss
-        aclocal
-        autoconf
-        ./configure --with-cuda="/usr/local/cuda" --with-cuda-arch="${CUDA_ARCH_FLAGS}"
+        ./configure --with-cuda=${WITH_CUDA} --without-python
         make -j2
         make install
         cd ..
