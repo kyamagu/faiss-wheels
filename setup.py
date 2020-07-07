@@ -1,7 +1,6 @@
 from setuptools import setup
 from setuptools.extension import Extension
-from distutils.command.build import build as _build
-from setuptools.command.install import install as _install
+from setuptools.command.build_py import build_py
 import sys
 import os
 import numpy as np
@@ -43,16 +42,10 @@ elif sys.platform == 'darwin':
     EXTRA_LINK_ARGS += ['-dead_strip']
 
 
-class CustomBuild(_build):
+class CustomBuildPy(build_py):
     def run(self):
-        self.run_command('build_ext')
-        _build.run(self)
-
-
-class CustomInstall(_install):
-    def run(self):
-        self.run_command('build_ext')
-        self.do_egg_install()
+        self.run_command("build_ext")
+        return build_py.run()
 
 
 _swigfaiss = Extension(
@@ -85,5 +78,5 @@ setup(
     package_dir={'faiss': 'faiss/python'},
     packages=['faiss'],
     ext_modules=[_swigfaiss],
-    cmdclass={'build': CustomBuild},
+    cmdclass={'build_py': CustomBuildPy},
 )
