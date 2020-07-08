@@ -36,7 +36,7 @@ Install CPU-only version:
 pip install faiss-cpu
 ```
 
-Or, install CUDA-9.0+ compatible version:
+Or, install CUDA-10.0+ compatible version:
 
 ```bash
 pip install faiss-gpu
@@ -63,7 +63,10 @@ aclocal \
     && ./configure \
     && make -j4 \
     && make install
+cd ..
 ```
+
+Setting `CXXFLAGS="${CXXFLAGS} -avx2 -mf16c"` enables avx2 support in faiss.
 
 See the official
 [faiss installation instruction](https://github.com/facebookresearch/faiss/blob/master/INSTALL.md)
@@ -76,26 +79,31 @@ For building sdist, swig 3.0.12 or later needs to be available.
 By default, the following builds and installs the faiss-cpu package.
 
 ```bash
+export FAISS_INCLUDE=/usr/local/include
 pip install --no-binary :all: faiss-cpu
 ```
 
-If faiss is built with CUDA, the following builds a CUDA compatible package.
+The following example shows static linking and CUDA support:
 
 ```bash
-pip install --no-binary :all: faiss-gpu
-```
-
-CUDA installation is specified by `CUDA_HOME` environment variable, which by
-default is `/usr/local/cuda`.
-
-Header locations and link flags can be customized by
-`FAISS_INCLUDE` and `FAISS_LDFLAGS` environment variables for building sdist.
-It is also possible to statically link dependent libraries:
-
-```bash
+export ENABLE_CUDA=true
+export FAISS_INCLUDE=/usr/local/include
 export FAISS_LDFLAGS='-l:libfaiss.a -l:libopenblas.a -lgfortran -lcudart_static -lcublas_static -lculibos'
 pip install --no-binary :all: faiss-gpu
 ```
+
+There are a few environment variables to specify build-time options.
+
+- `CUDA_HOME`: Specifies CUDA install location.
+- `FAISS_INCLUDE`: Header locations of the installed faiss library.
+- `FAISS_LDFLAGS`: Linker flags for package build. Default to `-lfaiss`.
+
+The following options are available in the master branch.
+
+- `ENABLE_AVX2`: Setting this variable non-empty adds avx2 flags on package
+  build.
+- `ENABLE_CUDA`: Setting this variable non-empty builds `faiss-gpu` package.
+  Set this variable if faiss is built with CUDA support.
 
 ### macOS
 
