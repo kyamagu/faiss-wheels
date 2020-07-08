@@ -16,18 +16,20 @@ for Python/numpy. It is developed by Facebook AI Research.
 """
 
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', '/usr/local/include')
-FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-lfaiss')
+FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-L/usr/local/lib -lfaiss')
 
 INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
 LIBRARY_DIRS = []
 EXTRA_COMPILE_ARGS = [
-    '-std=c++11', '-mavx2', '-mf16c', '-msse4', '-mpopcnt', '-m64',
-    '-Wno-sign-compare', '-fopenmp',
+    '-std=c++11', '-msse4', '-mpopcnt', '-m64', '-Wno-sign-compare', '-fopenmp',
 ]
 EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
-if os.getenv('BUILD_CUDA'):
+if os.getenv('ENABLE_AVX2'):
+    EXTRA_COMPILE_ARGS += ['-mavx2', '-mf16c']
+
+if os.getenv('ENABLE_CUDA'):
     NAME = 'faiss-gpu'
     CUDA_HOME = os.getenv('CUDA_HOME', '/usr/local/cuda')
     INCLUDE_DIRS += [CUDA_HOME + '/include']

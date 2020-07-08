@@ -22,6 +22,8 @@ jobs:
         cuda:
           - true
           - false
+        avx2:
+          - false
     container: quay.io/pypa/manylinux2010_x86_64
     steps:
     - uses: actions/checkout@v1
@@ -48,6 +50,11 @@ jobs:
         echo "::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran"
         echo "::set-env name=WITH_CUDA::no"
         echo "::set-env name=CXXFLAGS::-fvisibility=hidden -fdata-sections -ffunction-sections"
+    - name: Enable AVX2 flags
+      if: matrix.avx2
+      run: |
+        echo "::set-env name=CXXFLAGS::${CXXFLAGS} -mavx2 -mf16c"
+        echo "::set-env name=ENABLE_AVX2::true"
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
@@ -79,7 +86,7 @@ jobs:
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
-        echo "::set-env name=BUILD_CUDA::true"
+        echo "::set-env name=ENABLE_CUDA::true"
         echo "::set-env name=WITH_CUDA::/usr/local/cuda"
         echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
         echo "::add-path::/usr/local/cuda/bin"
@@ -126,6 +133,8 @@ jobs:
           - 3.6
           - 3.7
           - 3.8
+        avx2:
+          - false
     steps:
     - uses: actions/checkout@v2
       with:
@@ -145,6 +154,11 @@ jobs:
         echo "::set-env name=CFLAGS::-stdlib=libc++"
         echo "::set-env name=CXXFLAGS::-stdlib=libc++"
         echo "::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"
+    - name: Enable AVX2 flags
+      if: matrix.avx2
+      run: |
+        echo "::set-env name=CXXFLAGS::${CXXFLAGS} -mavx2 -mf16c"
+        echo "::set-env name=ENABLE_AVX2::true"
     - name: Build and install faiss
       run: |
         cd faiss
