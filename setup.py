@@ -39,7 +39,7 @@ if os.getenv('FAISS_ENABLE_GPU', '').upper() == 'ON':
 
 if sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += ['-fdata-sections', '-ffunction-sections']
-    EXTRA_LINK_ARGS += ['-s', '-Wl,--gc-sections']
+    EXTRA_LINK_ARGS += ['-lrt', '-s', '-Wl,--gc-sections']
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_LINK_ARGS += ['-dead_strip']
