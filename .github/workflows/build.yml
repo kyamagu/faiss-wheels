@@ -49,13 +49,12 @@ jobs:
         cd ..
         echo "FAISS_ENABLE_GPU=OFF" >> $GITHUB_ENV
         echo "FAISS_LDFLAGS=-l:libfaiss.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
-        echo "WITH_CUDA=no" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Enable AVX2 flags
       if: matrix.avx2
       run: |
         echo "CXXFLAGS=${CXXFLAGS} -mavx2 -mf16c" >> $GITHUB_ENV
-        echo "ENABLE_AVX2=true"
+        echo "FAISS_ENABLE_AVX2=true"
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
@@ -88,8 +87,6 @@ jobs:
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
         echo "FAISS_ENABLE_GPU=ON" >> $GITHUB_ENV
-        echo "ENABLE_CUDA=true" >> $GITHUB_ENV
-        echo "WITH_CUDA=/usr/local/cuda" >> $GITHUB_ENV
         echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos" >> $GITHUB_ENV
         echo "/usr/local/cuda/bin" >> $GITHUB_PATH
         echo "/opt/rh/devtoolset-7/root/usr/bin" >> $GITHUB_PATH
@@ -97,7 +94,11 @@ jobs:
       run: |
         cd faiss
         mkdir build && cd build
-        cmake .. -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+        cmake .. \
+          -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
+          -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
+          -DCMAKE_CUDA_ARCHITECTURES="35;52;60;61;70;75" \
+          -DCMAKE_BUILD_TYPE=Release
         make -j4
         make install
         cd ../..
@@ -166,7 +167,7 @@ jobs:
       if: matrix.avx2
       run: |
         echo "CXXFLAGS=${CXXFLAGS} -mavx2 -mf16c" >> $GITHUB_ENV
-        echo "ENABLE_AVX2=true" >> $GITHUB_ENV
+        echo "FAISS_ENABLE_AVX2=true" >> $GITHUB_ENV
     - name: Build and install faiss
       run: |
         cd faiss

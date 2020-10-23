@@ -27,10 +27,10 @@ EXTRA_COMPILE_ARGS = [
 EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
-if os.getenv('ENABLE_AVX2'):
+if os.getenv('FAISS_ENABLE_AVX2'):
     EXTRA_COMPILE_ARGS += ['-mavx2', '-mf16c']
 
-if os.getenv('ENABLE_CUDA'):
+if os.getenv('FAISS_ENABLE_GPU', '').upper() == 'ON':
     NAME = 'faiss-gpu'
     CUDA_HOME = os.getenv('CUDA_HOME', '/usr/local/cuda')
     INCLUDE_DIRS += [CUDA_HOME + '/include']
