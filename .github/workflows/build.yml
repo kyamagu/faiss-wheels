@@ -11,7 +11,6 @@ on:
     types: [created]
 jobs:
   build-linux:
-    if: false
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -134,7 +133,6 @@ jobs:
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
   build-mac:
-    if: false
     runs-on: macos-latest
     strategy:
       matrix:
@@ -207,6 +205,7 @@ jobs:
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
   build-win:
+    if: false
     runs-on: windows-latest
     strategy:
       matrix:
