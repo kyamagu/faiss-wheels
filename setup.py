@@ -53,7 +53,10 @@ class CustomBuildPy(build_py):
 
 _swigfaiss = Extension(
     'faiss._swigfaiss',
-    sources=[os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i')],
+    sources=[
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
+    ],
     define_macros=[('FINTEGER', 'int')],
     language='c++',
     include_dirs=INCLUDE_DIRS,
