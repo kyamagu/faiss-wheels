@@ -48,7 +48,7 @@ jobs:
         make install
         cd ..
         echo "FAISS_ENABLE_GPU=OFF" >> $GITHUB_ENV
-        echo "FAISS_LDFLAGS=-l:libfaiss.a -l:libopenblas.a -lgfortran" >>  >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=-l:libfaiss.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
         echo "WITH_CUDA=no" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Enable AVX2 flags
@@ -171,7 +171,7 @@ jobs:
         cd ../..
     - name: Build package
       run: |
-        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
+        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
         touch faiss/contrib/__init__.py
 
         pip install --no-cache-dir -U pip
