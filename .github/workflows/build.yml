@@ -11,6 +11,7 @@ on:
     types: [created]
 jobs:
   build-linux:
+    if: false
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -133,6 +134,7 @@ jobs:
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
   build-mac:
+    if: false
     runs-on: macos-latest
     strategy:
       matrix:
@@ -153,7 +155,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install build dependency
       run: |
-        brew install libomp swig automake
+        brew install libomp swig
         brew reinstall llvm
         export LLVM_PREFIX=$(brew --prefix llvm)
         export LIBOMP_PREFIX=$(brew --prefix libomp)
@@ -204,3 +206,27 @@ jobs:
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
+  build-win:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.7
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install build dependency
+      run: |
+        choco install swig
+    - name: Build and install faiss
+      run: |
+        cd faiss
+        cmake . -B build -A x64 -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF
+        cmake --build build --config Release -j %CPU_COUNT%
+        cmake --install build --config Release
+        cd ..
