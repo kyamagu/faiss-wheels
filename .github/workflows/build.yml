@@ -15,16 +15,16 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - cp35-cp35m
           - cp36-cp36m
           - cp37-cp37m
           - cp38-cp38
+          - cp39-cp39
         cuda:
           - true
           - false
         avx2:
           - false
-    container: quay.io/pypa/manylinux2010_x86_64
+    container: quay.io/pypa/manylinux2014_x86_64
     steps:
     - uses: actions/checkout@v1
       with:
@@ -47,6 +47,7 @@ jobs:
         make -j4
         make install
         cd ..
+        echo "::set-env name=FAISS_ENABLE_GPU::OFF"
         echo "::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran"
         echo "::set-env name=WITH_CUDA::no"
         echo "::set-env name=CXXFLAGS::-fvisibility=hidden -fdata-sections -ffunction-sections"
@@ -86,6 +87,7 @@ jobs:
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
+        echo "::set-env name=FAISS_ENABLE_GPU::ON"
         echo "::set-env name=ENABLE_CUDA::true"
         echo "::set-env name=WITH_CUDA::/usr/local/cuda"
         echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
@@ -94,20 +96,18 @@ jobs:
     - name: Build and install faiss
       run: |
         cd faiss
-        aclocal
-        autoconf
-        ./configure --with-cuda=${WITH_CUDA} --without-python
+        mkdir build && cd build
+        cmake .. -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON
         make -j4
         make install
-        cd ..
+        cd ../..
     - name: Build package
-      env:
-        NUMPY_VERSION: '1.15.0'
       run: |
-        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
-        mv faiss/python/faiss.py faiss/python/__init__.py
+        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        touch faiss/faiss/python/contrib/__init__.py
+
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        pip install --no-cache-dir wheel numpy
         python setup.py sdist
         pip wheel . -w wheelhouse --no-deps --verbose
         auditwheel repair wheelhouse/faiss*.whl -w dist
@@ -115,7 +115,8 @@ jobs:
     - name: Install and test
       run: |
         pip install --no-cache-dir dist/faiss*.whl
-        pytest tests
+        pip install --no-cache-dir pytest scipy torch
+        pytest faiss/tests
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
       env:
@@ -129,10 +130,10 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 3.5
           - 3.6
           - 3.7
           - 3.8
+          - 3.9
         avx2:
           - false
     steps:
@@ -162,26 +163,25 @@ jobs:
     - name: Build and install faiss
       run: |
         cd faiss
-        aclocal
-        autoconf
-        ./configure --without-cuda --with-blas="-framework Accelerate"
+        mkdir build && cd build
+        cmake .. -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON
         make -j4
         make install
-        cd ..
+        cd ../..
     - name: Build package
-      env:
-        NUMPY_VERSION: '1.15.0'
       run: |
         mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
-        mv faiss/python/faiss.py faiss/python/__init__.py
+        touch faiss/faiss/python/contrib/__init__.py
+
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        pip install --no-cache-dir wheel numpy
         pip wheel . -w dist --no-deps --verbose
         ls -lh dist/
     - name: Install and test
       run: |
         pip install --no-cache-dir dist/faiss*.whl
-        pytest tests
+        pip install --no-cache-dir pytest scipy
+        pytest faiss/tests
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
       env:
