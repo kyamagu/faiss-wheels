@@ -223,10 +223,11 @@ jobs:
     - name: Install build dependency
       run: |
         choco install swig
+        vcpkg install openblas:x64-windows
     - name: Build and install faiss
       run: |
         cd faiss
         cmake . -B build -A x64 -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF
-        cmake --build build --config Release -j %CPU_COUNT%
+        cmake --build build --config Release -j 4
         cmake --install build --config Release
         cd ..
