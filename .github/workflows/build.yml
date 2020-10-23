@@ -118,6 +118,7 @@ jobs:
         auditwheel repair wheelhouse/faiss*.whl -w dist
         ls -lh dist/
     - name: Install and test
+      if: matrix.python-version != 'cp39-cp39'
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy torch
@@ -189,6 +190,7 @@ jobs:
         pip wheel . -w dist --no-deps --verbose
         ls -lh dist/
     - name: Install and test
+      if: matrix.python-version != 3.9
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
