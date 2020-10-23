@@ -102,6 +102,8 @@ jobs:
         make install
         cd ../..
     - name: Build package
+      env:
+        NUMPY_VERSION: '1.18.0'
       run: |
         # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
         mkdir /usr/local/include/faiss/python/
@@ -110,7 +112,7 @@ jobs:
         touch faiss/contrib/__init__.py
 
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         python setup.py sdist
         pip wheel . -w wheelhouse --no-deps --verbose
         auditwheel repair wheelhouse/faiss*.whl -w dist
@@ -173,6 +175,8 @@ jobs:
         make install
         cd ../..
     - name: Build package
+      env:
+        NUMPY_VERSION: '1.18.0'
       run: |
         # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
         mkdir /usr/local/include/faiss/python/
@@ -181,7 +185,7 @@ jobs:
         touch faiss/contrib/__init__.py
 
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         pip wheel . -w dist --no-deps --verbose
         ls -lh dist/
     - name: Install and test
