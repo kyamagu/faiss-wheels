@@ -15,7 +15,8 @@ evaluation and parameter tuning. Faiss is written in C++ with complete wrappers
 for Python/numpy. It is developed by Facebook AI Research.
 """
 
-FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', '/usr/local/include')
+FAISS_ROOT = os.getenv('FAISS_ROOT', os.path.join(os.getcwd(), 'faiss'))
+FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', os.path.join('/usr/local/include'))
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-L/usr/local/lib -lfaiss')
 
 INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
@@ -26,10 +27,10 @@ EXTRA_COMPILE_ARGS = [
 EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
-if os.getenv('ENABLE_AVX2'):
+if os.getenv('FAISS_ENABLE_AVX2'):
     EXTRA_COMPILE_ARGS += ['-mavx2', '-mf16c']
 
-if os.getenv('ENABLE_CUDA'):
+if os.getenv('FAISS_ENABLE_GPU', '').upper() == 'ON':
     NAME = 'faiss-gpu'
     CUDA_HOME = os.getenv('CUDA_HOME', '/usr/local/cuda')
     INCLUDE_DIRS += [CUDA_HOME + '/include']
@@ -38,7 +39,7 @@ if os.getenv('ENABLE_CUDA'):
 
 if sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += ['-fdata-sections', '-ffunction-sections']
-    EXTRA_LINK_ARGS += ['-s', '-Wl,--gc-sections']
+    EXTRA_LINK_ARGS += ['-lrt', '-s', '-Wl,--gc-sections']
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_LINK_ARGS += ['-dead_strip']
@@ -52,7 +53,10 @@ class CustomBuildPy(build_py):
 
 _swigfaiss = Extension(
     'faiss._swigfaiss',
-    sources=['faiss/python/swigfaiss.i'],
+    sources=[
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
+    ],
     define_macros=[('FINTEGER', 'int')],
     language='c++',
     include_dirs=INCLUDE_DIRS,
@@ -65,7 +69,7 @@ _swigfaiss = Extension(
 
 setup(
     name=NAME,
-    version='1.6.3',
+    version='1.6.4',
     description=(
         'A library for efficient similarity search and clustering of dense '
         'vectors.'
@@ -77,8 +81,11 @@ setup(
     license='MIT',
     keywords='search nearest neighbors',
     setup_requires=['numpy'],
-    package_dir={'faiss': 'faiss/python'},
-    packages=['faiss'],
+    package_dir={
+        'faiss': os.path.join(FAISS_ROOT, 'faiss', 'python'),
+        'faiss.contrib': os.path.join(FAISS_ROOT, 'contrib'),
+    },
+    packages=['faiss', 'faiss.contrib'],
     ext_modules=[_swigfaiss],
     cmdclass={'build_py': CustomBuildPy},
 )

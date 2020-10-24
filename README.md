@@ -58,11 +58,8 @@ The sdist package can be built when faiss is already built and installed.
 
 ```bash
 cd faiss
-aclocal \
-    && autoconf \
-    && ./configure \
-    && make -j4 \
-    && make install
+cmake -B build . -DFAISS_ENABLE_PYTHON=OFF
+make -C build -j8
 cd ..
 ```
 
@@ -100,10 +97,10 @@ There are a few environment variables to specify build-time options.
 
 The following options are available in the master branch.
 
-- `ENABLE_AVX2`: Setting this variable non-empty adds avx2 flags on package
+- `FAISS_ENABLE_AVX2`: Setting this variable non-empty adds avx2 flags on package
   build.
-- `ENABLE_CUDA`: Setting this variable non-empty builds `faiss-gpu` package.
-  Set this variable if faiss is built with CUDA support.
+- `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds `faiss-gpu` package.
+  Set this variable if faiss is built with GPU support.
 
 ### macOS
 

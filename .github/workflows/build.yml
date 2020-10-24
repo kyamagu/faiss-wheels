@@ -15,22 +15,22 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - cp35-cp35m
           - cp36-cp36m
           - cp37-cp37m
           - cp38-cp38
+          - cp39-cp39
         cuda:
           - true
           - false
         avx2:
           - false
-    container: quay.io/pypa/manylinux2010_x86_64
+    container: quay.io/pypa/manylinux2014_x86_64
     steps:
     - uses: actions/checkout@v1
       with:
         submodules: true
     - name: Set up Python
-      run: echo "::add-path::/opt/python/${{ matrix.python-version }}/bin"
+      run: echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
     - name: Install build dependency
       env:
         SWIG_VERSION: '4.0.2'
@@ -47,14 +47,14 @@ jobs:
         make -j4
         make install
         cd ..
-        echo "::set-env name=FAISS_LDFLAGS::-l:libfaiss.a -l:libopenblas.a -lgfortran"
-        echo "::set-env name=WITH_CUDA::no"
-        echo "::set-env name=CXXFLAGS::-fvisibility=hidden -fdata-sections -ffunction-sections"
+        echo "FAISS_ENABLE_GPU=OFF" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=-l:libfaiss.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
+        echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Enable AVX2 flags
       if: matrix.avx2
       run: |
-        echo "::set-env name=CXXFLAGS::${CXXFLAGS} -mavx2 -mf16c"
-        echo "::set-env name=ENABLE_AVX2::true"
+        echo "CXXFLAGS=${CXXFLAGS} -mavx2 -mf16c" >> $GITHUB_ENV
+        echo "FAISS_ENABLE_AVX2=true"
     - name: Install CUDA build tools
       if: matrix.cuda
       env:
@@ -86,36 +86,44 @@ jobs:
         echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
         echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
         ldconfig
-        echo "::set-env name=ENABLE_CUDA::true"
-        echo "::set-env name=WITH_CUDA::/usr/local/cuda"
-        echo "::set-env name=FAISS_LDFLAGS::${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos"
-        echo "::add-path::/usr/local/cuda/bin"
-        echo "::add-path::/opt/rh/devtoolset-7/root/usr/bin"
+        echo "FAISS_ENABLE_GPU=ON" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos" >> $GITHUB_ENV
+        echo "/usr/local/cuda/bin" >> $GITHUB_PATH
+        echo "/opt/rh/devtoolset-7/root/usr/bin" >> $GITHUB_PATH
     - name: Build and install faiss
       run: |
         cd faiss
-        aclocal
-        autoconf
-        ./configure --with-cuda=${WITH_CUDA} --without-python
+        mkdir build && cd build
+        cmake .. \
+          -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
+          -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
+          -DCMAKE_CUDA_ARCHITECTURES="35;52;60;61;70;75" \
+          -DCMAKE_BUILD_TYPE=Release
         make -j4
         make install
-        cd ..
+        cd ../..
     - name: Build package
       env:
-        NUMPY_VERSION: '1.15.0'
+        NUMPY_VERSION: '1.18.0'
       run: |
-        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
-        mv faiss/python/faiss.py faiss/python/__init__.py
+        # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
+        mkdir /usr/local/include/faiss/python/
+        mv faiss/faiss/python/python_callbacks.h /usr/local/include/faiss/python/
+        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        touch faiss/contrib/__init__.py
+
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         python setup.py sdist
         pip wheel . -w wheelhouse --no-deps --verbose
         auditwheel repair wheelhouse/faiss*.whl -w dist
         ls -lh dist/
     - name: Install and test
+      if: matrix.python-version != 'cp39-cp39'
       run: |
         pip install --no-cache-dir dist/faiss*.whl
-        pytest tests
+        pip install --no-cache-dir pytest scipy torch
+        pytest faiss/tests --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
       env:
@@ -129,10 +137,10 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 3.5
           - 3.6
           - 3.7
           - 3.8
+          - 3.9
         avx2:
           - false
     steps:
@@ -145,43 +153,49 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install build dependency
       run: |
-        brew install libomp swig automake
+        brew install libomp swig
         brew reinstall llvm
         export LLVM_PREFIX=$(brew --prefix llvm)
         export LIBOMP_PREFIX=$(brew --prefix libomp)
-        echo "::set-env name=CC::${LLVM_PREFIX}/bin/clang"
-        echo "::set-env name=CXX::${LLVM_PREFIX}/bin/clang++"
-        echo "::set-env name=CFLAGS::-stdlib=libc++"
-        echo "::set-env name=CXXFLAGS::-stdlib=libc++"
-        echo "::set-env name=FAISS_LDFLAGS::/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"
+        echo "CC=${LLVM_PREFIX}/bin/clang" >> $GITHUB_ENV
+        echo "CXX=${LLVM_PREFIX}/bin/clang++" >> $GITHUB_ENV
+        echo "CFLAGS=-stdlib=libc++" >> $GITHUB_ENV
+        echo "CXXFLAGS=-stdlib=libc++ -I${LIBOMP_PREFIX}/include" >> $GITHUB_ENV
+        echo "LDFLAGS=-L${LIBOMP_PREFIX}/lib" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate" >> $GITHUB_ENV
     - name: Enable AVX2 flags
       if: matrix.avx2
       run: |
-        echo "::set-env name=CXXFLAGS::${CXXFLAGS} -mavx2 -mf16c"
-        echo "::set-env name=ENABLE_AVX2::true"
+        echo "CXXFLAGS=${CXXFLAGS} -mavx2 -mf16c" >> $GITHUB_ENV
+        echo "FAISS_ENABLE_AVX2=true" >> $GITHUB_ENV
     - name: Build and install faiss
       run: |
         cd faiss
-        aclocal
-        autoconf
-        ./configure --without-cuda --with-blas="-framework Accelerate"
+        mkdir build && cd build
+        cmake .. -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
         make -j4
         make install
-        cd ..
+        cd ../..
     - name: Build package
       env:
-        NUMPY_VERSION: '1.15.0'
+        NUMPY_VERSION: '1.18.0'
       run: |
-        mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i
-        mv faiss/python/faiss.py faiss/python/__init__.py
+        # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
+        mkdir /usr/local/include/faiss/python/
+        mv faiss/faiss/python/python_callbacks.h /usr/local/include/faiss/python/
+        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        touch faiss/contrib/__init__.py
+
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} pytest wheel
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         pip wheel . -w dist --no-deps --verbose
         ls -lh dist/
     - name: Install and test
+      if: matrix.python-version != 3.9
       run: |
         pip install --no-cache-dir dist/faiss*.whl
-        pytest tests
+        pip install --no-cache-dir pytest scipy
+        pytest faiss/tests
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
       env:
@@ -190,3 +204,29 @@ jobs:
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
+  build-win:
+    if: false
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.7
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install build dependency
+      run: |
+        choco install swig
+        vcpkg install openblas:x64-windows
+    - name: Build and install faiss
+      run: |
+        cd faiss
+        cmake . -B build -A x64 -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF
+        cmake --build build --config Release -j 4
+        cmake --install build --config Release
+        cd ..
