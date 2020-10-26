@@ -230,26 +230,26 @@ jobs:
       run: |
         git clone https://github.com/xianyi/OpenBLAS.git
         cd OpenBLAS
-        cmake . \
-          -B build \
-          -G "Ninja" \
-          -DCMAKE_CXX_COMPILER=clang-cl \
-          -DCMAKE_C_COMPILER=clang-cl \
-          -DCMAKE_Fortran_COMPILER=flang \
-          -DBUILD_WITHOUT_LAPACK=no \
-          -DNOFORTRAN=0 \
-          -DDYNAMIC_ARCH=ON \
+        cmake . `
+          -B build `
+          -G "Ninja" `
+          -DCMAKE_CXX_COMPILER=clang-cl `
+          -DCMAKE_C_COMPILER=clang-cl `
+          -DCMAKE_Fortran_COMPILER=flang `
+          -DBUILD_WITHOUT_LAPACK=no `
+          -DNOFORTRAN=0 `
+          -DDYNAMIC_ARCH=ON `
           -DCMAKE_BUILD_TYPE=Release
         cmake --build . --config Release -j 4
         cmake --install . --prefix c:\opt -v
     - name: Build and install faiss
       run: |
         cd faiss
-        cmake . \
-          -B build \
-          -A x64 \
-          -DFAISS_ENABLE_GPU=OFF \
-          -DFAISS_ENABLE_PYTHON=OFF \
+        cmake . `
+          -B build `
+          -A x64 `
+          -DFAISS_ENABLE_GPU=OFF `
+          -DFAISS_ENABLE_PYTHON=OFF `
           -DBUILD_TESTING=OFF
         cmake --build build --config Release -j 4
         cmake --install build --config Release
