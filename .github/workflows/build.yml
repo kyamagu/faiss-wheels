@@ -256,8 +256,10 @@ jobs:
           -DBUILD_WITHOUT_LAPACK=no `
           -DNOFORTRAN=0 `
           -DDYNAMIC_ARCH=ON `
-          -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j -- -Wno-unused-parameter
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_FLAGS="-Wno-unused-parameter" `
+          -DCMAKE_CXX_FLAGS="-Wno-unused-parameter"
+        cmake --build build --config Release -j
         cmake --install build --prefix ${env:OPENBLAS_INSTALL_PREFIX} -v
         cd ..
     - name: Build and install faiss
