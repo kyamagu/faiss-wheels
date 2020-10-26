@@ -216,13 +216,12 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - uses: conda-incubator/setup-miniconda@v1
       with:
+        auto-update-conda: true
         python-version: ${{ matrix.python-version }}
     - name: Install OpenBLAS build dependency
       run: |
-        conda update -n base conda
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
         echo "LIB=${CONDA_PREFIX}\Library\lib;${LIB}" >> $GITHUB_ENV
@@ -241,7 +240,7 @@ jobs:
           -DNOFORTRAN=0 \
           -DDYNAMIC_ARCH=ON \
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build . --config Release
+        cmake --build . --config Release -j 4
         cmake --install . --prefix c:\opt -v
     - name: Build and install faiss
       run: |
@@ -258,3 +257,7 @@ jobs:
     - name: Install swig
       run: |
         choco install swig
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
