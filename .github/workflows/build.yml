@@ -11,6 +11,7 @@ on:
     types: [created]
 jobs:
   build-linux:
+    if: false
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -133,6 +134,7 @@ jobs:
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
   build-mac:
+    if: false
     runs-on: macos-latest
     strategy:
       matrix:
@@ -205,7 +207,6 @@ jobs:
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
   build-win:
-    if: false
     runs-on: windows-latest
     strategy:
       matrix:
@@ -219,14 +220,41 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install build dependency
+    - name: Install OpenBLAS build dependency
       run: |
-        choco install swig
-        vcpkg install openblas:x64-windows
+        conda update -n base conda
+        conda config --add channels conda-forge
+        conda install -y flang clangdev perl libflang ninja
+        echo "LIB=${CONDA_PREFIX}\Library\lib;${LIB}" >> $GITHUB_ENV
+        echo "CPATH=${CONDA_PREFIX}\Library\include;${CPATH}" >> $GITHUB_ENV
+    - name: Build OpenBLAS
+      run: |
+        git clone https://github.com/xianyi/OpenBLAS.git
+        cd OpenBLAS
+        cmake . \
+          -B build \
+          -G "Ninja" \
+          -DCMAKE_CXX_COMPILER=clang-cl \
+          -DCMAKE_C_COMPILER=clang-cl \
+          -DCMAKE_Fortran_COMPILER=flang \
+          -DBUILD_WITHOUT_LAPACK=no \
+          -DNOFORTRAN=0 \
+          -DDYNAMIC_ARCH=ON \
+          -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
+        cmake --install . --prefix c:\opt -v
     - name: Build and install faiss
       run: |
         cd faiss
-        cmake . -B build -A x64 -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF
+        cmake . \
+          -B build \
+          -A x64 \
+          -DFAISS_ENABLE_GPU=OFF \
+          -DFAISS_ENABLE_PYTHON=OFF \
+          -DBUILD_TESTING=OFF
         cmake --build build --config Release -j 4
         cmake --install build --config Release
         cd ..
+    - name: Install swig
+      run: |
+        choco install swig
