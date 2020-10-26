@@ -224,8 +224,6 @@ jobs:
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
-        conda activate
-        echo $env:CONDA_PREFIX
         echo "CONDA_PREFIX=${env:CONDA_PREFIX}" >> $env:GITHUB_ENV
     - name: Build OpenBLAS
       run: |
@@ -236,9 +234,9 @@ jobs:
             set-content env:\"$name" $value
           }
         }
+        echo $Env:CONDA_PREFIX
         $Env:LIB += ";${env:CONDA_PREFIX}\Library\lib"
         $Env:CPATH += ";${env:CONDA_PREFIX}\Library\include"
-        gci env:* | sort-object name
         git clone https://github.com/xianyi/OpenBLAS.git
         cd OpenBLAS
         cmake . `
@@ -251,8 +249,9 @@ jobs:
           -DNOFORTRAN=0 `
           -DDYNAMIC_ARCH=ON `
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build . --config Release -j 4
-        cmake --install . --prefix c:\opt -v
+        cmake --build build --config Release -j 4
+        cmake --install build --prefix c:\opt -v
+        cd ..
     - name: Build and install faiss
       run: |
         cd faiss
