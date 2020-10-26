@@ -225,9 +225,10 @@ jobs:
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
         conda activate
-        echo "CONDA_PREFIX=${CONDA_PREFIX}" >> $GITHUB_ENV
-        echo "LIB=${CONDA_PREFIX}\Library\lib;${LIB}" >> $GITHUB_ENV
-        echo "CPATH=${CONDA_PREFIX}\Library\include;${CPATH}" >> $GITHUB_ENV
+        echo "CONDA_PREFIX=${env:CONDA_PREFIX}" >> $GITHUB_ENV
+        echo "LIB=${env:CONDA_PREFIX}\Library\lib;${env:LIB}" >> $GITHUB_ENV
+        echo "CPATH=${env:CONDA_PREFIX}\Library\include;${env:CPATH}" >> $GITHUB_ENV
+        echo ${env:GITHUB_ENV}
     - name: Build OpenBLAS
       run: |
         $installationPath = vswhere.exe -prerelease -latest -property installationPath
