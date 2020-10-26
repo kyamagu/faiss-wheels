@@ -221,7 +221,6 @@ jobs:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
     - name: Install OpenBLAS build dependency
-      shell: bash
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
