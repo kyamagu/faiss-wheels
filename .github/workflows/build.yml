@@ -221,9 +221,12 @@ jobs:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
     - name: Install OpenBLAS build dependency
+      shell: bash
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
+        conda activate
+        echo "CONDA_PREFIX=${CONDA_PREFIX}" >> $GITHUB_ENV
         echo "LIB=${CONDA_PREFIX}\Library\lib;${LIB}" >> $GITHUB_ENV
         echo "CPATH=${CONDA_PREFIX}\Library\include;${CPATH}" >> $GITHUB_ENV
     - name: Build OpenBLAS
@@ -235,7 +238,6 @@ jobs:
             set-content env:\"$name" $value
           }
         }
-        conda activate
         git clone https://github.com/xianyi/OpenBLAS.git
         cd OpenBLAS
         cmake . `
