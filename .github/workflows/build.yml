@@ -255,7 +255,6 @@ jobs:
         cmake --install build --prefix ${env:OPENBLAS_INSTALL_PREFIX} -v
         cd ..
     - name: Build and install faiss
-      if: false
       run: |
         cd faiss
         cmake . `
@@ -269,7 +268,6 @@ jobs:
         cmake --install build --config Release -v
         cd ..
     - name: Install swig
-      if: false
       run: |
         choco install swig
     - name: Set up Python
