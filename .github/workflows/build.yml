@@ -235,6 +235,7 @@ jobs:
             set-content env:\"$name" $value
           }
         }
+        conda activate
         git clone https://github.com/xianyi/OpenBLAS.git
         cd OpenBLAS
         cmake . `
