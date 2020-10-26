@@ -83,7 +83,7 @@ pip install --no-binary :all: faiss-cpu
 The following example shows static linking and CUDA support:
 
 ```bash
-export ENABLE_CUDA=true
+export FAISS_ENABLE_GPU=ON
 export FAISS_INCLUDE=/usr/local/include
 export FAISS_LDFLAGS='-l:libfaiss.a -l:libopenblas.a -lgfortran -lcudart_static -lcublas_static -lculibos'
 pip install --no-binary :all: faiss-gpu
