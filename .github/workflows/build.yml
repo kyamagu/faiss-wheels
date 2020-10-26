@@ -9,10 +9,16 @@ on:
       - master
   release:
     types: [created]
+env:
+  SWIG_VERSION: '4.0.2'
+  NUMPY_VERSION: '1.18.0'
+  TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+  TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 jobs:
   build-linux:
     if: false
     runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux2014_x86_64
     strategy:
       matrix:
         python-version:
@@ -25,7 +31,12 @@ jobs:
           - false
         avx2:
           - false
-    container: quay.io/pypa/manylinux2014_x86_64
+    env:
+      CUDA_VERSION: '10.0'
+      CUDA_PKG_VERSION: 10-0-10.0.130-1
+      CUBLAS_PKG_VERSION: 10-0-10.0.130-1
+      NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
+      NVIDIA_GPGKEY_URL: http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
     steps:
     - uses: actions/checkout@v1
       with:
@@ -33,8 +44,6 @@ jobs:
     - name: Set up Python
       run: echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
     - name: Install build dependency
-      env:
-        SWIG_VERSION: '4.0.2'
       run: |
         sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
         yum install -y \
@@ -58,12 +67,6 @@ jobs:
         echo "FAISS_ENABLE_AVX2=true"
     - name: Install CUDA build tools
       if: matrix.cuda
-      env:
-        CUDA_VERSION: '10.0'
-        CUDA_PKG_VERSION: 10-0-10.0.130-1
-        CUBLAS_PKG_VERSION: 10-0-10.0.130-1
-        NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
-        NVIDIA_GPGKEY_URL: http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
       run: |
         curl -fsSL --retry 3 $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
         echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
@@ -104,8 +107,6 @@ jobs:
         make install
         cd ../..
     - name: Build package
-      env:
-        NUMPY_VERSION: '1.18.0'
       run: |
         # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
         mkdir /usr/local/include/faiss/python/
@@ -127,9 +128,6 @@ jobs:
         pytest faiss/tests --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
@@ -179,8 +177,6 @@ jobs:
         make install
         cd ../..
     - name: Build package
-      env:
-        NUMPY_VERSION: '1.18.0'
       run: |
         # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
         mkdir /usr/local/include/faiss/python/
@@ -200,9 +196,6 @@ jobs:
         pytest faiss/tests
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
@@ -257,12 +250,12 @@ jobs:
           -DNOFORTRAN=0 `
           -DDYNAMIC_ARCH=ON `
           -DCMAKE_BUILD_TYPE=Release `
-          -DCMAKE_C_FLAGS="-Wno-unused-parameter" `
-          -DCMAKE_CXX_FLAGS="-Wno-unused-parameter"
+          -DQUIET_MAKE=1
         cmake --build build --config Release -j
         cmake --install build --prefix ${env:OPENBLAS_INSTALL_PREFIX} -v
         cd ..
     - name: Build and install faiss
+      if: false
       run: |
         cd faiss
         cmake . `
@@ -271,11 +264,12 @@ jobs:
           -DFAISS_ENABLE_GPU=OFF `
           -DFAISS_ENABLE_PYTHON=OFF `
           -DBUILD_TESTING=OFF `
-          -DCMAKE_PREFIX_PATH ${env:OPENBLAS_INSTALL_PREFIX}
+          -DCMAKE_PREFIX_PATH="${env:OPENBLAS_INSTALL_PREFIX}"
         cmake --build build --config Release -j
         cmake --install build --config Release -v
         cd ..
     - name: Install swig
+      if: false
       run: |
         choco install swig
     - name: Set up Python
