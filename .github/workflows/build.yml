@@ -212,21 +212,29 @@ jobs:
       matrix:
         python-version:
           - 3.7
+    env:
+      OPENBLAS_VERSION: v0.3.12
+      OPENBLAS_INSTALL_PREFIX: c:\opt
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - uses: actions/cache
+      id: cache-openblas
+      with:
+        path: ${{ OPENBLAS_INSTALL_PREFIX }}
+        key: ${{ runner.os }}-openblas-${{ env.OPENBLAS_VERSION }}
     - uses: conda-incubator/setup-miniconda@v1
+      if: steps.cache-openblas.outputs.cache-hit != 'true'
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
-    - name: Install OpenBLAS build dependency
+    - name: Build OpenBLAS
+      if: steps.cache-openblas.outputs.cache-hit != 'true'
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
-        echo "CONDA_PREFIX=${env:CONDA_PREFIX}" >> $env:GITHUB_ENV
-    - name: Build OpenBLAS
-      run: |
+
         $installationPath = vswhere.exe -prerelease -latest -property installationPath
         if ($installationPath -and (test-path "$installationPath\Common7\Tools\vsdevcmd.bat")) {
           & "${env:COMSPEC}" /s /c "`"$installationPath\Common7\Tools\vsdevcmd.bat`" -arch=x64 -no_logo && set" | foreach-object {
@@ -234,10 +242,10 @@ jobs:
             set-content env:\"$name" $value
           }
         }
-        echo $Env:CONDA_PREFIX
         $Env:LIB += ";${env:CONDA_PREFIX}\Library\lib"
         $Env:CPATH += ";${env:CONDA_PREFIX}\Library\include"
-        git clone https://github.com/xianyi/OpenBLAS.git
+
+        git clone https://github.com/xianyi/OpenBLAS.git -b ${env:OPENBLAS_VERSION}
         cd OpenBLAS
         cmake . `
           -B build `
@@ -249,8 +257,8 @@ jobs:
           -DNOFORTRAN=0 `
           -DDYNAMIC_ARCH=ON `
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j 4
-        cmake --install build --prefix c:\opt -v
+        cmake --build build --config Release -j -- -Wno-unused-parameter
+        cmake --install build --prefix ${env:OPENBLAS_INSTALL_PREFIX} -v
         cd ..
     - name: Build and install faiss
       run: |
@@ -260,9 +268,10 @@ jobs:
           -A x64 `
           -DFAISS_ENABLE_GPU=OFF `
           -DFAISS_ENABLE_PYTHON=OFF `
-          -DBUILD_TESTING=OFF
-        cmake --build build --config Release -j 4
-        cmake --install build --config Release
+          -DBUILD_TESTING=OFF `
+          -DCMAKE_PREFIX_PATH ${env:OPENBLAS_INSTALL_PREFIX}
+        cmake --build build --config Release -j
+        cmake --install build --config Release -v
         cd ..
     - name: Install swig
       run: |
