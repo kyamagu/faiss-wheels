@@ -222,7 +222,7 @@ jobs:
     - uses: actions/cache
       id: cache-openblas
       with:
-        path: ${{ OPENBLAS_INSTALL_PREFIX }}
+        path: ${{ env.OPENBLAS_INSTALL_PREFIX }}
         key: ${{ runner.os }}-openblas-${{ env.OPENBLAS_VERSION }}
     - uses: conda-incubator/setup-miniconda@v1
       if: steps.cache-openblas.outputs.cache-hit != 'true'
