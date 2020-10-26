@@ -228,6 +228,13 @@ jobs:
         echo "CPATH=${CONDA_PREFIX}\Library\include;${CPATH}" >> $GITHUB_ENV
     - name: Build OpenBLAS
       run: |
+        $installationPath = vswhere.exe -prerelease -latest -property installationPath
+        if ($installationPath -and (test-path "$installationPath\Common7\Tools\vsdevcmd.bat")) {
+          & "${env:COMSPEC}" /s /c "`"$installationPath\Common7\Tools\vsdevcmd.bat`" -no_logo && set" | foreach-object {
+            $name, $value = $_ -split '=', 2
+            set-content env:\"$name" $value
+          }
+        }
         git clone https://github.com/xianyi/OpenBLAS.git
         cd OpenBLAS
         cmake . `
