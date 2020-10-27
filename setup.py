@@ -36,12 +36,13 @@ SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
 if sys.platform == 'win32':
     EXTRA_COMPILE_ARGS += [
+        '/openmp',
         '/std:c++17',
         '/Zc:inline',
+        '/wd4101',  # unreferenced local variable.
         '/MD',  # Bugfix: https://bugs.python.org/issue38597
     ]
     EXTRA_LINK_ARGS += [
-        '/openmp',
         '/OPT:ICF',
         '/OPT:REF',
     ]
