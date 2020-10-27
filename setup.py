@@ -72,6 +72,7 @@ elif sys.platform == 'darwin':
         '-fopenmp',
         '-dead_strip',
     ]
+    SWIG_OPTS += ['-DSWIGWIN']
 
 if FAISS_ENABLE_GPU:
     NAME = 'faiss-gpu'
