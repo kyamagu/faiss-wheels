@@ -229,8 +229,8 @@ jobs:
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
-        echo "${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
-        echo "${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
+        echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
+        echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
     - uses: actions/cache@v2
       id: cache-openblas
       with:
