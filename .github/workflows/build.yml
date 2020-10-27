@@ -263,7 +263,8 @@ jobs:
           -DFAISS_ENABLE_GPU=OFF `
           -DFAISS_ENABLE_PYTHON=OFF `
           -DBUILD_TESTING=OFF `
-          -DCMAKE_PREFIX_PATH="${env:OPENBLAS_INSTALL_PREFIX}"
+          -DCMAKE_PREFIX_PATH="${env:OPENBLAS_INSTALL_PREFIX}" `
+          -DBLA_VENDOR=OpenBLAS
         cmake --build build --config Release -j
         cmake --install build --config Release -v
         cd ..
