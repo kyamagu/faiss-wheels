@@ -20,10 +20,14 @@ FAISS_ROOT = os.getenv('FAISS_ROOT', os.path.join(os.getcwd(), 'faiss'))
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', os.path.join('/usr/local/include'))
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-L/usr/local/lib -lfaiss')
 FAISS_OPT_LEVEL = os.getenv('FAISS_OPT_LEVEL', 'sse4')
-FAISS_ENABLE_GPU = (os.getenv('FAISS_ENABLE_GPU', '').lower() in ('on', 'true'))
+FAISS_ENABLE_GPU = (
+    os.getenv('FAISS_ENABLE_GPU', '').lower() in ('on', 'true')
+)
 
 # Platform-specific configurations
-DEFINE_MACROS = [('FINTEGER', 'int'),]
+DEFINE_MACROS = [
+    ('FINTEGER', 'int'),
+]
 INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
 LIBRARY_DIRS = []
 EXTRA_COMPILE_ARGS = []
@@ -34,13 +38,13 @@ if sys.platform == 'win32':
     EXTRA_COMPILE_ARGS += [
         '/std:c++17',
         '/Zc:inline',
-        '/MD',      # Bugfix: https://bugs.python.org/issue38597
+        '/MD',  # Bugfix: https://bugs.python.org/issue38597
     ]
     EXTRA_LINK_ARGS += [
         '/openmp',
         '/OPT:ICF',
         '/OPT:REF',
-    ] +
+    ]
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
@@ -106,7 +110,6 @@ _swigfaiss = Extension(
     extra_link_args=EXTRA_LINK_ARGS,
     swig_opts=SWIG_OPTS,
 )
-
 
 setup(
     name=NAME,

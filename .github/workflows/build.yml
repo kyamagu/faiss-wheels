@@ -86,7 +86,7 @@ jobs:
     - name: Build and install faiss
       run: |
         cd faiss
-        cmake .. \
+        cmake . \
           -B build \
           -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
           -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
@@ -269,7 +269,8 @@ jobs:
         mkdir ${env:CMAKE_PREFIX_PATH}\faiss\include\faiss\python
         mv faiss\faiss\python\python_callbacks.h ${env:CMAKE_PREFIX_PATH}\faiss\include\faiss\python
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
-        touch faiss\contrib\__init__.py
+        New-Item -ItemType file faiss\contrib\__init__.py
+        $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\faiss\lib\faiss.lib ${env:CMAKE_PREFIX_PATH}\lib\openblas.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
