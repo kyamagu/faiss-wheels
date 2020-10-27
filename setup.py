@@ -45,6 +45,7 @@ if sys.platform == 'win32':
         '/OPT:ICF',
         '/OPT:REF',
     ]
+    SWIG_OPTS += ['-DSWIGWIN']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
@@ -72,7 +73,6 @@ elif sys.platform == 'darwin':
         '-fopenmp',
         '-dead_strip',
     ]
-    SWIG_OPTS += ['-DSWIGWIN']
 
 if FAISS_ENABLE_GPU:
     NAME = 'faiss-gpu'
