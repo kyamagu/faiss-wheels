@@ -15,34 +15,75 @@ evaluation and parameter tuning. Faiss is written in C++ with complete wrappers
 for Python/numpy. It is developed by Facebook AI Research.
 """
 
+# CMake variables for faiss
 FAISS_ROOT = os.getenv('FAISS_ROOT', os.path.join(os.getcwd(), 'faiss'))
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', os.path.join('/usr/local/include'))
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-L/usr/local/lib -lfaiss')
+FAISS_OPT_LEVEL = os.getenv('FAISS_OPT_LEVEL', 'sse4')
+FAISS_ENABLE_GPU = (os.getenv('FAISS_ENABLE_GPU', '').lower() in ('on', 'true'))
 
+# Platform-specific configurations
+DEFINE_MACROS = [('FINTEGER', 'int'),]
 INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
 LIBRARY_DIRS = []
-EXTRA_COMPILE_ARGS = [
-    '-std=c++11', '-msse4', '-mpopcnt', '-m64', '-Wno-sign-compare', '-fopenmp',
-]
-EXTRA_LINK_ARGS = ['-fopenmp'] + FAISS_LDFLAGS.split()
+EXTRA_COMPILE_ARGS = []
+EXTRA_LINK_ARGS = FAISS_LDFLAGS.split()
 SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
 
-if os.getenv('FAISS_ENABLE_AVX2'):
-    EXTRA_COMPILE_ARGS += ['-mavx2', '-mf16c']
-
-if os.getenv('FAISS_ENABLE_GPU', '').upper() == 'ON':
-    NAME = 'faiss-gpu'
-    CUDA_HOME = os.getenv('CUDA_HOME', '/usr/local/cuda')
-    INCLUDE_DIRS += [CUDA_HOME + '/include']
-    LIBRARY_DIRS += [CUDA_HOME + '/lib64']
-    SWIG_OPTS += ['-I' + CUDA_HOME + '/include', '-DGPU_WRAPPER']
-
-if sys.platform == 'linux':
-    EXTRA_COMPILE_ARGS += ['-fdata-sections', '-ffunction-sections']
-    EXTRA_LINK_ARGS += ['-lrt', '-s', '-Wl,--gc-sections']
+if sys.platform == 'win32':
+    EXTRA_COMPILE_ARGS += [
+        '/std:c++17',
+        '/Zc:inline',
+        '/MD',      # Bugfix: https://bugs.python.org/issue38597
+    ]
+    EXTRA_LINK_ARGS += [
+        '/openmp',
+        '/OPT:ICF',
+        '/OPT:REF',
+    ] +
+elif sys.platform == 'linux':
+    EXTRA_COMPILE_ARGS += [
+        '-std=c++11',
+        '-m64',
+        '-Wno-sign-compare',
+        '-fopenmp',
+        '-fdata-sections',
+        '-ffunction-sections',
+    ]
+    EXTRA_LINK_ARGS += [
+        '-fopenmp',
+        '-lrt',
+        '-s',
+        '-Wl,--gc-sections',
+    ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
-    EXTRA_LINK_ARGS += ['-dead_strip']
+    EXTRA_COMPILE_ARGS += [
+        '-std=c++11',
+        '-m64',
+        '-Wno-sign-compare',
+        '-fopenmp',
+    ]
+    EXTRA_LINK_ARGS += [
+        '-fopenmp',
+        '-dead_strip',
+    ]
+
+if FAISS_ENABLE_GPU:
+    NAME = 'faiss-gpu'
+    CUDA_HOME = os.getenv('CUDA_HOME', '/usr/local/cuda')
+    INCLUDE_DIRS += [os.path.join(CUDA_HOME, 'include')]
+    LIBRARY_DIRS += [os.path.join(CUDA_HOME, 'lib64')]
+    SWIG_OPTS += ['-I' + os.path.join(CUDA_HOME, 'include'), '-DGPU_WRAPPER']
+
+if FAISS_OPT_LEVEL == 'avx2':
+    if sys.platform == 'win32':
+        EXTRA_COMPILE_ARGS += ['/arch:AVX2']
+    else:
+        EXTRA_COMPILE_ARGS += ['-mavx2', '-mpopcnt']
+elif FAISS_OPT_LEVEL == 'sse4':
+    if sys.platform != 'win32':
+        EXTRA_COMPILE_ARGS += ['-msse4', '-mpopcnt']
 
 
 class CustomBuildPy(build_py):
@@ -57,8 +98,8 @@ _swigfaiss = Extension(
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
     ],
-    define_macros=[('FINTEGER', 'int')],
     language='c++',
+    define_macros=DEFINE_MACROS,
     include_dirs=INCLUDE_DIRS,
     library_dirs=LIBRARY_DIRS,
     extra_compile_args=EXTRA_COMPILE_ARGS,
