@@ -212,7 +212,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set up VC environment
+    - name: Set up build environment
       run: |
         $installationPath = vswhere.exe -prerelease -latest -property installationPath
         if ($installationPath -and (test-path "$installationPath\Common7\Tools\vsdevcmd.bat")) {
@@ -221,23 +221,24 @@ jobs:
             echo "$name=$value" >> ${env:GITHUB_ENV}
           }
         }
+    - uses: conda-incubator/setup-miniconda@v1
+      with:
+        auto-update-conda: true
+        python-version: ${{ matrix.python-version }}
+    - name: Install build tools
+      run: |
+        conda config --add channels conda-forge
+        conda install -y flang clangdev perl libflang ninja
+        echo "${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
+        echo "${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
     - uses: actions/cache@v2
       id: cache-openblas
       with:
         path: ${{ env.OPENBLAS_INSTALL_PREFIX }}
         key: ${{ runner.os }}-openblas-${{ env.OPENBLAS_VERSION }}
-    - uses: conda-incubator/setup-miniconda@v1
-      if: true || (steps.cache-openblas.outputs.cache-hit != 'true')
-      with:
-        auto-update-conda: true
-        python-version: ${{ matrix.python-version }}
     - name: Build OpenBLAS
-      if: true || (steps.cache-openblas.outputs.cache-hit != 'true')
+      if: steps.cache-openblas.outputs.cache-hit != 'true'
       run: |
-        conda config --add channels conda-forge
-        conda install -y flang clangdev perl libflang ninja
-        $Env:LIB += ";${env:CONDA_PREFIX}\Library\lib"
-        $Env:CPATH += ";${env:CONDA_PREFIX}\Library\include"
         git clone https://github.com/xianyi/OpenBLAS.git -b ${env:OPENBLAS_VERSION}
         cd OpenBLAS
         cmake . `
@@ -253,7 +254,6 @@ jobs:
           -DQUIET_MAKE=1
         cmake --build build --config Release -j
         cmake --install build --prefix ${env:OPENBLAS_INSTALL_PREFIX} -v
-        utest\openblas_utest.exe
         cd ..
     - name: Build and install faiss
       run: |
