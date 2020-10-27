@@ -245,7 +245,7 @@ jobs:
     - name: Install build tools
       run: |
         conda config --add channels conda-forge
-        conda install -y flang clangdev perl libflang ninja
+        conda install -y flang clangdev perl libflang ninja swig
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
     - uses: actions/cache@v2
@@ -289,9 +289,6 @@ jobs:
         cmake --build build --config Release -j
         cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
         cd ..
-    - name: Install swig
-      run: |
-        choco install swig
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
