@@ -127,7 +127,7 @@ jobs:
         pip install --no-cache-dir pytest scipy torch
         pytest --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
     - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created'
+      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
@@ -192,13 +192,13 @@ jobs:
         pip wheel . -w dist --no-deps --verbose
         ls -lh dist
     - name: Install and test
-      if: matrix.python-version != 3.9
+      if: matrix.python-version != 3.9 && matrix.opt != 'avx2'
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
         pytest
     - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created'
+      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
@@ -311,7 +311,7 @@ jobs:
         pip install --no-cache-dir pytest scipy
         pytest
     - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created'
+      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing (Get-Item .\dist\*)
