@@ -227,12 +227,12 @@ jobs:
         path: ${{ env.OPENBLAS_INSTALL_PREFIX }}
         key: ${{ runner.os }}-openblas-${{ env.OPENBLAS_VERSION }}
     - uses: conda-incubator/setup-miniconda@v1
-      if: steps.cache-openblas.outputs.cache-hit != 'true'
+      if: true || (steps.cache-openblas.outputs.cache-hit != 'true')
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
     - name: Build OpenBLAS
-      if: steps.cache-openblas.outputs.cache-hit != 'true'
+      if: true || (steps.cache-openblas.outputs.cache-hit != 'true')
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja
@@ -253,10 +253,10 @@ jobs:
           -DQUIET_MAKE=1
         cmake --build build --config Release -j
         cmake --install build --prefix ${env:OPENBLAS_INSTALL_PREFIX} -v
+        utest\openblas_utest.exe
         cd ..
     - name: Build and install faiss
       run: |
-        dumpbin /ARCHIVEMEMBERS "${env:OPENBLAS_INSTALL_PREFIX}\lib\openblas.lib"
         cd faiss
         cmake . `
           -B build `
