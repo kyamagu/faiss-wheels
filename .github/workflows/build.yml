@@ -242,6 +242,7 @@ jobs:
     - name: Build and install faiss
       run: |
         cd faiss
+        # OpenBLAS does not work well with CMake FindLAPACK, patch here.
         git apply ..\patch\faiss-remove-lapack.patch
         cmake . `
           -B build `
@@ -278,6 +279,6 @@ jobs:
     - name: Install and test
       if: matrix.python-version != 3.9
       run: |
-        pip install --no-cache-dir dist\faiss*.whl
+        pip install --no-cache-dir (Get-Item .\dist\faiss*.whl)
         pip install --no-cache-dir pytest scipy
         pytest faiss\tests
