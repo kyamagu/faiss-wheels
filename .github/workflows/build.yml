@@ -256,6 +256,7 @@ jobs:
         cd ..
     - name: Build and install faiss
       run: |
+        lib /LIST "${env:OPENBLAS_INSTALL_PREFIX}\lib\openblas.lib"
         cd faiss
         cmake . `
           -B build `
