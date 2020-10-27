@@ -14,7 +14,7 @@ This repository provides scripts to create wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
 - Builds CPU-only or CUDA-10.0+ compatible wheels.
-- Bundles OpenBLAS in Linux using static linking and `auditwheel`
+- Bundles OpenBLAS in Linux/Windows using static linking
 - Uses Accelerate framework on macOS
 - CUDA runtime and cuBLAS are statically linked
 
@@ -36,7 +36,7 @@ Install CPU-only version:
 pip install faiss-cpu
 ```
 
-Or, install CUDA-10.0+ compatible version:
+Or, install GPU version in Linux:
 
 ```bash
 pip install faiss-gpu
@@ -54,7 +54,8 @@ the best performance.
 
 ### Prerequisite
 
-The sdist package can be built when faiss is already built and installed.
+The source package assumes faiss is already built and installed in the system.
+Build and install the faiss library first.
 
 ```bash
 cd faiss
@@ -62,8 +63,6 @@ cmake -B build . -DFAISS_ENABLE_PYTHON=OFF
 make -C build -j8
 cd ..
 ```
-
-Setting `CXXFLAGS="${CXXFLAGS} -avx2 -mf16c"` enables avx2 support in faiss.
 
 See the official
 [faiss installation instruction](https://github.com/facebookresearch/faiss/blob/master/INSTALL.md)
@@ -97,10 +96,17 @@ There are a few environment variables to specify build-time options.
 
 The following options are available in the master branch.
 
-- `FAISS_ENABLE_AVX2`: Setting this variable non-empty adds avx2 flags on package
-  build.
+- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `sse4`, `avx2`.
 - `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds `faiss-gpu` package.
   Set this variable if faiss is built with GPU support.
+
+Below is an example for faiss built with `avx2` option and OpenBLAS backend.
+
+```bash
+export FAISS_OPT_LEVEL='avx2'
+export FAISS_LDFLAGS='-l:libfaiss_avx2.a -l:libopenblas.a -lgfortran'
+pip install --no-binary :all: faiss-cpu
+```
 
 ### macOS
 
@@ -116,3 +122,8 @@ export FAISS_INCLUDE=/usr/local/include
 export FAISS_LDFLAGS='-lfaiss -framework Accelerate'
 pip install --no-binary :all: faiss-cpu
 ```
+
+### Windows
+
+Windows environment requires BLAS/LAPACK and fortran library. See
+`.github/workflows/build.yml` for how the binary wheels are built.
