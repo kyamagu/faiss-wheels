@@ -1,0 +1,14 @@
+diff --git a/faiss/CMakeLists.txt b/faiss/CMakeLists.txt
+index 51680fd..a3dc4d2 100644
+--- a/faiss/CMakeLists.txt
++++ b/faiss/CMakeLists.txt
+@@ -153,9 +153,6 @@ if(MKL_FOUND)
+ else()
+   find_package(BLAS REQUIRED)
+   target_link_libraries(faiss PRIVATE ${BLAS_LIBRARIES})
+-
+-  find_package(LAPACK REQUIRED)
+-  target_link_libraries(faiss PRIVATE ${LAPACK_LIBRARIES})
+ endif()
+ 
+ install(TARGETS faiss
