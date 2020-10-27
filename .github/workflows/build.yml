@@ -270,6 +270,7 @@ jobs:
         mv faiss\faiss\python\python_callbacks.h ${env:CMAKE_PREFIX_PATH}\faiss\include\faiss\python
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
+        $Env:FAISS_INCLUDE = "${env:CMAKE_PREFIX_PATH}\faiss\include"
         $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\faiss\lib\faiss.lib ${env:CMAKE_PREFIX_PATH}\lib\openblas.lib"
 
         pip install --no-cache-dir -U pip
