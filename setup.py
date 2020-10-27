@@ -68,6 +68,7 @@ elif sys.platform == 'darwin':
         '-std=c++11',
         '-m64',
         '-Wno-sign-compare',
+        '-Xpreprocessor',
         '-fopenmp',
     ]
     EXTRA_LINK_ARGS += [

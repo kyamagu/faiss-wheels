@@ -166,15 +166,6 @@ jobs:
     - name: Install build dependency
       run: |
         brew install libomp swig
-        brew reinstall llvm
-        export LLVM_PREFIX=$(brew --prefix llvm)
-        export LIBOMP_PREFIX=$(brew --prefix libomp)
-        echo "CC=${LLVM_PREFIX}/bin/clang" >> $GITHUB_ENV
-        echo "CXX=${LLVM_PREFIX}/bin/clang++" >> $GITHUB_ENV
-        echo "CFLAGS=-stdlib=libc++" >> $GITHUB_ENV
-        echo "CXXFLAGS=-stdlib=libc++ -I${LIBOMP_PREFIX}/include" >> $GITHUB_ENV
-        echo "LDFLAGS=-L${LIBOMP_PREFIX}/lib" >> $GITHUB_ENV
-        echo "FAISS_LDFLAGS=/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate" >> $GITHUB_ENV
     - name: Build and install faiss
       run: |
         cd faiss
@@ -196,6 +187,9 @@ jobs:
         mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
         touch faiss/contrib/__init__.py
 
+        export LIBOMP_PREFIX=$(brew --prefix libomp)
+        export FAISS_INCLUDE="/usr/local/include"
+        export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         pip wheel . -w dist --no-deps --verbose
