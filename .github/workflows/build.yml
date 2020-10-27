@@ -23,13 +23,15 @@ jobs:
     strategy:
       matrix:
         python-version:
+          - cp36-cp36m
           - cp37-cp37m
+          - cp38-cp38
+          - cp39-cp39
         cuda:
           - false
+          - true
         opt:
           - 'generic'
-          - 'sse4'
-          - 'avx2'
     env:
       FAISS_ENABLE_GPU: 'OFF'
       CUDA_VERSION: '10.0'
@@ -138,11 +140,12 @@ jobs:
     strategy:
       matrix:
         python-version:
+          - 3.6
           - 3.7
+          - 3.8
+          - 3.9
         opt:
           - 'generic'
-          - 'sse4'
-          - 'avx2'
     steps:
     - uses: actions/checkout@v2
       with:
@@ -213,11 +216,12 @@ jobs:
     strategy:
       matrix:
         python-version:
+          - 3.6
           - 3.7
+          - 3.8
+          - 3.9
         opt:
           - 'generic'
-          - 'sse4'
-          - 'avx2'
     env:
       OPENBLAS_VERSION: v0.3.12
       CMAKE_PREFIX_PATH: c:\opt
@@ -237,8 +241,8 @@ jobs:
     - name: Set optimization level
       if: matrix.opt != 'generic'
       run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
+        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> ${env:GITHUB_ENV}
+        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> ${env:GITHUB_ENV}
     - uses: conda-incubator/setup-miniconda@v1
       with:
         auto-update-conda: true
