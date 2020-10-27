@@ -133,6 +133,8 @@ jobs:
         twine upload --skip-existing dist/*
   build-mac:
     runs-on: macos-latest
+    env:
+      BUILD_TESTING: 'ON'
     strategy:
       matrix:
         python-version:
@@ -154,6 +156,10 @@ jobs:
       run: |
         echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
         echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
+    - name: Disable tests in avx2
+      if: matrix.opt == 'avx2'
+      run: |
+        echo "BUILD_TESTING=OFF" >> $GITHUB_ENV
     - name: Install build dependency
       run: |
         brew install libomp swig
@@ -174,7 +180,7 @@ jobs:
           -DFAISS_ENABLE_GPU=OFF \
           -DFAISS_ENABLE_PYTHON=OFF \
           -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
-          -DBUILD_TESTING=ON \
+          -DBUILD_TESTING=${BUILD_TESTING} \
           -DCMAKE_BUILD_TYPE=Release
         make -C build -j4
         make -C build install
