@@ -13,6 +13,7 @@ env:
   SWIG_VERSION: '4.0.2'
   NUMPY_VERSION: '1.18.0'
   FAISS_OPT_LEVEL: generic
+  FAISS_LIBRARY_SUFFIX: ''
   TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
   TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 jobs:
@@ -25,7 +26,12 @@ jobs:
           - cp37-cp37m
         cuda:
           - false
+        opt:
+          - 'generic'
+          - 'sse4'
+          - 'avx2'
     env:
+      FAISS_ENABLE_GPU: 'OFF'
       CUDA_VERSION: '10.0'
       CUDA_PKG_VERSION: 10-0-10.0.130-1
       CUBLAS_PKG_VERSION: 10-0-10.0.130-1
@@ -37,6 +43,11 @@ jobs:
         submodules: true
     - name: Set up Python
       run: echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
+    - name: Set optimization level
+      if: matrix.opt != 'generic'
+      run: |
+        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
+        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
     - name: Install build dependency
       run: |
         sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
@@ -51,8 +62,7 @@ jobs:
         make -j4
         make install
         cd ..
-        echo "FAISS_ENABLE_GPU=OFF" >> $GITHUB_ENV
-        echo "FAISS_LDFLAGS=-l:libfaiss.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=-l:libfaiss${FAISS_LIBRARY_SUFFIX}.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Install CUDA build tools
       if: matrix.cuda
@@ -115,7 +125,7 @@ jobs:
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy torch
-        pytest faiss/tests --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
+        pytest --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
       run: |
@@ -127,6 +137,10 @@ jobs:
       matrix:
         python-version:
           - 3.7
+        opt:
+          - 'generic'
+          - 'sse4'
+          - 'avx2'
     steps:
     - uses: actions/checkout@v2
       with:
@@ -135,6 +149,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Set optimization level
+      if: matrix.opt != 'generic'
+      run: |
+        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
+        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
     - name: Install build dependency
       run: |
         brew install libomp swig
@@ -146,7 +165,7 @@ jobs:
         echo "CFLAGS=-stdlib=libc++" >> $GITHUB_ENV
         echo "CXXFLAGS=-stdlib=libc++ -I${LIBOMP_PREFIX}/include" >> $GITHUB_ENV
         echo "LDFLAGS=-L${LIBOMP_PREFIX}/lib" >> $GITHUB_ENV
-        echo "FAISS_LDFLAGS=/usr/local/lib/libfaiss.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a -L${LIBOMP_PREFIX}/lib ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate" >> $GITHUB_ENV
     - name: Build and install faiss
       run: |
         cd faiss
@@ -177,7 +196,7 @@ jobs:
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
-        pytest faiss/tests
+        pytest
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created'
       run: |
@@ -189,6 +208,10 @@ jobs:
       matrix:
         python-version:
           - 3.7
+        opt:
+          - 'generic'
+          - 'sse4'
+          - 'avx2'
     env:
       OPENBLAS_VERSION: v0.3.12
       CMAKE_PREFIX_PATH: c:\opt
@@ -205,6 +228,11 @@ jobs:
             echo "$name=$value" >> ${env:GITHUB_ENV}
           }
         }
+    - name: Set optimization level
+      if: matrix.opt != 'generic'
+      run: |
+        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
+        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
     - uses: conda-incubator/setup-miniconda@v1
       with:
         auto-update-conda: true
@@ -270,7 +298,7 @@ jobs:
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = "${env:CMAKE_PREFIX_PATH}\include"
-        $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\lib\faiss.lib ${env:CMAKE_PREFIX_PATH}\lib\openblas.lib"
+        $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\lib\faiss${env:FAISS_LIBRARY_SUFFIX}.lib ${env:CMAKE_PREFIX_PATH}\lib\openblas.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}
@@ -281,4 +309,9 @@ jobs:
       run: |
         pip install --no-cache-dir (Get-Item .\dist\faiss*.whl)
         pip install --no-cache-dir pytest scipy
-        pytest faiss\tests
+        pytest
+    - name: Publish to PyPI
+      if: github.event_name == 'release' && github.event.action == 'created'
+      run: |
+        pip install --no-cache-dir twine
+        twine upload --skip-existing (Get-Item .\dist\*)
