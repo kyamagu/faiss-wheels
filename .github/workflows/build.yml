@@ -251,7 +251,7 @@ jobs:
           -DFAISS_ENABLE_GPU=OFF `
           -DFAISS_ENABLE_PYTHON=OFF `
           -DFAISS_OPT_LEVEL="${env:FAISS_OPT_LEVEL}" `
-          -DBUILD_TESTING=OFF `
+          -DBUILD_TESTING=ON `
           -DCMAKE_PREFIX_PATH="${env:CMAKE_PREFIX_PATH}" `
           -DBLA_VENDOR=OpenBLAS
         cmake --build build --config Release -j
@@ -273,12 +273,12 @@ jobs:
         $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\faiss\lib\faiss.lib ${env:CMAKE_PREFIX_PATH}\lib\openblas.lib"
 
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
+        pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}
         pip wheel . -w dist --no-deps --verbose
-        ls -lh dist
+        Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
       run: |
-        pip install --no-cache-dir dist/faiss*.whl
+        pip install --no-cache-dir dist\faiss*.whl
         pip install --no-cache-dir pytest scipy
-        pytest faiss/tests
+        pytest faiss\tests
