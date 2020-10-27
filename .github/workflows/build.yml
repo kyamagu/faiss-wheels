@@ -187,6 +187,8 @@ jobs:
         mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
         touch faiss/contrib/__init__.py
 
+        export CC=clang
+        export CXX=clang++
         export LIBOMP_PREFIX=$(brew --prefix libomp)
         export FAISS_INCLUDE="/usr/local/include"
         export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"

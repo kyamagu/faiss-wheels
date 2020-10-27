@@ -72,6 +72,7 @@ elif sys.platform == 'darwin':
         '-fopenmp',
     ]
     EXTRA_LINK_ARGS += [
+        '-Xpreprocessor',
         '-fopenmp',
         '-dead_strip',
     ]
