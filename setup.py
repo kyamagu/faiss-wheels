@@ -15,7 +15,7 @@ for Python/numpy. It is developed by Facebook AI Research.
 """
 
 # CMake variables for faiss
-FAISS_ROOT = os.getenv('FAISS_ROOT', os.path.join('faiss'))
+FAISS_ROOT = os.getenv('FAISS_ROOT', 'faiss')
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', os.path.join('/usr/local/include'))
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS')
 FAISS_OPT_LEVEL = os.getenv('FAISS_OPT_LEVEL', 'sse4')
@@ -177,10 +177,7 @@ setup(
         'faiss.contrib': os.path.join(FAISS_ROOT, 'contrib'),
     },
     package_data={
-        'faiss': [
-            os.path.join(FAISS_ROOT, 'faiss', 'python', '*.i'),
-            os.path.join(FAISS_ROOT, 'faiss', 'python', '*.h'),
-        ],
+        'faiss': ['*.i', '*.h'],
     },
     ext_modules=[_swigfaiss],
     cmdclass={'build_py': CustomBuildPy},
