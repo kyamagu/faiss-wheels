@@ -75,7 +75,6 @@ For building sdist, swig 3.0.12 or later needs to be available.
 By default, the following builds and installs the faiss-cpu package.
 
 ```bash
-export FAISS_INCLUDE=/usr/local/include
 pip install --no-binary :all: faiss-cpu
 ```
 
@@ -83,7 +82,6 @@ The following example shows static linking and CUDA support:
 
 ```bash
 export FAISS_ENABLE_GPU=ON
-export FAISS_INCLUDE=/usr/local/include
 export FAISS_LDFLAGS='-l:libfaiss.a -l:libopenblas.a -lgfortran -lcudart_static -lcublas_static -lculibos'
 pip install --no-binary :all: faiss-gpu
 ```
@@ -91,14 +89,13 @@ pip install --no-binary :all: faiss-gpu
 There are a few environment variables to specify build-time options.
 
 - `CUDA_HOME`: Specifies CUDA install location.
-- `FAISS_INCLUDE`: Header locations of the installed faiss library.
-- `FAISS_LDFLAGS`: Linker flags for package build. Default to `-lfaiss`.
-
-The following options are available in the master branch.
-
+- `FAISS_INCLUDE`: Header locations of the installed faiss library. Default to
+    `/usr/local/include`.
+- `FAISS_LDFLAGS`: Linker flags for package build. Default to
+    `-l:libfaiss.a -l:libopenblas.a -lgfortran`.
 - `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `sse4`, `avx2`.
 - `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds `faiss-gpu` package.
-  Set this variable if faiss is built with GPU support.
+    Set this variable if faiss is built with GPU support.
 
 Below is an example for faiss built with `avx2` option and OpenBLAS backend.
 
@@ -110,16 +107,19 @@ pip install --no-binary :all: faiss-cpu
 
 ### macOS
 
-On macOS, install `llvm` and `libomp` via Homebrew to build with OpenMP support.
-Mac has Accelerate framework for BLAS implementation. Note that compiler flags
-can only use absolute path for sdist package. CUDA is not supported on macOS.
+On macOS, install `libomp` via Homebrew to build with OpenMP support. Mac has
+Accelerate framework for BLAS implementation. CUDA is not supported on macOS.
 
 ```bash
-brew install llvm libomp
-export CC=/usr/local/opt/llvm/bin/clang
-export CXX=/usr/local/opt/llvm/bin/clang++
-export FAISS_INCLUDE=/usr/local/include
-export FAISS_LDFLAGS='-lfaiss -framework Accelerate'
+pip install --no-binary :all: faiss-cpu
+```
+
+To link to faiss library with `avx2` support, set appropriate environment
+variables.
+
+```bash
+export FAISS_OPT_LEVEL=avx2
+export FAISS_LDFLAGS="/usr/local/lib/libfaiss_avx2.a /usr/local/lib/libomp.a -framework Accelerate"
 pip install --no-binary :all: faiss-cpu
 ```
 

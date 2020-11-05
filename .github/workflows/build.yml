@@ -134,6 +134,8 @@ jobs:
     runs-on: macos-latest
     env:
       BUILD_TESTING: 'ON'
+      CC: clang
+      CXX: clang++
     strategy:
       matrix:
         python-version:
@@ -181,11 +183,7 @@ jobs:
         mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
         touch faiss/contrib/__init__.py
 
-        export CC=clang
-        export CXX=clang++
-        export LIBOMP_PREFIX=$(brew --prefix libomp)
-        export FAISS_INCLUDE="/usr/local/include"
-        export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a ${LIBOMP_PREFIX}/lib/libomp.a -framework Accelerate"
+        export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a /usr/local/lib/libomp.a -framework Accelerate"
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         pip wheel . -w dist --no-deps --verbose
