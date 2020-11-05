@@ -159,7 +159,7 @@ _swigfaiss = Extension(
 
 setup(
     name=NAME,
-    version='1.6.4',
+    version='1.6.4.post1',
     description=(
         'A library for efficient similarity search and clustering of dense '
         'vectors.'
