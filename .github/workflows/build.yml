@@ -110,9 +110,6 @@ jobs:
         cd ..
     - name: Build package
       run: |
-        # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
-        mkdir /usr/local/include/faiss/python/
-        mv faiss/faiss/python/python_callbacks.h /usr/local/include/faiss/python/
         mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
         touch faiss/contrib/__init__.py
 
@@ -181,9 +178,6 @@ jobs:
         cd ..
     - name: Build package
       run: |
-        # Hack to include hard-coded `<faiss/python/python_callbacks.h>`
-        mkdir /usr/local/include/faiss/python/
-        mv faiss/faiss/python/python_callbacks.h /usr/local/include/faiss/python/
         mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
         touch faiss/contrib/__init__.py
 
@@ -295,8 +289,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Build package
       run: |
-        mkdir ${env:CMAKE_PREFIX_PATH}\include\faiss\python
-        mv faiss\faiss\python\python_callbacks.h ${env:CMAKE_PREFIX_PATH}\include\faiss\python
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = "${env:CMAKE_PREFIX_PATH}\include"
