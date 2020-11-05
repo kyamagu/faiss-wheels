@@ -15,9 +15,9 @@ for Python/numpy. It is developed by Facebook AI Research.
 """
 
 # CMake variables for faiss
-FAISS_ROOT = os.getenv('FAISS_ROOT', os.path.join(os.getcwd(), 'faiss'))
+FAISS_ROOT = os.getenv('FAISS_ROOT', os.path.join('faiss'))
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', os.path.join('/usr/local/include'))
-FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS', '-L/usr/local/lib -lfaiss')
+FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS')
 FAISS_OPT_LEVEL = os.getenv('FAISS_OPT_LEVEL', 'sse4')
 FAISS_ENABLE_GPU = (
     os.getenv('FAISS_ENABLE_GPU', '').lower() in ('on', 'true')
@@ -41,11 +41,20 @@ class get_numpy_include(object):
 DEFINE_MACROS = [
     ('FINTEGER', 'int'),
 ]
-INCLUDE_DIRS = [get_numpy_include(), FAISS_INCLUDE]
+INCLUDE_DIRS = [
+    get_numpy_include(),
+    FAISS_INCLUDE,
+    FAISS_ROOT,
+]
 LIBRARY_DIRS = []
 EXTRA_COMPILE_ARGS = []
-EXTRA_LINK_ARGS = FAISS_LDFLAGS.split()
-SWIG_OPTS = ['-c++', '-Doverride=', '-I' + FAISS_INCLUDE]
+EXTRA_LINK_ARGS = FAISS_LDFLAGS.split() if FAISS_LDFLAGS is not None else []
+SWIG_OPTS = [
+    '-c++',
+    '-Doverride=',
+    '-I' + FAISS_INCLUDE,
+    '-I' + FAISS_ROOT,
+]
 
 if sys.platform == 'win32':
     EXTRA_COMPILE_ARGS += [
@@ -59,6 +68,9 @@ if sys.platform == 'win32':
         '/OPT:ICF',
         '/OPT:REF',
     ]
+    if FAISS_LDFLAGS is None:
+        import warnings
+        warnings.warn('FAISS_LDFLAGS is empty, likely to fail build.')
     SWIG_OPTS += ['-DSWIGWIN']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
@@ -75,6 +87,13 @@ elif sys.platform == 'linux':
         '-s',
         '-Wl,--gc-sections',
     ]
+    if FAISS_LDFLAGS is None:
+        EXTRA_LINK_ARGS += [
+            '-L/usr/local/lib',
+            '-l:libfaiss.a',
+            '-l:libopenblas.a',
+            '-lgfortran',
+        ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
@@ -89,6 +108,13 @@ elif sys.platform == 'darwin':
         '-fopenmp',
         '-dead_strip',
     ]
+    if FAISS_LDFLAGS is None:
+        EXTRA_LINK_ARGS += [
+            '/usr/local/lib/libfaiss.a',
+            '/usr/local/opt/libomp/lib/libomp.a',
+            '-framework',
+            'Accelerate',
+        ]
 
 if FAISS_ENABLE_GPU:
     NAME = 'faiss-gpu'
@@ -119,6 +145,9 @@ _swigfaiss = Extension(
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
     ],
+    depends=[
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h'),
+    ],
     language='c++',
     define_macros=DEFINE_MACROS,
     include_dirs=INCLUDE_DIRS,
@@ -142,11 +171,17 @@ setup(
     license='MIT',
     keywords='search nearest neighbors',
     setup_requires=['numpy'],
+    packages=['faiss', 'faiss.contrib'],
     package_dir={
         'faiss': os.path.join(FAISS_ROOT, 'faiss', 'python'),
         'faiss.contrib': os.path.join(FAISS_ROOT, 'contrib'),
     },
-    packages=['faiss', 'faiss.contrib'],
+    package_data={
+        'faiss': [
+            os.path.join(FAISS_ROOT, 'faiss', 'python', '*.i'),
+            os.path.join(FAISS_ROOT, 'faiss', 'python', '*.h'),
+        ],
+    },
     ext_modules=[_swigfaiss],
     cmdclass={'build_py': CustomBuildPy},
 )
