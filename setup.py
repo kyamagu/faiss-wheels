@@ -32,13 +32,9 @@ class get_numpy_include(object):
     until it is actually installed, so that the ``get_include()``
     method can be invoked.
     """
-
-    def __init__(self, user=False):
-        self.user = user
-
     def __str__(self):
         import numpy as np
-        return np.get_include(self.user)
+        return np.get_include()
 
 
 # Platform-specific configurations
