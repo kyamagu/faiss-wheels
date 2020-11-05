@@ -3,7 +3,6 @@ from setuptools.extension import Extension
 from setuptools.command.build_py import build_py
 import sys
 import os
-import numpy as np
 
 NAME = 'faiss-cpu'
 
@@ -24,11 +23,25 @@ FAISS_ENABLE_GPU = (
     os.getenv('FAISS_ENABLE_GPU', '').lower() in ('on', 'true')
 )
 
+
+class get_numpy_include(object):
+    """
+    Helper class to determine the numpy include path.
+
+    The purpose of this class is to postpone importing numpy
+    until it is actually installed, so that the ``get_include()``
+    method can be invoked.
+    """
+    def __str__(self):
+        import numpy as np
+        return np.get_include()
+
+
 # Platform-specific configurations
 DEFINE_MACROS = [
     ('FINTEGER', 'int'),
 ]
-INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
+INCLUDE_DIRS = [get_numpy_include(), FAISS_INCLUDE]
 LIBRARY_DIRS = []
 EXTRA_COMPILE_ARGS = []
 EXTRA_LINK_ARGS = FAISS_LDFLAGS.split()
