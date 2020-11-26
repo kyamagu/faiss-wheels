@@ -230,7 +230,7 @@ jobs:
       run: |
         echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> ${env:GITHUB_ENV}
         echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> ${env:GITHUB_ENV}
-    - uses: conda-incubator/setup-miniconda@v1
+    - uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}

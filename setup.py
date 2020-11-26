@@ -5,6 +5,7 @@ import sys
 import os
 
 NAME = 'faiss-cpu'
+VERSION = '1.6.5'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
@@ -18,7 +19,7 @@ for Python/numpy. It is developed by Facebook AI Research.
 FAISS_ROOT = os.getenv('FAISS_ROOT', 'faiss')
 FAISS_INCLUDE = os.getenv('FAISS_INCLUDE', os.path.join('/usr/local/include'))
 FAISS_LDFLAGS = os.getenv('FAISS_LDFLAGS')
-FAISS_OPT_LEVEL = os.getenv('FAISS_OPT_LEVEL', 'sse4')
+FAISS_OPT_LEVEL = os.getenv('FAISS_OPT_LEVEL', 'generic')
 FAISS_ENABLE_GPU = (
     os.getenv('FAISS_ENABLE_GPU', '').lower() in ('on', 'true')
 )
@@ -134,6 +135,7 @@ elif FAISS_OPT_LEVEL == 'sse4':
 
 
 class CustomBuildPy(build_py):
+    """Run build_ext before build_py to compile swig code."""
     def run(self):
         self.run_command("build_ext")
         return build_py.run(self)
@@ -159,7 +161,7 @@ _swigfaiss = Extension(
 
 setup(
     name=NAME,
-    version='1.6.4.post2',
+    version=VERSION,
     description=(
         'A library for efficient similarity search and clustering of dense '
         'vectors.'
