@@ -134,6 +134,13 @@ elif FAISS_OPT_LEVEL == 'sse4':
         EXTRA_COMPILE_ARGS += ['-msse4', '-mpopcnt']
 
 
+class CustomBuildPy(build_py):
+    """Run build_ext before build_py to compile swig code."""
+    def run(self):
+        self.run_command("build_ext")
+        return build_py.run(self)
+
+
 _swigfaiss = Extension(
     'faiss._swigfaiss',
     sources=[
@@ -175,4 +182,5 @@ setup(
         'faiss': ['*.i', '*.h'],
     },
     ext_modules=[_swigfaiss],
+    cmdclass={'build_py': CustomBuildPy},
 )
