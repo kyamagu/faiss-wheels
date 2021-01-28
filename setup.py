@@ -5,7 +5,7 @@ import sys
 import os
 
 NAME = 'faiss-cpu'
-VERSION = '1.6.5'
+VERSION = '1.7.0'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
