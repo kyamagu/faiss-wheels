@@ -61,6 +61,7 @@ Build and install the faiss library first.
 cd faiss
 cmake -B build . -DFAISS_ENABLE_PYTHON=OFF
 make -C build -j8
+make -C build install
 cd ..
 ```
 
