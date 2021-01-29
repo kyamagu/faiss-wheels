@@ -106,7 +106,7 @@ jobs:
           -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
           -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j
+        cmake --build build --config Release -j2
         cmake --install build -v
         cd ..
     - name: Build package
