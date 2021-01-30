@@ -93,6 +93,7 @@ jobs:
         ldconfig
         echo "FAISS_ENABLE_GPU=ON" >> $GITHUB_ENV
         echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos" >> $GITHUB_ENV
+        echo "CUDAFLAGS=--compiler-options=-fvisibility=hidden,-fdata-sections,-ffunction-sections" >> $GITHUB_ENV
         echo "/usr/local/cuda/bin" >> $GITHUB_PATH
         echo "/opt/rh/devtoolset-7/root/usr/bin" >> $GITHUB_PATH
     - name: Build and install faiss
@@ -103,10 +104,10 @@ jobs:
           -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
           -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
           -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
-          -DCMAKE_CUDA_ARCHITECTURES="35;52;60;61;70;75" \
+          -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
           -DCMAKE_BUILD_TYPE=Release
-        make -C build -j4
-        make -C build install
+        cmake --build build --config Release -j2
+        cmake --install build -v
         cd ..
     - name: Build package
       run: |
@@ -120,7 +121,6 @@ jobs:
         auditwheel repair wheelhouse/faiss*.whl -w dist
         ls -lh dist
     - name: Install and test
-      if: matrix.python-version != 'cp39-cp39'
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy torch
@@ -175,8 +175,8 @@ jobs:
           -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
           -DBUILD_TESTING=${BUILD_TESTING} \
           -DCMAKE_BUILD_TYPE=Release
-        make -C build -j4
-        make -C build install
+        cmake --build build --config Release -j
+        cmake --install build -v
         cd ..
     - name: Build package
       run: |
