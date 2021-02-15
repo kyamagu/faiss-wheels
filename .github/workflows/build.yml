@@ -53,7 +53,7 @@ jobs:
         make -j4
         make install
         cd ..
-        echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -liomp5 -Wl,--end-group" >> $GITHUB_ENV
+        echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl" >> $GITHUB_ENV
         echo "FAISS_LDFLAGS=-liomp5" >> $GITHUB_ENV
         echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
