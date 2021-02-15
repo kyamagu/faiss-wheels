@@ -53,8 +53,9 @@ jobs:
         make -j4
         make install
         cd ..
-        echo "FAISS_LDFLAGS=-Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group" >> $GITHUB_ENV
-        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -liomp5" >> $GITHUB_ENV
+        echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib" >> $GITHUB_ENV
+        echo "MKL_LIBRARIES=${MKL_LIBRARIES} -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=${MKL_LIBRARIES} -liomp5" >> $GITHUB_ENV
         echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Install CUDA build tools
@@ -97,6 +98,7 @@ jobs:
           -DFAISS_OPT_LEVEL=avx2 \
           -DBLA_STATIC=ON \
           -DBLA_VENDOR=Intel10_64lp \
+          -DMKL_LIBRARIES="${MKL_LIBRARIES}" \
           -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
           -DCMAKE_BUILD_TYPE=Release
         cmake --build build_avx2 --config Release -j2
@@ -108,6 +110,7 @@ jobs:
           -DFAISS_OPT_LEVEL=generic \
           -DBLA_STATIC=ON \
           -DBLA_VENDOR=Intel10_64lp \
+          -DMKL_LIBRARIES="${MKL_LIBRARIES}" \
           -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
           -DCMAKE_BUILD_TYPE=Release
         cmake --build build_generic --config Release -j2
@@ -163,9 +166,9 @@ jobs:
         echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
     - name: Install build dependency
       run: |
-        brew install swig
+        brew install libomp swig
         pip install mkl-static intel-openmp
-        export MKL_LIBRARIES="-L$(which python | sed 's/bin\/python/lib/') -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core"
+        export MKL_LIBRARIES="-L$(python -c 'import sys; print(sys.prefix)')/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core"
     - name: Build and install faiss
       run: |
         cd faiss
