@@ -267,7 +267,7 @@ jobs:
           -DFAISS_OPT_LEVEL=generic `
           -DBUILD_TESTING=ON `
           -DBLA_STATIC=ON `
-          -DBLA_VENDOR=Intel10_64lp
+          -DBLA_VENDOR=Intel10_64ilp
         cmake --build build_generic --config Release -j
         cmake --install build_generic --prefix ..\_install_generic -v
         cd ..
@@ -281,7 +281,7 @@ jobs:
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = "$pwd\faiss\include"
         $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib"
-        $Env:FAISS_LDFLAGS += " mkl_intel_lp64.lib libiomp5md.lib mkl_tbb_thread.lib mkl_core.lib"
+        $Env:FAISS_LDFLAGS += " mkl_intel_ilp64.lib libiomp5md.lib mkl_intel_thread.lib mkl_core.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}
