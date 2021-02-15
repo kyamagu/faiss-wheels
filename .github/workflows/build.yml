@@ -53,7 +53,8 @@ jobs:
         make -j4
         make install
         cd ..
-        echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group" >> $GITHUB_ENV
+        echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -liomp5 -Wl,--end-group" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=-liomp5" >> $GITHUB_ENV
         echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Install CUDA build tools
@@ -114,7 +115,7 @@ jobs:
         cmake --build build_generic --config Release -j2
         cmake --install build_generic -v --prefix ../_install_generic
         cd ..
-        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -liomp5 -L_install_generic/lib64 -L_install_avx2/lib64 " >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -L_install_generic/lib64 -L_install_avx2/lib64 " >> $GITHUB_ENV
         echo "FAISS_INCLUDE=_install_generic/include" >> $GITHUB_ENV
     - name: Build package
       run: |
