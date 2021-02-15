@@ -12,8 +12,6 @@ on:
 env:
   SWIG_VERSION: '4.0.2'
   NUMPY_VERSION: '1.18.0'
-  FAISS_OPT_LEVEL: generic
-  FAISS_LIBRARY_SUFFIX: ''
   TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
   TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 jobs:
@@ -30,8 +28,6 @@ jobs:
         cuda:
           - false
           - true
-        opt:
-          - 'generic'
     env:
       FAISS_ENABLE_GPU: 'OFF'
       CUDA_VERSION: '10.0'
@@ -45,18 +41,11 @@ jobs:
         submodules: true
     - name: Set up Python
       run: echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
-    - name: Set optimization level
-      if: matrix.opt != 'generic'
-      run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
     - name: Install build dependency
       run: |
+        pip install intel-openmp mkl-static
         sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
-        yum install -y \
-            openblas-devel \
-            openblas-static \
-            pcre-devel
+        yum install -y pcre-devel
         curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz
         tar xzf swig-${SWIG_VERSION}.tar.gz
         cd swig-${SWIG_VERSION}
@@ -64,7 +53,9 @@ jobs:
         make -j4
         make install
         cd ..
-        echo "FAISS_LDFLAGS=-l:libfaiss${FAISS_LIBRARY_SUFFIX}.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=-Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group" >> $GITHUB_ENV
+        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -liomp5" >> $GITHUB_ENV
+        echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
         echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
     - name: Install CUDA build tools
       if: matrix.cuda
@@ -100,18 +91,35 @@ jobs:
       run: |
         cd faiss
         cmake . \
-          -B build \
+          -B build_avx2 \
           -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
           -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
-          -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
+          -DFAISS_OPT_LEVEL=avx2 \
+          -DBLA_STATIC=ON \
+          -DBLA_VENDOR=Intel10_64lp \
           -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j2
-        cmake --install build -v
+        cmake --build build_avx2 --config Release -j2
+        cmake --install build_avx2 -v --prefix ../_install_avx2
+        cmake . \
+          -B build_generic \
+          -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
+          -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
+          -DFAISS_OPT_LEVEL=generic \
+          -DBLA_STATIC=ON \
+          -DBLA_VENDOR=Intel10_64lp \
+          -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
+          -DCMAKE_BUILD_TYPE=Release
+        cmake --build build_generic --config Release -j2
+        cmake --install build_generic -v --prefix ../_install_generic
         cd ..
+        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -L_install_generic/lib64 -L_install_avx2/lib64" >> $GITHUB_ENV
+        echo "FAISS_INCLUDE=_install_generic/include" >> $GITHUB_ENV
     - name: Build package
       run: |
-        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        cp faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        cp faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss_avx2.i
+        sed -i -e "s/swigfaiss/swigfaiss_avx2/" faiss/faiss/python/swigfaiss_avx2.i
         touch faiss/contrib/__init__.py
 
         pip install --no-cache-dir -U pip
@@ -126,14 +134,13 @@ jobs:
         pip install --no-cache-dir pytest scipy torch
         pytest --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
     - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
+      if: github.event_name == 'release' && github.event.action == 'created'
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
   build-mac:
     runs-on: macos-latest
     env:
-      BUILD_TESTING: 'ON'
       CC: clang
       CXX: clang++
     strategy:
@@ -143,8 +150,6 @@ jobs:
           - 3.7
           - 3.8
           - 3.9
-        opt:
-          - 'generic'
     steps:
     - uses: actions/checkout@v2
       with:
@@ -154,36 +159,48 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Set optimization level
-      if: matrix.opt != 'generic'
       run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
-    - name: Disable tests in avx2
-      if: matrix.opt == 'avx2'
-      run: |
-        echo "BUILD_TESTING=OFF" >> $GITHUB_ENV
+        echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
     - name: Install build dependency
       run: |
-        brew install libomp swig
+        brew install swig
+        pip install mkl-static intel-openmp
+        export MKL_LIBRARIES="-L$(which python | sed 's/bin\/python/lib/') -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core"
     - name: Build and install faiss
       run: |
         cd faiss
         cmake . \
-          -B build \
+          -B build_avx2 \
           -DFAISS_ENABLE_GPU=OFF \
-          -DFAISS_ENABLE_PYTHON=OFF \
-          -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
-          -DBUILD_TESTING=${BUILD_TESTING} \
+          -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=OFF \
+          -DFAISS_OPT_LEVEL=avx2 \
+          -DMKL_LIBRARIES="$MKL_LIBRARIES" \
+          -DBLA_STATIC=ON \
+          -DBLA_VENDOR=Intel10_64lp \
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j
-        cmake --install build -v
+        cmake --build build_avx2 --config Release -j2
+        cmake --install build_avx2 -v --prefix ../_install_avx2
+        cmake . \
+          -B build_generic \
+          -DFAISS_ENABLE_GPU=OFF \
+          -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
+          -DFAISS_OPT_LEVEL=generic \
+          -DMKL_LIBRARIES="$MKL_LIBRARIES" \
+          -DBLA_STATIC=ON \
+          -DBLA_VENDOR=Intel10_64lp \
+          -DCMAKE_BUILD_TYPE=Release
+        cmake --build build_generic --config Release -j2
+        cmake --install build_generic -v --prefix ../_install_generic
         cd ..
     - name: Build package
       run: |
-        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        cp faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+        cp faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss_avx2.i
+        sed -i -e "s/swigfaiss/swigfaiss_avx2/" faiss/faiss/python/swigfaiss_avx2.i
         touch faiss/contrib/__init__.py
 
-        export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a /usr/local/lib/libomp.a -framework Accelerate"
+        export FAISS_LDFLAGS="-L_install_generic/lib -L_install_avx2/lib -lomp -framework Accelerate"
+        export FAISS_INCLUDE="_install_generic/include"
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
         pip wheel . -w dist --no-deps --verbose
@@ -208,10 +225,7 @@ jobs:
           - 3.7
           - 3.8
           - 3.9
-        opt:
-          - 'generic'
     env:
-      OPENBLAS_VERSION: v0.3.12
       CMAKE_PREFIX_PATH: c:\opt
     steps:
     - uses: actions/checkout@v2
@@ -227,10 +241,8 @@ jobs:
           }
         }
     - name: Set optimization level
-      if: matrix.opt != 'generic'
       run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> ${env:GITHUB_ENV}
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> ${env:GITHUB_ENV}
+        echo "FAISS_OPT_LEVEL=generic" >> ${env:GITHUB_ENV}
     - uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
@@ -239,48 +251,23 @@ jobs:
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja swig
+        pip install mkl-static
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
-    - uses: actions/cache@v2
-      id: cache-openblas
-      with:
-        path: ${{ env.CMAKE_PREFIX_PATH }}
-        key: ${{ runner.os }}-openblas-${{ env.OPENBLAS_VERSION }}
-    - name: Build OpenBLAS
-      if: steps.cache-openblas.outputs.cache-hit != 'true'
-      run: |
-        git clone https://github.com/xianyi/OpenBLAS.git -b ${env:OPENBLAS_VERSION}
-        cd OpenBLAS
-        cmake . `
-          -B build `
-          -G "Ninja" `
-          -DCMAKE_CXX_COMPILER=clang-cl `
-          -DCMAKE_C_COMPILER=clang-cl `
-          -DCMAKE_Fortran_COMPILER=flang `
-          -DBUILD_WITHOUT_LAPACK=no `
-          -DNOFORTRAN=0 `
-          -DDYNAMIC_ARCH=ON `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DQUIET_MAKE=1
-        cmake --build build --config Release -j
-        cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
-        cd ..
     - name: Build and install faiss
       run: |
         cd faiss
-        # OpenBLAS does not work well with CMake FindLAPACK, patch here.
-        git apply ..\patch\faiss-remove-lapack.patch
         cmake . `
-          -B build `
+          -B build_generic `
           -A x64 `
           -DFAISS_ENABLE_GPU=OFF `
           -DFAISS_ENABLE_PYTHON=OFF `
-          -DFAISS_OPT_LEVEL="${env:FAISS_OPT_LEVEL}" `
+          -DFAISS_OPT_LEVEL=generic `
           -DBUILD_TESTING=ON `
-          -DCMAKE_PREFIX_PATH="${env:CMAKE_PREFIX_PATH}" `
-          -DBLA_VENDOR=OpenBLAS
-        cmake --build build --config Release -j
-        cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
+          -DBLA_STATIC=ON `
+          -DBLA_VENDOR=Intel10_64lp
+        cmake --build build_generic --config Release -j
+        cmake --install build_generic --prefix ..\_install_generic -v
         cd ..
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -288,10 +275,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Build package
       run: |
-        mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
+        cp faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
-        $Env:FAISS_INCLUDE = "${env:CMAKE_PREFIX_PATH}\include"
-        $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\lib\faiss${env:FAISS_LIBRARY_SUFFIX}.lib ${env:CMAKE_PREFIX_PATH}\lib\openblas.lib"
+        $Env:FAISS_INCLUDE = "$pwd\faiss\include"
+        $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib"
+        $Env:FAISS_LDFLAGS += " mkl_intel_lp64.lib libiomp5md.lib mkl_intel_thread.lib mkl_core.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}

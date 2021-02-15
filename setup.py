@@ -3,6 +3,7 @@ from setuptools.extension import Extension
 from setuptools.command.build_py import build_py
 import sys
 import os
+import warnings
 
 NAME = 'faiss-cpu'
 VERSION = '1.7.0'
@@ -65,44 +66,46 @@ if sys.platform == 'win32':
         '/wd4101',  # unreferenced local variable.
         '/MD',  # Bugfix: https://bugs.python.org/issue38597
     ]
-    EXTRA_LINK_ARGS += [
-        '/OPT:ICF',
-        '/OPT:REF',
-    ]
     if FAISS_LDFLAGS is None:
-        import warnings
         warnings.warn('FAISS_LDFLAGS is empty, likely to fail build.')
+    if FAISS_OPT_LEVEL == 'avx2' or FAISS_OPT_LEVEL == 'all':
+        warnings.warn('AVX2 instruction set currently isn\'t supported '
+                      'for Windows platform in this package. '
+                      'Fallback to FAISS_OPT_LEVEL=generic.')
+        FAISS_OPT_LEVEL = 'generic'
     SWIG_OPTS += ['-DSWIGWIN']
+    OPT_LINK_ARGS = ['/OPT:ICF', '/OPT:REF']
+    GENERIC_LINK_ARGS = EXTRA_LINK_ARGS + ['faiss.lib'] + OPT_LINK_ARGS
+    AVX2_LINK_ARGS = EXTRA_LINK_ARGS + ['faiss_avx2.lib'] + OPT_LINK_ARGS
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
         '-m64',
         '-Wno-sign-compare',
-        '-fopenmp',
         '-fdata-sections',
         '-ffunction-sections',
     ]
     EXTRA_LINK_ARGS += [
-        '-fopenmp',
+        '-lgfortran',
         '-lrt',
         '-s',
-        '-Wl,--gc-sections',
+        '-Wl,--gc-sections'
     ]
     if FAISS_LDFLAGS is None:
         EXTRA_LINK_ARGS += [
             '-L/usr/local/lib',
-            '-l:libfaiss.a',
             '-l:libopenblas.a',
-            '-lgfortran',
+            '-fopenmp'
         ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
+    GENERIC_LINK_ARGS = ['-l:libfaiss.a'] + EXTRA_LINK_ARGS
+    AVX2_LINK_ARGS = ['-l:libfaiss_avx2.a'] + EXTRA_LINK_ARGS
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
         '-m64',
         '-Wno-sign-compare',
-        '-Xpreprocessor',
-        '-fopenmp',
+        '-Xpreprocessor'
     ]
     EXTRA_LINK_ARGS += [
         '-Xpreprocessor',
@@ -111,11 +114,13 @@ elif sys.platform == 'darwin':
     ]
     if FAISS_LDFLAGS is None:
         EXTRA_LINK_ARGS += [
-            '/usr/local/lib/libfaiss.a',
+            '-L/usr/local/lib',
             '/usr/local/opt/libomp/lib/libomp.a',
             '-framework',
             'Accelerate',
         ]
+    GENERIC_LINK_ARGS = EXTRA_LINK_ARGS + ['-lfaiss']
+    AVX2_LINK_ARGS = EXTRA_LINK_ARGS + ['-lfaiss_avx2']
 
 if FAISS_ENABLE_GPU:
     NAME = 'faiss-gpu'
@@ -124,14 +129,12 @@ if FAISS_ENABLE_GPU:
     LIBRARY_DIRS += [os.path.join(CUDA_HOME, 'lib64')]
     SWIG_OPTS += ['-I' + os.path.join(CUDA_HOME, 'include'), '-DGPU_WRAPPER']
 
-if FAISS_OPT_LEVEL == 'avx2':
-    if sys.platform == 'win32':
-        EXTRA_COMPILE_ARGS += ['/arch:AVX2']
-    else:
-        EXTRA_COMPILE_ARGS += ['-mavx2', '-mpopcnt']
-elif FAISS_OPT_LEVEL == 'sse4':
-    if sys.platform != 'win32':
-        EXTRA_COMPILE_ARGS += ['-msse4', '-mpopcnt']
+if sys.platform == 'win32':
+    GENERIC_COMPILE_ARGS = []
+    AVX2_COMPILE_ARGS = ['/arch:AVX2']
+else:
+    GENERIC_COMPILE_ARGS = ['-msse4', '-mpopcnt']
+    AVX2_COMPILE_ARGS = ['-mavx2', '-mpopcnt']
 
 
 class CustomBuildPy(build_py):
@@ -141,7 +144,7 @@ class CustomBuildPy(build_py):
         return build_py.run(self)
 
 
-_swigfaiss = Extension(
+_swigfaiss_generic = Extension(
     'faiss._swigfaiss',
     sources=[
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
@@ -154,10 +157,35 @@ _swigfaiss = Extension(
     define_macros=DEFINE_MACROS,
     include_dirs=INCLUDE_DIRS,
     library_dirs=LIBRARY_DIRS,
-    extra_compile_args=EXTRA_COMPILE_ARGS,
-    extra_link_args=EXTRA_LINK_ARGS,
+    extra_compile_args=EXTRA_COMPILE_ARGS + GENERIC_COMPILE_ARGS,
+    extra_link_args=GENERIC_LINK_ARGS,
     swig_opts=SWIG_OPTS,
 )
+
+_swigfaiss_avx2 = Extension(
+    'faiss._swigfaiss_avx2',
+    sources=[
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss_avx2.i'),
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
+    ],
+    depends=[
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h'),
+    ],
+    language='c++',
+    define_macros=DEFINE_MACROS,
+    include_dirs=INCLUDE_DIRS,
+    library_dirs=LIBRARY_DIRS,
+    extra_compile_args=EXTRA_COMPILE_ARGS + AVX2_COMPILE_ARGS,
+    extra_link_args=AVX2_LINK_ARGS,
+    swig_opts=SWIG_OPTS,
+)
+
+if FAISS_OPT_LEVEL == 'all':
+    modules = [_swigfaiss_generic, _swigfaiss_avx2]
+elif FAISS_OPT_LEVEL == 'avx2':
+    modules = [_swigfaiss_avx2]
+else:
+    modules = [_swigfaiss_generic]
 
 setup(
     name=NAME,
@@ -181,6 +209,6 @@ setup(
     package_data={
         'faiss': ['*.i', '*.h'],
     },
-    ext_modules=[_swigfaiss],
+    ext_modules=modules,
     cmdclass={'build_py': CustomBuildPy},
 )
