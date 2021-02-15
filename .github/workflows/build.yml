@@ -281,7 +281,7 @@ jobs:
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = "$pwd\faiss\include"
         $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib"
-        $Env:FAISS_LDFLAGS += " mkl_intel_lp64.lib libiomp5md.lib mkl_intel_thread.lib mkl_core.lib"
+        $Env:FAISS_LDFLAGS += " mkl_intel_lp64.lib libiomp5md.lib mkl_tbb_thread.lib mkl_core.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}
