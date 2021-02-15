@@ -53,6 +53,7 @@ jobs:
         make -j4
         make install
         cd ..
+        echo "LD_LIBRARY_PATH=$(python -c 'import sys; print(sys.prefix)')/lib;${LD_LIBRARY_PATH}" >> $GITHUB_ENV
         echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl" >> $GITHUB_ENV
         echo "FAISS_LDFLAGS=-liomp5" >> $GITHUB_ENV
         echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
@@ -208,13 +209,13 @@ jobs:
         pip wheel . -w dist --no-deps --verbose
         ls -lh dist
     - name: Install and test
-      if: matrix.python-version != 3.9 && matrix.opt != 'avx2'
+      if: matrix.python-version != 3.9
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
         pytest
     - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
+      if: github.event_name == 'release' && github.event.action == 'created'
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing dist/*
@@ -256,6 +257,7 @@ jobs:
         pip install mkl-static
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
+        echo "MKL_LIBRARIES=mkl_intel_lp64.lib libiomp5md.lib mkl_tbb_thread.lib mkl_core.lib" >> ${env:GITHUB_ENV}
     - name: Build and install faiss
       run: |
         cd faiss
@@ -267,7 +269,8 @@ jobs:
           -DFAISS_OPT_LEVEL=generic `
           -DBUILD_TESTING=ON `
           -DBLA_STATIC=ON `
-          -DBLA_VENDOR=Intel10_64ilp
+          -DMKL_LIBRARIES=${env:MKL_LIBRARIES} `
+          -DBLA_VENDOR=Intel10_64lp
         cmake --build build_generic --config Release -j
         cmake --install build_generic --prefix ..\_install_generic -v
         cd ..
@@ -280,8 +283,7 @@ jobs:
         cp faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = "$pwd\faiss\include"
-        $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib"
-        $Env:FAISS_LDFLAGS += " mkl_intel_ilp64.lib libiomp5md.lib mkl_intel_thread.lib mkl_core.lib"
+        $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib ${env:MKL_LIBRARIES}"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}
@@ -294,7 +296,7 @@ jobs:
         pip install --no-cache-dir pytest scipy
         pytest
     - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
+      if: github.event_name == 'release' && github.event.action == 'created'
       run: |
         pip install --no-cache-dir twine
         twine upload --skip-existing (Get-Item .\dist\*)
