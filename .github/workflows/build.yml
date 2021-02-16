@@ -254,7 +254,7 @@ jobs:
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja swig
-        pip install mkl-static
+        pip install mkl-static tbb-devel
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
         echo "MKL_LIBRARIES=mkl_intel_lp64.lib libiomp5md.lib mkl_tbb_thread.lib mkl_core.lib" >> ${env:GITHUB_ENV}
