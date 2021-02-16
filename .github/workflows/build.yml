@@ -53,6 +53,7 @@ jobs:
         make -j4
         make install
         cd ..
+        echo "LD_LIBRARY_PATH=$(python -c 'import sys; print(sys.prefix)')/lib:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
         echo "MKL_LIBRARIES=-L$(python -c 'import sys; print(sys.prefix)')/lib -Wl,--start-group -l:libmkl_intel_lp64.a -l:libmkl_intel_thread.a -l:libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl" >> $GITHUB_ENV
         echo "FAISS_LDFLAGS=-L$(python -c 'import sys; print(sys.prefix)')/lib -liomp5" >> $GITHUB_ENV
         echo "FAISS_OPT_LEVEL=all" >> $GITHUB_ENV
@@ -268,7 +269,7 @@ jobs:
           -DFAISS_OPT_LEVEL=generic `
           -DBUILD_TESTING=ON `
           -DBLA_STATIC=ON `
-          -DMKL_LIBRARIES=${env:MKL_LIBRARIES} `
+          -DMKL_LIBRARIES="${env:MKL_LIBRARIES}" `
           -DBLA_VENDOR=Intel10_64lp
         cmake --build build_generic --config Release -j
         cmake --install build_generic --prefix ..\_install_generic -v
