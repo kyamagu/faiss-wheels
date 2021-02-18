@@ -68,11 +68,6 @@ if sys.platform == 'win32':
     ]
     if FAISS_LDFLAGS is None:
         warnings.warn('FAISS_LDFLAGS is empty, likely to fail build.')
-    if FAISS_OPT_LEVEL == 'avx2' or FAISS_OPT_LEVEL == 'all':
-        warnings.warn('AVX2 instruction set currently isn\'t supported '
-                      'for Windows platform in this package. '
-                      'Fallback to FAISS_OPT_LEVEL=generic.')
-        FAISS_OPT_LEVEL = 'generic'
     SWIG_OPTS += ['-DSWIGWIN']
     OPT_LINK_ARGS = ['/OPT:ICF', '/OPT:REF']
     GENERIC_LINK_ARGS = EXTRA_LINK_ARGS + ['faiss.lib'] + OPT_LINK_ARGS

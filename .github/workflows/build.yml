@@ -245,7 +245,7 @@ jobs:
         }
     - name: Set optimization level
       run: |
-        echo "FAISS_OPT_LEVEL=generic" >> ${env:GITHUB_ENV}
+        echo "FAISS_OPT_LEVEL=all" >> ${env:GITHUB_ENV}
     - uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
@@ -253,11 +253,11 @@ jobs:
     - name: Install build tools
       run: |
         conda config --add channels conda-forge
-        conda install -y flang clangdev perl libflang ninja swig
-        pip install mkl-static tbb-devel
+        conda install -y flang clangdev perl libflang ninja swig m2-sed
+        pip install mkl-static
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
-        echo "MKL_LIBRARIES=mkl_intel_lp64.lib libiomp5md.lib mkl_tbb_thread.lib mkl_core.lib" >> ${env:GITHUB_ENV}
+        echo "MKL_LIBRARIES=mkl_intel_lp64.lib libomp.lib mkl_intel_thread.lib mkl_core.lib" >> ${env:GITHUB_ENV}
     - name: Build and install faiss
       run: |
         cd faiss
@@ -273,6 +273,18 @@ jobs:
           -DBLA_VENDOR=Intel10_64lp
         cmake --build build_generic --config Release -j
         cmake --install build_generic --prefix ..\_install_generic -v
+        cmake . `
+          -B build_avx2 `
+          -A x64 `
+          -DFAISS_ENABLE_GPU=OFF `
+          -DFAISS_ENABLE_PYTHON=OFF `
+          -DFAISS_OPT_LEVEL=avx2 `
+          -DBUILD_TESTING=ON `
+          -DBLA_STATIC=ON `
+          -DMKL_LIBRARIES="${env:MKL_LIBRARIES}" `
+          -DBLA_VENDOR=Intel10_64lp
+        cmake --build build_avx2 --config Release -j
+        cmake --install build_avx2 --prefix ..\_install_avx2 -v
         cd ..
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -281,9 +293,11 @@ jobs:
     - name: Build package
       run: |
         cp faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
+        cp faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss_avx2.i
+        sed -i -e "s/swigfaiss/swigfaiss_avx2/" faiss/faiss/python/swigfaiss_avx2.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = "$pwd\faiss\include"
-        $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib ${env:MKL_LIBRARIES}"
+        $Env:FAISS_LDFLAGS = "/LIBPATH:$pwd\_install_generic\lib /LIBPATH:$pwd\_install_avx2\lib ${env:MKL_LIBRARIES}"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION}
