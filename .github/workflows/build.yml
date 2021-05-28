@@ -136,6 +136,7 @@ jobs:
       BUILD_TESTING: 'ON'
       CC: clang
       CXX: clang++
+      VECLIB_MAXIMUM_THREADS: 1
     strategy:
       matrix:
         python-version:
