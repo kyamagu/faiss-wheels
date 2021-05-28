@@ -238,7 +238,7 @@ jobs:
     - name: Install build tools
       run: |
         conda config --add channels conda-forge
-        conda install -y flang clangdev perl libflang ninja swig libxml2
+        conda install -y flang clangdev perl libflang ninja swig
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
     - uses: actions/cache@v2
@@ -257,6 +257,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang-cl `
           -DCMAKE_C_COMPILER=clang-cl `
           -DCMAKE_Fortran_COMPILER=flang `
+          -DCMAKE_MT=mt `
           -DBUILD_WITHOUT_LAPACK=no `
           -DNOFORTRAN=0 `
           -DDYNAMIC_ARCH=ON `
