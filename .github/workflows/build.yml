@@ -251,6 +251,8 @@ jobs:
       run: |
         git clone https://github.com/xianyi/OpenBLAS.git -b ${env:OPENBLAS_VERSION}
         cd OpenBLAS
+        $Env:LIB = "${env:CONDA_PREFIX}\Library\lib;${env:LIB}"
+        $Env:CPATH = "${env:CONDA_PREFIX}\Library\include;${env:CPATH}"
         cmake . `
           -B build `
           -G "Ninja" `
