@@ -106,7 +106,7 @@ jobs:
           -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
           -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
           -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j
+        cmake --build build --config Release -j2  # Limit to 2 to avoid OOM...
         cmake --install build -v
         cd ..
     - name: Build package
@@ -266,7 +266,7 @@ jobs:
           -DDYNAMIC_ARCH=ON `
           -DCMAKE_BUILD_TYPE=Release `
           -DQUIET_MAKE=1 `
-          -DCMAKE_C_FLAGS="-Wno-reserved-id-macro -Wno-unused-macros -Wno-dollar-in-identifier-extension -Wno-strict-prototypes -Wno-nonportable-system-include-path -Wno-newline-eof -Wno-unused-parameter -Wno-undef"
+          -DCMAKE_C_FLAGS="-w"
         cmake --build build --config Release -j
         cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
         cd ..
