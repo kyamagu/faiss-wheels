@@ -194,7 +194,7 @@ jobs:
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
-        pytest --deselect=faiss/tests/test_io.py::TestCallbacks::test_transfer_pipe
+        pytest --deselect=faiss/tests/test_io.py
     - name: Publish to PyPI
       if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
       run: |
@@ -212,7 +212,7 @@ jobs:
         opt:
           - 'generic'
     env:
-      OPENBLAS_VERSION: v0.3.12
+      OPENBLAS_VERSION: v0.3.15
       CMAKE_PREFIX_PATH: c:\opt
     steps:
     - uses: actions/checkout@v2
@@ -240,6 +240,7 @@ jobs:
       run: |
         conda config --add channels conda-forge
         conda install -y flang clangdev perl libflang ninja swig
+        cmake --version
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
     - uses: actions/cache@v2
