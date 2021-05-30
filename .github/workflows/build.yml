@@ -185,8 +185,9 @@ jobs:
 
         export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a /usr/local/lib/libomp.a -framework Accelerate"
         pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
+        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} delocate
         pip wheel . -w dist --no-deps --verbose
+        delocate-wheel -v dist/faiss*.whl
         ls -lh dist
     - name: Install and test
       if: matrix.python-version != 3.9 && matrix.opt != 'avx2'
@@ -211,7 +212,6 @@ jobs:
         opt:
           - 'generic'
     env:
-      OPENBLAS_VERSION: v0.3.15
       CMAKE_PREFIX_PATH: c:\opt
     steps:
     - uses: actions/checkout@v2
@@ -238,38 +238,10 @@ jobs:
     - name: Install build tools
       run: |
         conda config --add channels conda-forge
-        conda install -y flang clangdev perl libflang ninja swig openblas
+        conda install -y swig openblas
         cmake --version
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
-    # - uses: actions/cache@v2
-    #   id: cache-openblas
-    #   with:
-    #     path: ${{ env.CMAKE_PREFIX_PATH }}
-    #     key: ${{ runner.os }}-openblas-${{ env.OPENBLAS_VERSION }}
-    # - name: Build OpenBLAS
-    #   if: steps.cache-openblas.outputs.cache-hit != 'true'
-    #   run: |
-    #     git clone https://github.com/xianyi/OpenBLAS.git -b ${env:OPENBLAS_VERSION}
-    #     cd OpenBLAS
-    #     $Env:LIB = "${env:CONDA_PREFIX}\Library\lib;${env:LIB}"
-    #     $Env:CPATH = "${env:CONDA_PREFIX}\Library\include;${env:CPATH}"
-    #     cmake . `
-    #       -B build `
-    #       -G "Ninja" `
-    #       -DCMAKE_CXX_COMPILER=clang-cl `
-    #       -DCMAKE_C_COMPILER=clang-cl `
-    #       -DCMAKE_Fortran_COMPILER=flang `
-    #       -DCMAKE_MT=mt `
-    #       -DBUILD_WITHOUT_LAPACK=no `
-    #       -DNOFORTRAN=0 `
-    #       -DDYNAMIC_ARCH=ON `
-    #       -DCMAKE_BUILD_TYPE=Release `
-    #       -DQUIET_MAKE=1 `
-    #       -DCMAKE_C_FLAGS="-w"
-    #     cmake --build build --config Release -j
-    #     cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
-    #     cd ..
     - name: Build and install faiss
       run: |
         cd faiss
