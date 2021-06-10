@@ -273,7 +273,8 @@ jobs:
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w dist --no-deps --verbose
-        delvewheel repair (Get-Item .\dist\faiss*.whl)
+        delvewheel show (Get-Item .\dist\faiss*.whl) --add-path "${env:CONDA_PREFIX}\Library\lib"
+        delvewheel repair (Get-Item .\dist\faiss*.whl) --add-path "${env:CONDA_PREFIX}\Library\lib"
         Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
