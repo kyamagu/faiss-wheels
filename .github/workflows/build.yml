@@ -238,7 +238,7 @@ jobs:
     - name: Install build tools
       run: |
         conda config --add channels conda-forge
-        conda install -y swig openblas
+        conda install -y swig libopenblas-static
         cmake --version
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
