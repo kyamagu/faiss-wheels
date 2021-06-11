@@ -270,8 +270,7 @@ jobs:
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = ""
-        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
-        Get-ChildItem -Path "C:\Miniconda\envs\test\Library\lib"
+        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib libomp.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
