@@ -279,8 +279,7 @@ jobs:
           --add-path "${env:CONDA_PREFIX}\Library\lib"
         delvewheel repair -w dist (Get-Item .\wheelhouse\faiss*.whl) `
           --add-path "${env:CONDA_PREFIX}\Library\lib" `
-          --add-dll flang.dll;flangrti.dll;libomp.dll `
-          --no-dll openblas.dll
+          --no-dll concrt140.dll;msvcp140.dll;vcomp140.dll
         Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
