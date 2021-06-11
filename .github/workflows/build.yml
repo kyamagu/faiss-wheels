@@ -136,6 +136,7 @@ jobs:
       BUILD_TESTING: 'ON'
       CC: clang
       CXX: clang++
+      MACOSX_DEPLOYMENT_TARGET: "10.14"
     strategy:
       matrix:
         python-version:
