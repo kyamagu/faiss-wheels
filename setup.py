@@ -5,7 +5,7 @@ import sys
 import os
 
 NAME = 'faiss-cpu'
-VERSION = '1.7.1'
+VERSION = '1.7.1.post1'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
@@ -70,8 +70,10 @@ if sys.platform == 'win32':
         '/OPT:REF',
     ]
     if FAISS_LDFLAGS is None:
-        import warnings
-        warnings.warn('FAISS_LDFLAGS is empty, likely to fail build.')
+        EXTRA_LINK_ARGS += [
+            'faiss.lib',
+            'openblas.lib',
+        ]
     SWIG_OPTS += ['-DSWIGWIN']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
