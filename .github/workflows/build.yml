@@ -238,7 +238,7 @@ jobs:
     - name: Install build tools
       run: |
         conda config --add channels conda-forge
-        conda install -y swig libopenblas-static
+        conda install -y swig openblas
         cmake --version
         echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
         echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
@@ -255,7 +255,8 @@ jobs:
           -DFAISS_OPT_LEVEL="${env:FAISS_OPT_LEVEL}" `
           -DBUILD_TESTING=ON `
           -DCMAKE_PREFIX_PATH="${env:CMAKE_PREFIX_PATH}" `
-          -DBLA_VENDOR=OpenBLAS
+          -DBLA_VENDOR=OpenBLAS `
+          -DBLA_STATIC=ON
         cmake --build build --config Release -j
         cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
         cd ..
