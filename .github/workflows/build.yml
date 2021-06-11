@@ -276,7 +276,7 @@ jobs:
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w wheelhouse --no-deps --verbose
         delvewheel show (Get-Item .\wheelhouse\faiss*.whl) `
-          --add-path "${env:CONDA_PREFIX}\Library\lib" `
+          --add-path "${env:CONDA_PREFIX}\Library\lib"
         delvewheel repair -w dist (Get-Item .\wheelhouse\faiss*.whl) `
           --add-path "${env:CONDA_PREFIX}\Library\lib" `
           --add-dll flang.dll;flangrti.dll;libomp.dll `
