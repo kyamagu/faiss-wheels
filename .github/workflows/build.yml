@@ -276,10 +276,9 @@ jobs:
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w wheelhouse --no-deps --verbose
         delvewheel show (Get-Item .\wheelhouse\faiss*.whl) `
-          --add-path "${env:CONDA_PREFIX}\Library\lib"
+          --add-dll openblas.dll;flang.dll;flangrti.dll;libomp.dll
         delvewheel repair -w dist (Get-Item .\wheelhouse\faiss*.whl) `
-          --add-path "${env:CONDA_PREFIX}\Library\lib" `
-          --no-dll concrt140.dll;msvcp140.dll;vcomp140.dll
+          --add-dll openblas.dll;flang.dll;flangrti.dll;libomp.dll
         Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
