@@ -236,13 +236,13 @@ jobs:
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
-    - name: Install build tools
+    - name: Install and set up build dependencies
       run: |
         conda config --add channels conda-forge
         conda install -y swig openblas
         cmake --version
-        echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib" >> ${env:GITHUB_ENV}
-        echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include" >> ${env:GITHUB_ENV}
+        echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib;${env:CMAKE_PREFIX_PATH}\lib" >> ${env:GITHUB_ENV}
+        echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include;${env:CMAKE_PREFIX_PATH}\include" >> ${env:GITHUB_ENV}
     - name: Build and install faiss
       run: |
         cd faiss
@@ -258,7 +258,7 @@ jobs:
           -DCMAKE_PREFIX_PATH="${env:CMAKE_PREFIX_PATH}" `
           -DBLA_VENDOR=OpenBLAS `
           -DBLA_STATIC=ON
-        cmake --build build --config Release -j
+        cmake --build build --config Release -j -v
         cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
         cd ..
     - name: Set up Python
@@ -269,8 +269,9 @@ jobs:
       run: |
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
-        $Env:FAISS_INCLUDE = "${env:CMAKE_PREFIX_PATH}\include"
-        $Env:FAISS_LDFLAGS = "${env:CMAKE_PREFIX_PATH}\lib\faiss${env:FAISS_LIBRARY_SUFFIX}.lib ${env:CONDA_PREFIX}\Library\lib\openblas.lib"
+        $Env:FAISS_INCLUDE = ""
+        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
+        Get-ChildItem -Path "C:\Miniconda\envs\test\Library\lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
