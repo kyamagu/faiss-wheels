@@ -70,8 +70,10 @@ if sys.platform == 'win32':
         '/OPT:REF',
     ]
     if FAISS_LDFLAGS is None:
-        import warnings
-        warnings.warn('FAISS_LDFLAGS is empty, likely to fail build.')
+        EXTRA_LINK_ARGS += [
+            'faiss.lib',
+            'openblas.lib',
+        ]
     SWIG_OPTS += ['-DSWIGWIN']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
