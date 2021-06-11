@@ -270,15 +270,13 @@ jobs:
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = ""
-        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
+        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib libomp.lib"
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w wheelhouse --no-deps --verbose
-        delvewheel show (Get-Item .\wheelhouse\faiss*.whl) `
-          --no-dll "concrt140.dll;msvcp140.dll;vcomp140.dll;vcruntime140_1.dll"
-        delvewheel repair -w dist (Get-Item .\wheelhouse\faiss*.whl) `
-          --no-dll "concrt140.dll;msvcp140.dll;vcomp140.dll;vcruntime140_1.dll"
+        delvewheel show (Get-Item .\wheelhouse\faiss*.whl)
+        delvewheel repair -w dist (Get-Item .\wheelhouse\faiss*.whl)
         Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
