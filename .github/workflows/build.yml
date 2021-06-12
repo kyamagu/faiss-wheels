@@ -10,7 +10,6 @@ on:
   release:
     types: [created]
 env:
-  SWIG_VERSION: '4.0.2'
   NUMPY_VERSION: '1.18.0'
   FAISS_OPT_LEVEL: generic
   FAISS_LIBRARY_SUFFIX: ''
@@ -33,6 +32,7 @@ jobs:
         opt:
           - 'generic'
     env:
+      SWIG_VERSION: '4.0.2'
       FAISS_ENABLE_GPU: 'OFF'
       CUDA_VERSION: '10.0'
       CUDA_PKG_VERSION: 10-0-10.0.130-1
@@ -191,7 +191,7 @@ jobs:
         delocate-wheel -v dist/faiss*.whl
         ls -lh dist
     - name: Install and test
-      if: matrix.python-version != 3.9 && matrix.opt != 'avx2'
+      if: matrix.opt != 'avx2'
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
@@ -218,15 +218,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set up build environment
-      run: |
-        $installationPath = vswhere.exe -prerelease -latest -property installationPath
-        if ($installationPath -and (test-path "$installationPath\Common7\Tools\vsdevcmd.bat")) {
-          & "${env:COMSPEC}" /s /c "`"$installationPath\Common7\Tools\vsdevcmd.bat`" -arch=x64 -no_logo && set" | foreach-object {
-            $name, $value = $_ -split '=', 2
-            echo "$name=$value" >> ${env:GITHUB_ENV}
-          }
-        }
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: Set optimization level
       if: matrix.opt != 'generic'
       run: |
@@ -261,10 +253,6 @@ jobs:
         cmake --build build --config Release -j -v
         cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
         cd ..
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Build package
       run: |
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
@@ -275,12 +263,42 @@ jobs:
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w dist --no-deps --verbose
-        delvewheel show (Get-Item .\dist\faiss*.whl) --add-path "${env:CONDA_PREFIX}\Library\lib"
-        delvewheel repair (Get-Item .\dist\faiss*.whl) --add-path "${env:CONDA_PREFIX}\Library\lib"
+        delvewheel show (Get-Item .\dist\faiss*.whl)
+        delvewheel repair -w dist (Get-Item .\dist\faiss*.whl)
         Get-ChildItem -Path dist
+    - name: Upload package for test
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
+        path: dist
+  test-win:
+    needs: build-win
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+        opt:
+          - 'generic'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Download package for test
+      uses: actions/download-artifact@v2
+      with:
+        name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
+        path: dist
     - name: Install and test
-      if: matrix.python-version != 3.9
       run: |
+        pip install --no-cache-dir -U pip
         pip install --no-cache-dir (Get-Item .\dist\faiss*.whl)
         pip install --no-cache-dir pytest scipy
         pytest `
