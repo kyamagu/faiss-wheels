@@ -10,7 +10,6 @@ on:
   release:
     types: [created]
 env:
-  SWIG_VERSION: '4.0.2'
   NUMPY_VERSION: '1.18.0'
   FAISS_OPT_LEVEL: generic
   FAISS_LIBRARY_SUFFIX: ''
@@ -33,6 +32,7 @@ jobs:
         opt:
           - 'generic'
     env:
+      SWIG_VERSION: '4.0.2'
       FAISS_ENABLE_GPU: 'OFF'
       CUDA_VERSION: '10.0'
       CUDA_PKG_VERSION: 10-0-10.0.130-1
@@ -261,10 +261,6 @@ jobs:
         cmake --build build --config Release -j -v
         cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
         cd ..
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Build package
       run: |
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
@@ -281,9 +277,38 @@ jobs:
         pip wheel . -w dist --no-deps --verbose
         delvewheel show (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
         Get-ChildItem -Path dist
+    - name: Upload package for test
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
+        path: dist
+  test-win:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+        opt:
+          - 'generic'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Download package for test
+      uses: actions/download-artifact@v2
+      with:
+        name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
     - name: Install and test
       if: matrix.python-version != 3.9
       run: |
+        pip install --no-cache-dir -U pip
         pip install --no-cache-dir (Get-Item .\dist\faiss*.whl)
         pip install --no-cache-dir pytest scipy
         pytest `
