@@ -283,6 +283,7 @@ jobs:
         name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
         path: dist
   test-win:
+    needs: build-win
     runs-on: windows-latest
     strategy:
       matrix:
