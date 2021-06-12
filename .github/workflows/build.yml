@@ -306,6 +306,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
+        path: dist
     - name: Install and test
       if: matrix.python-version != 3.9
       run: |
