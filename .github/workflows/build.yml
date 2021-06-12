@@ -270,17 +270,16 @@ jobs:
         mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
         New-Item -ItemType file faiss\contrib\__init__.py
         $Env:FAISS_INCLUDE = ""
-        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib libomp.lib"
+        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
 
         cp "${env:CONDA_PREFIX}\Library\bin\flang.dll" faiss\faiss\python
         cp "${env:CONDA_PREFIX}\Library\bin\flangrti.dll" faiss\faiss\python
-        cp "${env:CONDA_PREFIX}\Library\bin\libomp.dll" faiss\faiss\python
         cp "${env:CONDA_PREFIX}\Library\bin\openblas.dll" faiss\faiss\python
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w dist --no-deps --verbose
-        delvewheel show (Get-Item .\dist\faiss*.whl)
+        delvewheel show (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
         Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
