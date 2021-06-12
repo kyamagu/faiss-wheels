@@ -56,6 +56,7 @@ SWIG_OPTS = [
     '-I' + FAISS_INCLUDE,
     '-I' + FAISS_ROOT,
 ]
+PACKAGE_DATA = ['*.i', '*.h']
 
 if sys.platform == 'win32':
     EXTRA_COMPILE_ARGS += [
@@ -98,6 +99,7 @@ elif sys.platform == 'linux':
             '-lgfortran',
         ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
+    PACKAGE_DATA += ['*.dll']
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
@@ -181,7 +183,7 @@ setup(
         'faiss.contrib': os.path.join(FAISS_ROOT, 'contrib'),
     },
     package_data={
-        'faiss': ['*.i', '*.h'],
+        'faiss': PACKAGE_DATA,
     },
     ext_modules=[_swigfaiss],
     cmdclass={'build_py': CustomBuildPy},
