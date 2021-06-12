@@ -76,6 +76,7 @@ if sys.platform == 'win32':
             'openblas.lib',
         ]
     SWIG_OPTS += ['-DSWIGWIN']
+    PACKAGE_DATA += ['*.dll']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
@@ -99,7 +100,6 @@ elif sys.platform == 'linux':
             '-lgfortran',
         ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
-    PACKAGE_DATA += ['*.dll']
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
