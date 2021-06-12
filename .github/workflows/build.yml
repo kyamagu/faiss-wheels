@@ -276,7 +276,7 @@ jobs:
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w wheelhouse --no-deps --verbose
         delvewheel show (Get-Item .\wheelhouse\faiss*.whl)
-        delvewheel repair -w dist (Get-Item .\wheelhouse\faiss*.whl)
+        delvewheel repair -w dist -L . (Get-Item .\wheelhouse\faiss*.whl)
         Get-ChildItem -Path dist
     - name: Install and test
       if: matrix.python-version != 3.9
