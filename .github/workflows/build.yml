@@ -191,7 +191,7 @@ jobs:
         delocate-wheel -v dist/faiss*.whl
         ls -lh dist
     - name: Install and test
-      if: matrix.python-version != 3.9 && matrix.opt != 'avx2'
+      if: matrix.opt != 'avx2'
       run: |
         pip install --no-cache-dir dist/faiss*.whl
         pip install --no-cache-dir pytest scipy
@@ -218,15 +218,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Set up build environment
-      run: |
-        $installationPath = vswhere.exe -prerelease -latest -property installationPath
-        if ($installationPath -and (test-path "$installationPath\Common7\Tools\vsdevcmd.bat")) {
-          & "${env:COMSPEC}" /s /c "`"$installationPath\Common7\Tools\vsdevcmd.bat`" -arch=x64 -no_logo && set" | foreach-object {
-            $name, $value = $_ -split '=', 2
-            echo "$name=$value" >> ${env:GITHUB_ENV}
-          }
-        }
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: Set optimization level
       if: matrix.opt != 'generic'
       run: |
@@ -268,19 +260,11 @@ jobs:
         $Env:FAISS_INCLUDE = ""
         $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
 
-        # cp "${env:CONDA_PREFIX}\Library\bin\flang.dll" faiss\faiss\python
-        # cp "${env:CONDA_PREFIX}\Library\bin\flangrti.dll" faiss\faiss\python
-        # cp "${env:CONDA_PREFIX}\Library\bin\openblas.dll" faiss\faiss\python
-        # cp "${env:CONDA_PREFIX}\Library\bin\libomp.dll" faiss\faiss\python
-        # cp "${env:CONDA_PREFIX}\Library\bin\concrt140.dll" faiss\faiss\python
-        # cp "${env:CONDA_PREFIX}\Library\bin\msvcp140.dll" faiss\faiss\python
-        # cp "${env:CONDA_PREFIX}\Library\bin\vcomp140.dll" faiss\faiss\python
-
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w dist --no-deps --verbose
-        delvewheel show (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
-        delvewheel repair -w dist (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
+        delvewheel show (Get-Item .\dist\faiss*.whl)
+        delvewheel repair -w dist (Get-Item .\dist\faiss*.whl)
         Get-ChildItem -Path dist
     - name: Upload package for test
       uses: actions/upload-artifact@v2
@@ -313,7 +297,6 @@ jobs:
         name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
         path: dist
     - name: Install and test
-      if: matrix.python-version != 3.9
       run: |
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir (Get-Item .\dist\faiss*.whl)

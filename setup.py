@@ -5,7 +5,7 @@ import sys
 import os
 
 NAME = 'faiss-cpu'
-VERSION = '1.7.1.post1'
+VERSION = '1.7.1.post2'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
@@ -56,7 +56,6 @@ SWIG_OPTS = [
     '-I' + FAISS_INCLUDE,
     '-I' + FAISS_ROOT,
 ]
-PACKAGE_DATA = ['*.i', '*.h']
 
 if sys.platform == 'win32':
     EXTRA_COMPILE_ARGS += [
@@ -76,7 +75,6 @@ if sys.platform == 'win32':
             'openblas.lib',
         ]
     SWIG_OPTS += ['-DSWIGWIN']
-    PACKAGE_DATA += ['*.dll']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
@@ -183,7 +181,7 @@ setup(
         'faiss.contrib': os.path.join(FAISS_ROOT, 'contrib'),
     },
     package_data={
-        'faiss': PACKAGE_DATA,
+        'faiss': ['*.i', '*.h'],
     },
     ext_modules=[_swigfaiss],
     cmdclass={'build_py': CustomBuildPy},
