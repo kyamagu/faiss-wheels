@@ -268,14 +268,19 @@ jobs:
         $Env:FAISS_INCLUDE = ""
         $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
 
-        cp "${env:CONDA_PREFIX}\Library\bin\flang.dll" faiss\faiss\python
-        cp "${env:CONDA_PREFIX}\Library\bin\flangrti.dll" faiss\faiss\python
-        cp "${env:CONDA_PREFIX}\Library\bin\openblas.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\flang.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\flangrti.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\openblas.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\libomp.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\concrt140.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\msvcp140.dll" faiss\faiss\python
+        # cp "${env:CONDA_PREFIX}\Library\bin\vcomp140.dll" faiss\faiss\python
 
         pip install --no-cache-dir -U pip
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w dist --no-deps --verbose
         delvewheel show (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
+        delvewheel repair (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
         Get-ChildItem -Path dist
     - name: Upload package for test
       uses: actions/upload-artifact@v2
