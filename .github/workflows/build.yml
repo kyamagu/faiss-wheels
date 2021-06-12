@@ -280,7 +280,7 @@ jobs:
         pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
         pip wheel . -w dist --no-deps --verbose
         delvewheel show (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
-        delvewheel repair (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
+        delvewheel repair -w dist (Get-Item .\dist\faiss*.whl) --ignore-in-wheel
         Get-ChildItem -Path dist
     - name: Upload package for test
       uses: actions/upload-artifact@v2
