@@ -5,6 +5,8 @@ export CXXFLAGS="-fvisibility=hidden -fdata-sections -ffunction-sections"
 FAISS_ENABLE_GPU=${FAISS_ENABLE_GPU:-"OFF"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 
+echo "FAISS_ENABLE_GPU=${FAISS_ENABLE_GPU}"
+
 CUDA_VERSION="10.0"
 CUDA_PKG_VERSION="10-0-10.0.130-1"
 CUBLAS_PKG_VERSION="10-0-10.0.130-1"
@@ -17,7 +19,7 @@ if [[ $(uname -m) == "aarch64" ]]; then
 fi
 
 # Setup CUDA build environment
-if [[ ${FAISS_ENABLE_GPU} == "ON" ]]; then
+if [[ "${FAISS_ENABLE_GPU}" == "ON" ]]; then
     yum -y install yum-utils && \
         yum-config-manager --add-repo NVIDIA_REPO_URL && \
         yum repolist && \
@@ -38,17 +40,6 @@ if [[ ${FAISS_ENABLE_GPU} == "ON" ]]; then
     export PATH="/opt/rh/devtoolset-7/root/usr/bin:/usr/local/cuda/bin:${PATH}"
     export CUDAFLAGS="--compiler-options=-fvisibility=hidden,-fdata-sections,-ffunction-sections"
 fi
-
-# # Install swig
-# SWIG_VERSION='4.0.2'
-# yum install -y pcre-devel
-# curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz
-# tar xzf swig-${SWIG_VERSION}.tar.gz
-# cd swig-${SWIG_VERSION}
-# ./configure
-# make -j4
-# make install
-# cd ..
 
 # Install system dependencies
 yum install -y \

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 export MACOSX_DEPLOYMENT_TARGET="10.9"
-export CXXFLAGS="-fvisibility=hidden -fdata-sections -ffunction-sections"
 
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 

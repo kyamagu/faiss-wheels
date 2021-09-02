@@ -45,13 +45,6 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Set up miniconda
-        if: runner.os == 'Windows'
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: '3.8'
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.1.1
         env:
