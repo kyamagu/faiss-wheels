@@ -131,9 +131,6 @@ if FAISS_OPT_LEVEL == 'avx2':
         EXTRA_COMPILE_ARGS += ['/arch:AVX2']
     else:
         EXTRA_COMPILE_ARGS += ['-mavx2', '-mpopcnt']
-elif FAISS_OPT_LEVEL == 'sse4':
-    if sys.platform != 'win32':
-        EXTRA_COMPILE_ARGS += ['-msse4', '-mpopcnt']
 
 
 class CustomBuildPy(build_py):
