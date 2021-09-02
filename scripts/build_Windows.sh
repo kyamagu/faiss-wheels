@@ -2,6 +2,9 @@
 
 CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
+VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT:-"C:\\vcpkg"}
+
+env
 
 # Install system dependencies
 choco install swig
@@ -16,9 +19,9 @@ cd faiss && \
         -DFAISS_ENABLE_GPU=OFF \
         -DFAISS_ENABLE_PYTHON=OFF \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
-        -DBUILD_TESTING=ON \
+        -DBUILD_TESTING=OFF \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
-        -DCMAKE_TOOLCHAIN_FILE="C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" \
+        -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}\\scripts\\buildsystems\\vcpkg.cmake" \
         -DBLA_VENDOR=OpenBLAS \
         -DBLA_STATIC=ON && \
     cmake --build build --config Release -j -v && \

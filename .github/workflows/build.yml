@@ -57,9 +57,8 @@ jobs:
             LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
-            OPENBLAS_PREFIX_PATH="c:\\vcpkg\\packages\\openblas_x64-windows"
-            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${OPENBLAS_PREFIX_PATH}\\lib"
-            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${OPENBLAS_PREFIX_PATH}\\include"
+            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib"
+            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
           CIBW_BEFORE_BUILD: pip install numpy
           CIBW_TEST_REQUIRES: pytest scipy
