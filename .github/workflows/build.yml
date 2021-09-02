@@ -57,6 +57,7 @@ jobs:
             LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
+            PATH="${PATH};${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\bin"
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\debug\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh

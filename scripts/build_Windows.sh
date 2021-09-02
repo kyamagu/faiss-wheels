@@ -5,11 +5,7 @@ FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT:-"C:\\vcpkg"}
 
 # Install system dependencies
-env
-
-export PATH="${CONDA}\\bin:${PATH}"
-conda config --add channels conda-forge
-conda install openblas
+vcpkg install openblas
 
 # Build and patch faiss
 cd faiss && \
