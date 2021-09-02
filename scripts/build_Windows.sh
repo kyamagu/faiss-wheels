@@ -3,11 +3,12 @@
 CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 
-export PATH="C:\Miniconda\condabin:${PATH}"
+export PATH="C:\\Miniconda\\condabin:${PATH}"
 export LIB="${LIB};${CONDA_PREFIX}\\Library\\lib;${CMAKE_PREFIX_PATH}\\lib"
 export CPATH="${CPATH};${CONDA_PREFIX}\\Library\\include;${CMAKE_PREFIX_PATH}\\include"
 
 # Install system dependencies
+echo $PATH
 conda config --add channels conda-forge
 conda install -y swig openblas
 
