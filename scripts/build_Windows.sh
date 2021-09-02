@@ -5,7 +5,7 @@ FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT:-"C:\\vcpkg"}
 
 # Install system dependencies
-vcpkg install lapack:x64-windows-static
+vcpkg install lapack:x64-windows openblas:x64-windows
 
 # Build and patch faiss
 cd faiss && \
@@ -18,6 +18,7 @@ cd faiss && \
         -DBUILD_TESTING=OFF \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
         -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}\\scripts\\buildsystems\\vcpkg.cmake" \
+        -DCMAKE_BUILD_TYPE=Release \
         -DBLA_STATIC=ON && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix ${CMAKE_PREFIX_PATH} && \
