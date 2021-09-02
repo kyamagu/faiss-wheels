@@ -61,6 +61,10 @@ jobs:
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
           CIBW_BEFORE_BUILD: pip install numpy
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
+            pip install delvewheel
+            delvewheel show {dest_dir} {wheel}
+            delvewheel repair -v -w {dest_dir} {wheel}
           CIBW_TEST_REQUIRES: pytest scipy
           CIBW_TEST_COMMAND: python -m pytest {project}/faiss/tests
           CIBW_TEST_SKIP: "*-macosx_arm64 cp36-manylinux_aarch64 cp38-manylinux_aarch64 cp39-manylinux_aarch64"
