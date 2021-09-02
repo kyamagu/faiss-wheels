@@ -8,7 +8,6 @@ choco install swig
 vcpkg install openblas:x64-windows
 
 # Build and patch faiss
-
 cd faiss && \
     git apply ../patch/faiss-remove-lapack.patch && \
     cmake . \
@@ -19,6 +18,7 @@ cd faiss && \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DBUILD_TESTING=ON \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
+        -DCMAKE_TOOLCHAIN_FILE="C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" \
         -DBLA_VENDOR=OpenBLAS \
         -DBLA_STATIC=ON && \
     cmake --build build --config Release -j -v && \

@@ -78,7 +78,6 @@ if sys.platform == 'win32':
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
-        '-m64',
         '-Wno-sign-compare',
         '-fopenmp',
         '-fdata-sections',
@@ -101,7 +100,6 @@ elif sys.platform == 'linux':
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
-        '-m64',
         '-Wno-sign-compare',
         '-Xpreprocessor',
         '-fopenmp',
