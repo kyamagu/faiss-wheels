@@ -55,7 +55,6 @@ jobs:
           - os: ubuntu-20.04
             arch: auto64
             gpu: ON
-      fail-fast: false
 
     steps:
       - uses: actions/checkout@v2
@@ -86,7 +85,7 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
             PATH="${PATH};${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\bin"
-            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\debug\\lib"
+            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
           CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel

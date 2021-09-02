@@ -5,11 +5,10 @@ FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT:-"C:\\vcpkg"}
 
 # Install system dependencies
-vcpkg install openblas:x64-windows
+vcpkg install lapack:x64-windows
 
 # Build and patch faiss
 cd faiss && \
-    git apply ../patch/faiss-remove-lapack.patch && \
     cmake . \
         -B build \
         -A x64 \
