@@ -28,7 +28,7 @@ jobs:
             arch: auto64
             gpu: ON
       fail-fast: false
-    
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -51,11 +51,11 @@ jobs:
           CIBW_BUILD: cp36-* cp37-* cp38-* cp39-*
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_ENVIRONMENT: FAISS_OPT_LEVEL=generic FAISS_ENABLE_GPU=${{ matrix.cuda }}
+          CIBW_ENVIRONMENT: FAISS_OPT_LEVEL=generic FAISS_ENABLE_GPU=${{ matrix.gpu }}
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
           CIBW_BEFORE_BUILD: pip install numpy
           CIBW_TEST_REQUIRES: pytest scipy
-          CIBW_TEST_COMMAND: python -m pytest {project}
+          CIBW_TEST_COMMAND: python -m pytest {project}/faiss/tests
           CIBW_TEST_SKIP: "*-macosx_arm64"
 
       - uses: actions/upload-artifact@v2
