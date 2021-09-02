@@ -96,6 +96,12 @@ elif sys.platform == 'linux':
             '-l:libopenblas.a',
             '-lgfortran',
         ]
+        if FAISS_ENABLE_GPU:
+            EXTRA_LINK_ARGS += [
+                '-lcublas_static',
+                '-lcudart_static',
+                '-lculibos'
+            ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [

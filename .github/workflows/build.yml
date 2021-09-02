@@ -57,13 +57,13 @@ jobs:
             LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
-            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib"
+            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\debug\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
           CIBW_BEFORE_BUILD: pip install numpy
           CIBW_TEST_REQUIRES: pytest scipy
           CIBW_TEST_COMMAND: python -m pytest {project}/faiss/tests
-          CIBW_TEST_SKIP: "*-macosx_arm64"
+          CIBW_TEST_SKIP: "*-macosx_arm64 cp36-manylinux_aarch64 cp38-manylinux_aarch64 cp39-manylinux_aarch64"
 
       - uses: actions/upload-artifact@v2
         with:

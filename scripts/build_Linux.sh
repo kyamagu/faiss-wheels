@@ -5,7 +5,6 @@ export CXXFLAGS="-fvisibility=hidden -fdata-sections -ffunction-sections"
 FAISS_ENABLE_GPU=${FAISS_ENABLE_GPU:-"OFF"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 
-
 CUDA_VERSION="10.0"
 CUDA_PKG_VERSION="10-0-10.0.130-1"
 CUBLAS_PKG_VERSION="10-0-10.0.130-1"
@@ -58,6 +57,6 @@ cd faiss && \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DCMAKE_BUILD_TYPE=Release && \
     cmake --build build --config Release -j2 && \
-    cmake --install build -v && \
+    cmake --install build && \
     mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i && \
     cd ..
