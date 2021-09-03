@@ -78,7 +78,6 @@ if sys.platform == 'win32':
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
-        '-m64',
         '-Wno-sign-compare',
         '-fopenmp',
         '-fdata-sections',
@@ -97,11 +96,16 @@ elif sys.platform == 'linux':
             '-l:libopenblas.a',
             '-lgfortran',
         ]
+        if FAISS_ENABLE_GPU:
+            EXTRA_LINK_ARGS += [
+                '-lcublas_static',
+                '-lcudart_static',
+                '-lculibos'
+            ]
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
         '-std=c++11',
-        '-m64',
         '-Wno-sign-compare',
         '-Xpreprocessor',
         '-fopenmp',
@@ -131,9 +135,6 @@ if FAISS_OPT_LEVEL == 'avx2':
         EXTRA_COMPILE_ARGS += ['/arch:AVX2']
     else:
         EXTRA_COMPILE_ARGS += ['-mavx2', '-mpopcnt']
-elif FAISS_OPT_LEVEL == 'sse4':
-    if sys.platform != 'win32':
-        EXTRA_COMPILE_ARGS += ['-msse4', '-mpopcnt']
 
 
 class CustomBuildPy(build_py):

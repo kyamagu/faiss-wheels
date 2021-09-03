@@ -1,3 +1,3 @@
 [submodule "faiss"]
-	path = faiss
-	url = https://github.com/facebookresearch/faiss.git
+    path = faiss
+    url = https://github.com/facebookresearch/faiss.git

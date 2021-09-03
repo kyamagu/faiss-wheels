@@ -1,311 +1,105 @@
-name: Build and test
+name: Build
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
-    branches:
-      - master
+    branches: [master]
   release:
-    types: [created]
-env:
-  NUMPY_VERSION: '1.18.0'
-  FAISS_OPT_LEVEL: generic
-  FAISS_LIBRARY_SUFFIX: ''
-  TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-  TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+    types: [published]
+
 jobs:
-  build-linux:
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Build sdist
+        run: |
+          mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
+          python setup.py sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./dist/*.tar.gz
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.gpu }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-10.15]
+        arch: [auto64]
+        gpu: [OFF]
+        include:
+          - os: ubuntu-20.04
+            arch: aarch64
+            gpu: OFF
+          - os: macos-10.15
+            arch: arm64
+            gpu: OFF
+          - os: ubuntu-20.04
+            arch: auto64
+            gpu: ON
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux' && matrix.arch != 'auto64'
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.1.1
+        env:
+          CIBW_BUILD: cp36-* cp37-* cp38-* cp39-*
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_ENVIRONMENT: >
+            FAISS_OPT_LEVEL=generic FAISS_ENABLE_GPU=${{ matrix.gpu }}
+          CIBW_ENVIRONMENT_MACOS: >
+            LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CMAKE_PREFIX_PATH="c:\\opt"
+            PATH="${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
+            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
+            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
+          CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
+          CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel pefile==2021.5.24
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -v -w {dest_dir} {wheel}
+          CIBW_TEST_REQUIRES: pytest scipy
+          CIBW_TEST_COMMAND: >
+            python -m pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT
+          CIBW_TEST_SKIP: "*-macosx_arm64 *-manylinux_aarch64"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  publish:
+    name: Upload packages to PyPI
+    needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux2014_x86_64
-    strategy:
-      matrix:
-        python-version:
-          - cp36-cp36m
-          - cp37-cp37m
-          - cp38-cp38
-          - cp39-cp39
-        cuda:
-          - false
-          - true
-        opt:
-          - 'generic'
-    env:
-      SWIG_VERSION: '4.0.2'
-      FAISS_ENABLE_GPU: 'OFF'
-      CUDA_VERSION: '10.0'
-      CUDA_PKG_VERSION: 10-0-10.0.130-1
-      CUBLAS_PKG_VERSION: 10-0-10.0.130-1
-      NVIDIA_GPGKEY_SUM: d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5
-      NVIDIA_GPGKEY_URL: http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/7fa2af80.pub
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-    - name: Set up Python
-      run: echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
-    - name: Set optimization level
-      if: matrix.opt != 'generic'
-      run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
-    - name: Install build dependency
-      run: |
-        sed -i 's/mirrorlist=https/mirrorlist=http/' /etc/yum.repos.d/epel.repo
-        yum install -y \
-            openblas-devel \
-            openblas-static \
-            pcre-devel
-        curl -fsSLO --retry 3 http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz
-        tar xzf swig-${SWIG_VERSION}.tar.gz
-        cd swig-${SWIG_VERSION}
-        ./configure
-        make -j4
-        make install
-        cd ..
-        echo "FAISS_LDFLAGS=-l:libfaiss${FAISS_LIBRARY_SUFFIX}.a -l:libopenblas.a -lgfortran" >> $GITHUB_ENV
-        echo "CXXFLAGS=-fvisibility=hidden -fdata-sections -ffunction-sections" >> $GITHUB_ENV
-    - name: Install CUDA build tools
-      if: matrix.cuda
-      run: |
-        curl -fsSL --retry 3 $NVIDIA_GPGKEY_URL | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
-        echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c -
-        tee /etc/yum.repos.d/cuda.repo <<EOF
-        [cuda]
-        name=cuda
-        baseurl=http://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64
-        enabled=1
-        gpgcheck=1
-        gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA
-        EOF
-        yum install -y \
-            cuda-command-line-tools-${CUDA_PKG_VERSION} \
-            cuda-cublas-dev-${CUBLAS_PKG_VERSION} \
-            devtoolset-7-gcc \
-            devtoolset-7-gcc-c++ \
-            devtoolset-7-gcc-gfortran \
-            devtoolset-7-binutils
-        ln -s cuda-${CUDA_VERSION} /usr/local/cuda
-        echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf
-        echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf
-        echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-        ldconfig
-        echo "FAISS_ENABLE_GPU=ON" >> $GITHUB_ENV
-        echo "FAISS_LDFLAGS=${FAISS_LDFLAGS} -lcublas_static -lcudart_static -lculibos" >> $GITHUB_ENV
-        echo "CUDAFLAGS=--compiler-options=-fvisibility=hidden,-fdata-sections,-ffunction-sections" >> $GITHUB_ENV
-        echo "/usr/local/cuda/bin" >> $GITHUB_PATH
-        echo "/opt/rh/devtoolset-7/root/usr/bin" >> $GITHUB_PATH
-    - name: Build and install faiss
-      run: |
-        cd faiss
-        cmake . \
-          -B build \
-          -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
-          -DFAISS_ENABLE_PYTHON=OFF -DBUILD_TESTING=ON \
-          -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
-          -DCMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75" \
-          -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j2  # Limit to 2 to avoid OOM...
-        cmake --install build -v
-        cd ..
-    - name: Build package
-      run: |
-        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
-        touch faiss/contrib/__init__.py
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
 
-        pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION}
-        python setup.py sdist
-        pip wheel . -w wheelhouse --no-deps --verbose
-        auditwheel repair wheelhouse/faiss*.whl -w dist
-        ls -lh dist
-    - name: Install and test
-      run: |
-        pip install --no-cache-dir dist/faiss*.whl
-        pip install --no-cache-dir pytest scipy torch
-        pytest --deselect="faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
-    - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
-      run: |
-        pip install --no-cache-dir twine
-        twine upload --skip-existing dist/*
-  build-mac:
-    runs-on: macos-latest
-    env:
-      BUILD_TESTING: 'ON'
-      CC: clang
-      CXX: clang++
-      MACOSX_DEPLOYMENT_TARGET: "10.14"
-    strategy:
-      matrix:
-        python-version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
-        opt:
-          - 'generic'
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Set optimization level
-      if: matrix.opt != 'generic'
-      run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> $GITHUB_ENV
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> $GITHUB_ENV
-    - name: Disable tests in avx2
-      if: matrix.opt == 'avx2'
-      run: |
-        echo "BUILD_TESTING=OFF" >> $GITHUB_ENV
-    - name: Install build dependency
-      run: |
-        brew install libomp swig
-    - name: Build and install faiss
-      run: |
-        cd faiss
-        cmake . \
-          -B build \
-          -DFAISS_ENABLE_GPU=OFF \
-          -DFAISS_ENABLE_PYTHON=OFF \
-          -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
-          -DBUILD_TESTING=${BUILD_TESTING} \
-          -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release -j
-        cmake --install build -v
-        cd ..
-    - name: Build package
-      run: |
-        mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
-        touch faiss/contrib/__init__.py
-
-        export FAISS_LDFLAGS="/usr/local/lib/libfaiss${FAISS_LIBRARY_SUFFIX}.a /usr/local/lib/libomp.a -framework Accelerate"
-        pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${NUMPY_VERSION} delocate
-        pip wheel . -w dist --no-deps --verbose
-        delocate-wheel -v dist/faiss*.whl
-        ls -lh dist
-    - name: Install and test
-      if: matrix.opt != 'avx2'
-      run: |
-        pip install --no-cache-dir dist/faiss*.whl
-        pip install --no-cache-dir pytest scipy
-        pytest --deselect=faiss/tests/test_index_binary.py::TestReplicasAndShards::test_replicas
-    - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
-      run: |
-        pip install --no-cache-dir twine
-        twine upload --skip-existing dist/*
-  build-win:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
-        opt:
-          - 'generic'
-    env:
-      CMAKE_PREFIX_PATH: c:\opt
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - uses: ilammy/msvc-dev-cmd@v1
-    - name: Set optimization level
-      if: matrix.opt != 'generic'
-      run: |
-        echo "FAISS_OPT_LEVEL=${{ matrix.opt }}" >> ${env:GITHUB_ENV}
-        echo "FAISS_LIBRARY_SUFFIX=_${{ matrix.opt }}" >> ${env:GITHUB_ENV}
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        auto-update-conda: true
-        python-version: ${{ matrix.python-version }}
-    - name: Install and set up build dependencies
-      run: |
-        conda config --add channels conda-forge
-        conda install -y swig openblas
-        cmake --version
-        echo "LIB=${env:LIB};${env:CONDA_PREFIX}\Library\lib;${env:CMAKE_PREFIX_PATH}\lib" >> ${env:GITHUB_ENV}
-        echo "CPATH=${env:CPATH};${env:CONDA_PREFIX}\Library\include;${env:CMAKE_PREFIX_PATH}\include" >> ${env:GITHUB_ENV}
-    - name: Build and install faiss
-      run: |
-        cd faiss
-        # OpenBLAS does not work well with CMake FindLAPACK, patch here.
-        git apply ..\patch\faiss-remove-lapack.patch
-        cmake . `
-          -B build `
-          -A x64 `
-          -DFAISS_ENABLE_GPU=OFF `
-          -DFAISS_ENABLE_PYTHON=OFF `
-          -DFAISS_OPT_LEVEL="${env:FAISS_OPT_LEVEL}" `
-          -DBUILD_TESTING=ON `
-          -DCMAKE_PREFIX_PATH="${env:CMAKE_PREFIX_PATH}" `
-          -DBLA_VENDOR=OpenBLAS `
-          -DBLA_STATIC=ON
-        cmake --build build --config Release -j -v
-        cmake --install build --prefix ${env:CMAKE_PREFIX_PATH} -v
-        cd ..
-    - name: Build package
-      run: |
-        mv faiss\faiss\python\swigfaiss.swig faiss\faiss\python\swigfaiss.i
-        New-Item -ItemType file faiss\contrib\__init__.py
-        $Env:FAISS_INCLUDE = ""
-        $Env:FAISS_LDFLAGS = "faiss${env:FAISS_LIBRARY_SUFFIX}.lib openblas.lib"
-
-        pip install --no-cache-dir -U pip
-        pip install --no-cache-dir wheel numpy==${env:NUMPY_VERSION} delvewheel
-        pip wheel . -w dist --no-deps --verbose
-        delvewheel show (Get-Item .\dist\faiss*.whl)
-        delvewheel repair -w dist (Get-Item .\dist\faiss*.whl)
-        Get-ChildItem -Path dist
-    - name: Upload package for test
-      uses: actions/upload-artifact@v2
-      with:
-        name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
-        path: dist
-  test-win:
-    needs: build-win
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
-        opt:
-          - 'generic'
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Download package for test
-      uses: actions/download-artifact@v2
-      with:
-        name: wheel-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.opt }}
-        path: dist
-    - name: Install and test
-      run: |
-        pip install --no-cache-dir -U pip
-        pip install --no-cache-dir (Get-Item .\dist\faiss*.whl)
-        pip install --no-cache-dir pytest scipy
-        pytest `
-          --deselect=faiss/tests/test_clustering.py::TestCompositeClustering::test_redo `
-          --deselect=faiss/tests/test_lsq.py::TestComponents::test_compute_binary_terms
-    - name: Publish to PyPI
-      if: github.event_name == 'release' && github.event.action == 'created' && matrix.opt == 'generic'
-      run: |
-        pip install --no-cache-dir twine
-        twine upload --skip-existing (Get-Item .\dist\*)
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: ${{ secrets.PYPI_USERNAME }}
+          password: ${{ secrets.PYPI_PASSWORD }}
