@@ -2,14 +2,13 @@
 
 CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
-VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT:-"C:\\vcpkg"}
-VCPKG_TRIPLET=${VCPKG_TRIPLET:-"x64-windows-static"}
 
 # Install system dependencies
-vcpkg install lapack:${VCPKG_TRIPLET} openblas:${VCPKG_TRIPLET}
+conda.bat install -c conda-forge openblas
 
 # Build and patch faiss
 cd faiss && \
+    git apply ../patch/faiss-remove-lapack.patch \
     cmake . \
         -B build \
         -A x64 \
@@ -18,7 +17,6 @@ cd faiss && \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DBUILD_TESTING=OFF \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
-        -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}\\scripts\\buildsystems\\vcpkg.cmake" \
         -DCMAKE_BUILD_TYPE=Release \
         -DBLA_STATIC=ON && \
     cmake --build build --config Release -j && \
