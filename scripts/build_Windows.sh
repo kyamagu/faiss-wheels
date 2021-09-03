@@ -3,9 +3,10 @@
 CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 VCPKG_INSTALLATION_ROOT=${VCPKG_INSTALLATION_ROOT:-"C:\\vcpkg"}
+VCPKG_TRIPLET=${VCPKG_TRIPLET:-"x64-windows-static"}
 
 # Install system dependencies
-vcpkg install lapack:x64-windows openblas:x64-windows
+vcpkg install lapack:${VCPKG_TRIPLET} openblas:${VCPKG_TRIPLET}
 
 # Build and patch faiss
 cd faiss && \

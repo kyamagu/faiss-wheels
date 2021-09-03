@@ -14,7 +14,7 @@ This repository provides scripts to create wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
 - Builds CPU-only or CUDA-10.0+ compatible wheels.
-- Bundles OpenBLAS in Linux/Windows using static linking
+- Bundles OpenBLAS in Linux/Windows
 - Uses Accelerate framework on macOS
 - CUDA runtime and cuBLAS are statically linked
 
@@ -94,7 +94,7 @@ There are a few environment variables to specify build-time options.
     `/usr/local/include`.
 - `FAISS_LDFLAGS`: Linker flags for package build. Default to
     `-l:libfaiss.a -l:libopenblas.a -lgfortran`.
-- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `sse4`, `avx2`.
+- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`.
 - `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds `faiss-gpu` package.
     Set this variable if faiss is built with GPU support.
 

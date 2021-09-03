@@ -84,9 +84,11 @@ jobs:
             LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
-            PATH="${PATH};${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\bin"
-            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${VCPKG_INSTALLATION_ROOT}\\installed\\x64-windows\\lib"
-            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include"
+            VCPKG_TRIPLET="x64-windows-static"
+            VCPKG_HOME="${VCPKG_INSTALLATION_ROOT}\\installed\\${VCPKG_TRIPLET}"
+            PATH="${PATH};${VCPKG_HOME}\\bin"
+            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${VCPKG_HOME}\\lib"
+            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${VCPKG_HOME}\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
           CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -v -w {dest_dir} {wheel}
@@ -100,7 +102,7 @@ jobs:
 
   publish:
     name: Upload packages to PyPI
-    needs: [build_wheels]
+    needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:

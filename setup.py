@@ -73,6 +73,7 @@ if sys.platform == 'win32':
         EXTRA_LINK_ARGS += [
             'faiss.lib',
             'openblas.lib',
+            'lapack.lib',
         ]
     SWIG_OPTS += ['-DSWIGWIN']
 elif sys.platform == 'linux':
