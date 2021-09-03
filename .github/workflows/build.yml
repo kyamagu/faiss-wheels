@@ -93,7 +93,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest scipy
           CIBW_TEST_COMMAND: >
             python -m pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT
-          CIBW_TEST_SKIP: "*-macosx_arm64 cp36-manylinux_aarch64 cp38-manylinux_aarch64 cp39-manylinux_aarch64"
+          CIBW_TEST_SKIP: "*-macosx_arm64 *-manylinux_aarch64"
 
       - uses: actions/upload-artifact@v2
         with:
