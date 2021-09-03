@@ -8,7 +8,7 @@ conda.bat install -c conda-forge openblas
 
 # Build and patch faiss
 cd faiss && \
-    git apply ../patch/faiss-remove-lapack.patch \
+    git apply ../patch/faiss-remove-lapack.patch && \
     cmake . \
         -B build \
         -A x64 \
