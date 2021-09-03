@@ -1,6 +1,6 @@
 # faiss-wheels
 
-![Build and test](https://github.com/kyamagu/faiss-wheels/workflows/Build%20and%20test/badge.svg)
+[![Build](https://github.com/kyamagu/faiss-wheels/actions/workflows/build.yml/badge.svg)](https://github.com/kyamagu/faiss-wheels/actions/workflows/build.yml)
 [![PyPI](https://img.shields.io/pypi/v/faiss-cpu?label=faiss-cpu)](https://pypi.org/project/faiss-cpu/)
 [![PyPI](https://img.shields.io/pypi/v/faiss-gpu?label=faiss-gpu)](https://pypi.org/project/faiss-gpu/)
 
