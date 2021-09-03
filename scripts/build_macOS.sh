@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-export MACOSX_DEPLOYMENT_TARGET="10.9"
-
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 
 # Install system dependencies

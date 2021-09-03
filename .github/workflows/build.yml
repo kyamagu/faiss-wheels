@@ -84,7 +84,7 @@ jobs:
             LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
-            PATH="${PATH};${CONDA}\\condabin"
+            PATH="${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
