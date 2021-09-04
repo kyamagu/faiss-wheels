@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
+LLVM_VERSION="llvmorg-12.0.1"
 
 HOST_ARCH=${HOST_ARCH:-$(uname -m)}
 TARGET_ARCH=${TARGET_ARCH:-$HOST_ARCH}
@@ -12,28 +13,28 @@ echo "TARGET_ARCH=${TARGET_ARCH}"
 # Install system dependencies
 brew install swig
 
-if [[ ${TARGET_ARCH} == ${HOST_ARCH} ]]; then
-    brew install libomp
-else
-    echo "Building libomp (${TARGET_ARCH})"
-    git clone \
-            --depth 1 \
-            --filter=blob:none \
-            --sparse \
-            https://github.com/llvm/llvm-project.git && \
-        cd llvm-project && \
-        git sparse-checkout set openmp && \
-        cd openmp && \
-        cmake . \
-            -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES=${TARGET_ARCH} && \
-        cmake --build build -j && \
-        cmake --install build && \
-        cd ../..
-fi
+# Build libomp
+echo "Building libomp"
+git clone \
+        --depth 1 \
+        --filter=blob:none \
+        --sparse \
+        --branch ${LLVM_VERSION} \
+        https://github.com/llvm/llvm-project.git && \
+    cd llvm-project && \
+    git sparse-checkout set openmp && \
+    cd openmp && \
+    cmake . \
+        -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_OSX_ARCHITECTURES=${TARGET_ARCH} \
+        -DLIBOMP_ENABLE_SHARED=OFF && \
+    cmake --build build -j && \
+    cmake --install build && \
+    cd ../..
 
 # Build and patch faiss
+echo "Building faiss"
 cd faiss && \
     cmake . \
         -B build \
