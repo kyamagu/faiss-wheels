@@ -117,8 +117,9 @@ elif sys.platform == 'darwin':
     ]
     if FAISS_LDFLAGS is None:
         EXTRA_LINK_ARGS += [
-            '/usr/local/lib/libfaiss.a',
-            '/usr/local/opt/libomp/lib/libomp.a',
+            '-L/usr/local/lib',
+            '-lfaiss',
+            '-lomp',
             '-framework',
             'Accelerate',
         ]

@@ -68,9 +68,12 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_ENVIRONMENT: >
-            FAISS_OPT_LEVEL=generic FAISS_ENABLE_GPU=${{ matrix.gpu }}
+            FAISS_OPT_LEVEL=generic
+            FAISS_ENABLE_GPU=${{ matrix.gpu }}
           CIBW_ENVIRONMENT_MACOS: >
-            LIBOMP_USE_HIDDEN_HELPER_TASK=0 LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
+            TARGET_ARCH=${{ matrix.arch }}
+            LIBOMP_USE_HIDDEN_HELPER_TASK=0
+            LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_PREFIX_PATH="c:\\opt"
             PATH="${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
