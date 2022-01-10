@@ -55,6 +55,7 @@ SWIG_OPTS = [
     '-Doverride=',
     '-I' + FAISS_INCLUDE,
     '-I' + FAISS_ROOT,
+    '-doxygen',
 ]
 
 if sys.platform == 'win32':
