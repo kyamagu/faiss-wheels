@@ -84,7 +84,9 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -v -w {dest_dir} {wheel}
           CIBW_TEST_REQUIRES: pytest scipy
           CIBW_TEST_COMMAND: >
-            python -m pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT
+            python -m pytest {project}/faiss/tests \
+              --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT \
+              --deselect=faiss/tests/test_doxygen_documentation.py::TestDocumentation::test_doxygen_comments
           CIBW_TEST_SKIP: "*-macosx_arm64 *-manylinux_aarch64"
 
       - uses: actions/upload-artifact@v2
