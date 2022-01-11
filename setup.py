@@ -5,7 +5,7 @@ import sys
 import os
 
 NAME = 'faiss-cpu'
-VERSION = '1.7.1.post3'
+VERSION = '1.7.2'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense
@@ -55,6 +55,7 @@ SWIG_OPTS = [
     '-Doverride=',
     '-I' + FAISS_INCLUDE,
     '-I' + FAISS_ROOT,
+    '-doxygen',
 ]
 
 if sys.platform == 'win32':

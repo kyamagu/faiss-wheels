@@ -64,7 +64,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.1.1
         env:
-          CIBW_BUILD: cp36-* cp37-* cp38-* cp39-* cp310-*
+          CIBW_SKIP: pp*
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_ENVIRONMENT: >
@@ -80,7 +80,7 @@ jobs:
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
-          CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel pefile==2021.5.24
+          CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -v -w {dest_dir} {wheel}
           CIBW_TEST_REQUIRES: pytest scipy
           CIBW_TEST_COMMAND: >
