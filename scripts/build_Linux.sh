@@ -24,6 +24,7 @@ if [[ ${FAISS_ENABLE_GPU} == "ON" ]]; then
         yum -y install \
             cuda-compiler-${CUDA_PKG_VERSION} \
             cuda-libraries-devel-${CUDA_PKG_VERSION} \
+            cuda-nvprof-${CUDA_PKG_VERSION} \
             devtoolset-7-gcc \
             devtoolset-7-gcc-c++ \
             devtoolset-7-gcc-gfortran \
