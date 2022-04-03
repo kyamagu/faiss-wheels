@@ -5,12 +5,10 @@ export CXXFLAGS="-fvisibility=hidden -fdata-sections -ffunction-sections"
 FAISS_ENABLE_GPU=${FAISS_ENABLE_GPU:-"OFF"}
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 
-CUDA_VERSION="10.0"
-CUDA_PKG_VERSION="10-0-10.0.130-1"
-CUBLAS_PKG_VERSION=${CUDA_PKG_VERSION}
-CURAND_PKG_VERSION=${CUDA_PKG_VERSION}
+CUDA_VERSION="11.0"
+CUDA_PKG_VERSION="11-0"
 NVIDIA_REPO_URL="http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo"
-CMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75"
+CMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75-real;80"
 
 # Fix manylinux2014 aarch64
 if [[ $(uname -m) == "aarch64" ]]; then
@@ -24,9 +22,9 @@ if [[ ${FAISS_ENABLE_GPU} == "ON" ]]; then
         yum-config-manager --add-repo ${NVIDIA_REPO_URL} && \
         yum repolist && \
         yum -y install \
-            cuda-command-line-tools-${CUDA_PKG_VERSION} \
-            cuda-cublas-dev-${CUBLAS_PKG_VERSION} \
-            cuda-curand-dev-${CURAND_PKG_VERSION} \
+            cuda-compiler-${CUDA_PKG_VERSION} \
+            libcublas-devel-${CUDA_PKG_VERSION} \
+            libcurand-devel-${CUDA_PKG_VERSION} \
             devtoolset-7-gcc \
             devtoolset-7-gcc-c++ \
             devtoolset-7-gcc-gfortran \
