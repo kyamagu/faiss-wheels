@@ -10,7 +10,7 @@ CUDA_PKG_VERSION="10-0-10.0.130-1"
 CUBLAS_PKG_VERSION=${CUDA_PKG_VERSION}
 CURAND_PKG_VERSION=${CUDA_PKG_VERSION}
 NVIDIA_REPO_URL="http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo"
-CMAKE_CUDA_ARCHITECTURES="35-real;50-real;60-real;70-real;75"
+CMAKE_CUDA_ARCHITECTURES="all-major"
 
 # Fix manylinux2014 aarch64
 if [[ $(uname -m) == "aarch64" ]]; then
