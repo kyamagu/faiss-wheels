@@ -13,7 +13,7 @@ faiss python wheel packages.
 This repository provides scripts to create wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
-- Builds CPU-only or CUDA-10.0+ compatible wheels.
+- Builds CPU-only or CUDA-11.0+ compatible wheels with [cibuildwheel](https://github.com/pypa/cibuildwheel/).
 - Bundles OpenBLAS in Linux/Windows
 - Uses Accelerate framework on macOS
 - CUDA runtime and cuBLAS are statically linked
