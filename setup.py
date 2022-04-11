@@ -99,8 +99,8 @@ elif sys.platform == 'linux':
         ]
         if FAISS_ENABLE_GPU:
             EXTRA_LINK_ARGS += [
-                '-lcublas_static',
                 '-lcublasLt_static',
+                '-lcublas_static',
                 '-lcudart_static',
                 '-lculibos'
             ]
