@@ -13,3 +13,14 @@ addopts = "-s -v"
 testpaths = [
     "faiss/tests",
 ]
+
+[tool.cibuildwheel]
+skip = "pp* *-musllinux*"
+test-skip = "*-macosx_arm64 *-manylinux_aarch64"
+
+test-requires = ["pytest", "scipy"]
+test-command = "pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
+
+[tool.cibuildwheel.windows]
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel}"
