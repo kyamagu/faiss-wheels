@@ -25,8 +25,4 @@ test-command = "pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel}"
 
-  [tool.cibuildwheel.windows.environment]
-  CMAKE_PREFIX_PATH = "c:\\opt"
-  PATH = "${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
-  LIB = "${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
-  CPATH = "${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
+environment = { CMAKE_PREFIX_PATH = "c:\\opt", PATH = "${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin", LIB = "${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib", CPATH = "${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include" }
