@@ -62,11 +62,9 @@ jobs:
           platforms: arm64
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.1.1
+        uses: pypa/cibuildwheel@v2.4.0
         env:
-          CIBW_SKIP: pp*
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_ENVIRONMENT: >
             FAISS_OPT_LEVEL=generic
             FAISS_ENABLE_GPU=${{ matrix.gpu }}
@@ -74,18 +72,7 @@ jobs:
             TARGET_ARCH=${{ matrix.arch }}
             LIBOMP_USE_HIDDEN_HELPER_TASK=0
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
-          CIBW_ENVIRONMENT_WINDOWS: >
-            CMAKE_PREFIX_PATH="c:\\opt"
-            PATH="${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
-            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
-            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
-          CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -v -w {dest_dir} {wheel}
-          CIBW_TEST_REQUIRES: pytest scipy
-          CIBW_TEST_COMMAND: >
-            python -m pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT
-          CIBW_TEST_SKIP: "*-macosx_arm64 *-manylinux_aarch64"
 
       - uses: actions/upload-artifact@v2
         with:
