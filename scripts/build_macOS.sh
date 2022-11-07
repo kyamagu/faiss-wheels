@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
-LLVM_VERSION="llvmorg-12.0.1"
+LLVM_VERSION="llvmorg-15.0.4"
 
 HOST_ARCH=${HOST_ARCH:-$(uname -m)}
 TARGET_ARCH=${TARGET_ARCH:-$HOST_ARCH}
@@ -22,7 +22,7 @@ git clone \
         --branch ${LLVM_VERSION} \
         https://github.com/llvm/llvm-project.git && \
     cd llvm-project && \
-    git sparse-checkout set openmp && \
+    git sparse-checkout set openmp cmake && \
     cd openmp && \
     cmake . \
         -B build \

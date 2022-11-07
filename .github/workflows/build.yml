@@ -11,7 +11,7 @@ on:
 jobs:
   build_sdist:
     name: Build sdist
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -36,17 +36,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-10.15]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         arch: [auto64]
         gpu: [OFF]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             arch: aarch64
             gpu: OFF
-          - os: macos-10.15
+          - os: macos-latest
             arch: arm64
             gpu: OFF
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             arch: auto64
             gpu: ON
 
@@ -62,7 +62,7 @@ jobs:
           platforms: arm64
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.4.0
+        uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_ENVIRONMENT: >
@@ -94,7 +94,7 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
