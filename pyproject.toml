@@ -16,7 +16,7 @@ testpaths = [
 
 [tool.cibuildwheel]
 skip = "cp36-* pp* *-musllinux*"
-test-skip = "cp37-macosx_x86_64 *-macosx_arm64 *-manylinux_aarch64"
+test-skip = "*-macosx_arm64 *-manylinux_aarch64"
 
 test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
