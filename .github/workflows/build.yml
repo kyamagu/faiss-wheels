@@ -70,7 +70,7 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_ENVIRONMENT: >
-            FAISS_OPT_LEVEL= ${{ matrix.opt_level }}
+            FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             FAISS_ENABLE_GPU=${{ matrix.gpu }}
           CIBW_ENVIRONMENT_MACOS: >
             TARGET_ARCH=${{ matrix.arch }}
