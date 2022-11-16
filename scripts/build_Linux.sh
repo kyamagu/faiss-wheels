@@ -56,7 +56,7 @@ cd faiss && \
         -DCMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES} \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build build --config Release -j2 && \
+    cmake --build build --config Release -j3 && \
     cmake --install build && \
     mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i && \
     cd ..
