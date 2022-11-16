@@ -27,7 +27,7 @@ jobs:
           mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
           python setup.py sdist
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ./dist/*.tar.gz
 
