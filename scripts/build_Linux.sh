@@ -52,7 +52,7 @@ cd faiss && \
         -B build \
         -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
         -DFAISS_ENABLE_PYTHON=OFF \
-        -DBUILD_TESTING=ON \
+        -DBUILD_TESTING=OFF \
         -DCMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES} \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DCMAKE_BUILD_TYPE=Release && \

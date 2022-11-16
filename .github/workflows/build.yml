@@ -69,14 +69,16 @@ jobs:
         uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_ENVIRONMENT: >
+          CIBW_ENVIRONMENT_LINUX: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             FAISS_ENABLE_GPU=${{ matrix.gpu }}
           CIBW_ENVIRONMENT_MACOS: >
+            FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             TARGET_ARCH=${{ matrix.arch }}
             LIBOMP_USE_HIDDEN_HELPER_TASK=0
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
+            FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
             PATH="${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
