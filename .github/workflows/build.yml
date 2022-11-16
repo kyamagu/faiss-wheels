@@ -39,16 +39,20 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         arch: [auto64]
         gpu: [OFF]
+        opt_level: [avx2]
         include:
           - os: ubuntu-latest
             arch: aarch64
             gpu: OFF
+            opt_level: generic
           - os: macos-latest
             arch: arm64
             gpu: OFF
+            opt_level: generic
           - os: ubuntu-latest
             arch: auto64
             gpu: ON
+            opt_level: avx2
 
     steps:
       - uses: actions/checkout@v2
@@ -66,7 +70,7 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_ENVIRONMENT: >
-            FAISS_OPT_LEVEL=generic
+            FAISS_OPT_LEVEL= ${{ matrix.opt_level }}
             FAISS_ENABLE_GPU=${{ matrix.gpu }}
           CIBW_ENVIRONMENT_MACOS: >
             TARGET_ARCH=${{ matrix.arch }}
