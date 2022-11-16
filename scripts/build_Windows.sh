@@ -12,6 +12,7 @@ cd faiss && \
     cmake . \
         -B build \
         -A x64 \
+        -G "Visual Studio 16 2019" \
         -DFAISS_ENABLE_GPU=OFF \
         -DFAISS_ENABLE_PYTHON=OFF \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
