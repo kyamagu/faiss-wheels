@@ -16,7 +16,6 @@ cd faiss && \
         -DFAISS_ENABLE_PYTHON=OFF \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DBUILD_TESTING=OFF \
-        -DCXX_STANDARD=17 \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DBLA_STATIC=ON && \
