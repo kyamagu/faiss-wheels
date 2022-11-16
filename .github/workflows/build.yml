@@ -22,10 +22,11 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Apply patch
+        run: cd faiss && git apply ../patch/faiss-rename-swigfaiss.patch && cd ..
+
       - name: Build sdist
-        run: |
-          mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
-          python setup.py sdist
+        run: python setup.py sdist
 
       - uses: actions/upload-artifact@v3
         with:

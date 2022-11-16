@@ -141,16 +141,13 @@ class CustomBuildPy(build_py):
         return build_py.run(self)
 
 
-SOURCES=[
-    os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
-    os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
-]
-DEPENDS=[os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h')]
-
 _swigfaiss = Extension(
     'faiss._swigfaiss',
-    sources=SOURCES,
-    depends=DEPENDS,
+    sources=[
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
+        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
+    ],
+    depends=[os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h')],
     language='c++',
     define_macros=DEFINE_MACROS,
     include_dirs=INCLUDE_DIRS,
@@ -173,8 +170,11 @@ if FAISS_OPT_LEVEL == 'avx2':
 
     _swigfaiss_avx2 = Extension(
         'faiss._swigfaiss_avx2',
-        sources=SOURCES,
-        depends=DEPENDS,
+        sources=[
+            os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss_avx2.i'),
+            os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
+        ],
+        depends=[os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h')],
         language='c++',
         define_macros=DEFINE_MACROS,
         include_dirs=INCLUDE_DIRS,

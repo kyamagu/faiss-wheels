@@ -46,5 +46,5 @@ cd faiss && \
         -DCMAKE_OSX_ARCHITECTURES=${TARGET_ARCH} && \
     cmake --build build --config Release -j && \
     cmake --install build && \
-    mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i && \
+    git apply ../patch/faiss-rename-swigfaiss.patch && \
     cd ..

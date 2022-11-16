@@ -58,5 +58,5 @@ cd faiss && \
         -DCMAKE_BUILD_TYPE=Release && \
     cmake --build build --config Release -j3 && \
     cmake --install build && \
-    mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i && \
+    git apply ../patch/faiss-rename-swigfaiss.patch && \
     cd ..
