@@ -9,17 +9,23 @@ build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-s -v"
-testpaths = [
-    "faiss/tests",
+addopts = [
+    "-s",
+    "-v",
+    "--deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT",
+    "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
+    "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy",
+    "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy2",
+    "--deselect=faiss/tests/test_standalone_codec.py::TestEncodeDecode::test_RQ6x8",
 ]
+testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
 skip = "cp36-* pp* *-musllinux*"
 test-skip = "*-macosx_arm64 *-manylinux_aarch64"
 
 test-requires = ["pytest", "scipy"]
-test-command = "pytest {project}/faiss/tests --deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT"
+test-command = "pytest {project}/faiss/tests"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
