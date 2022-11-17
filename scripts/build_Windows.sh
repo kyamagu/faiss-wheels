@@ -21,5 +21,5 @@ cd faiss && \
         -DBLA_STATIC=ON && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix ${CMAKE_PREFIX_PATH} && \
-    mv faiss/python/swigfaiss.swig faiss/python/swigfaiss.i && \
+    git apply ../patch/faiss-rename-swigfaiss.patch && \
     cd ..

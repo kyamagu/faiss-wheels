@@ -14,20 +14,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
-      - name: Build sdist
-        run: |
-          mv faiss/faiss/python/swigfaiss.swig faiss/faiss/python/swigfaiss.i
-          python setup.py sdist
+      - name: Apply patch
+        run: cd faiss && git apply ../patch/faiss-rename-swigfaiss.patch && cd ..
 
-      - uses: actions/upload-artifact@v2
+      - name: Build sdist
+        run: python setup.py sdist
+
+      - uses: actions/upload-artifact@v3
         with:
           path: ./dist/*.tar.gz
 
@@ -36,28 +37,36 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         arch: [auto64]
         gpu: [OFF]
+        opt_level: [avx2]
         include:
+          - os: windows-latest
+            arch: auto64
+            gpu: OFF
+            opt_level: generic
           - os: ubuntu-latest
             arch: aarch64
             gpu: OFF
+            opt_level: generic
           - os: macos-latest
             arch: arm64
             gpu: OFF
+            opt_level: generic
           - os: ubuntu-latest
             arch: auto64
             gpu: ON
+            opt_level: avx2
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
       - name: Set up QEMU
         if: runner.os == 'Linux' && matrix.arch != 'auto64'
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
 
@@ -65,21 +74,23 @@ jobs:
         uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_ENVIRONMENT: >
-            FAISS_OPT_LEVEL=generic
+          CIBW_ENVIRONMENT_LINUX: >
+            FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             FAISS_ENABLE_GPU=${{ matrix.gpu }}
           CIBW_ENVIRONMENT_MACOS: >
+            FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             TARGET_ARCH=${{ matrix.arch }}
             LIBOMP_USE_HIDDEN_HELPER_TASK=0
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
           CIBW_ENVIRONMENT_WINDOWS: >
+            FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
             PATH="${PATH};${CONDA}\\condabin;${CONDA}\\Library\\bin"
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
 
@@ -89,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: artifact
           path: dist

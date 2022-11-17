@@ -1,8 +1,9 @@
-from setuptools import setup
-from setuptools.extension import Extension
-from setuptools.command.build_py import build_py
-import sys
 import os
+import sys
+
+from setuptools import setup
+from setuptools.command.build_py import build_py
+from setuptools.extension import Extension
 
 NAME = 'faiss-cpu'
 VERSION = '1.7.3'
@@ -133,12 +134,6 @@ if FAISS_ENABLE_GPU:
     LIBRARY_DIRS += [os.path.join(CUDA_HOME, 'lib64')]
     SWIG_OPTS += ['-I' + os.path.join(CUDA_HOME, 'include'), '-DGPU_WRAPPER']
 
-if FAISS_OPT_LEVEL == 'avx2':
-    if sys.platform == 'win32':
-        EXTRA_COMPILE_ARGS += ['/arch:AVX2']
-    else:
-        EXTRA_COMPILE_ARGS += ['-mavx2', '-mpopcnt']
-
 
 class CustomBuildPy(build_py):
     """Run build_ext before build_py to compile swig code."""
@@ -153,17 +148,43 @@ _swigfaiss = Extension(
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
         os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
     ],
-    depends=[
-        os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h'),
-    ],
+    depends=[os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h')],
     language='c++',
     define_macros=DEFINE_MACROS,
     include_dirs=INCLUDE_DIRS,
     library_dirs=LIBRARY_DIRS,
     extra_compile_args=EXTRA_COMPILE_ARGS,
     extra_link_args=EXTRA_LINK_ARGS,
-    swig_opts=SWIG_OPTS,
+    swig_opts=SWIG_OPTS + ["-module", "swigfaiss"],
 )
+ext_modules = [_swigfaiss]
+
+if FAISS_OPT_LEVEL == 'avx2':
+    # NOTE: avx2 is only available on x86_64 arch.
+    if sys.platform == 'win32':
+        EXTRA_COMPILE_ARGS_AVX2 = EXTRA_COMPILE_ARGS + ['/arch:AVX2']
+    else:
+        EXTRA_COMPILE_ARGS_AVX2 = EXTRA_COMPILE_ARGS + ['-mavx2', '-mpopcnt']
+
+    # TODO: fix this ad-hoc approach to specify avx2 lib.
+    EXTRA_LINK_ARGS_AVX2 = [x.replace("faiss", "faiss_avx2") for x in EXTRA_LINK_ARGS]
+
+    _swigfaiss_avx2 = Extension(
+        'faiss._swigfaiss_avx2',
+        sources=[
+            os.path.join(FAISS_ROOT, 'faiss', 'python', 'swigfaiss.i'),
+            os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.cpp'),
+        ],
+        depends=[os.path.join(FAISS_ROOT, 'faiss', 'python', 'python_callbacks.h')],
+        language='c++',
+        define_macros=DEFINE_MACROS,
+        include_dirs=INCLUDE_DIRS,
+        library_dirs=LIBRARY_DIRS,
+        extra_compile_args=EXTRA_COMPILE_ARGS_AVX2,
+        extra_link_args=EXTRA_LINK_ARGS_AVX2,
+        swig_opts=SWIG_OPTS + ["-module", "swigfaiss_avx2"],
+    )
+    ext_modules.append(_swigfaiss_avx2)
 
 setup(
     name=NAME,
@@ -184,10 +205,8 @@ setup(
         'faiss': os.path.join(FAISS_ROOT, 'faiss', 'python'),
         'faiss.contrib': os.path.join(FAISS_ROOT, 'contrib'),
     },
-    package_data={
-        'faiss': ['*.i', '*.h'],
-    },
-    ext_modules=[_swigfaiss],
+    package_data={'faiss': ['*.i', '*.h']},
+    ext_modules=ext_modules,
     cmdclass={'build_py': CustomBuildPy},
     classifiers=[
         'Development Status :: 4 - Beta',

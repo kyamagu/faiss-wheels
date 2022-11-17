@@ -10,23 +10,15 @@ faiss python wheel packages.
 
 ## Overview
 
-This repository provides scripts to create wheel packages for the
+This repository provides scripts to build wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
 - Builds CPU-only or CUDA-11.0+ compatible wheels with [cibuildwheel](https://github.com/pypa/cibuildwheel/).
 - Bundles OpenBLAS in Linux/Windows
-- Uses Accelerate framework on macOS
-- CUDA runtime and cuBLAS are statically linked
+- Uses Accelerate framework in macOS
+- Statically linked CUDA runtime
 
 There is also a source package to customize the build process.
-
-### Prerequisite
-
-On macOS, install `libomp` via Homebrew to use the wheel.
-
-```bash
-brew install libomp
-```
 
 ### Install
 
@@ -59,9 +51,9 @@ Build and install the faiss library first.
 
 ```bash
 cd faiss
-cmake -B build . -DFAISS_ENABLE_PYTHON=OFF
-make -C build -j8
-make -C build install
+cmake . -B build -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DFAISS_OPT_LEVEL=avx2
+cmake --build build --config Release -j
+cmake --install build install
 cd ..
 ```
 
@@ -71,7 +63,7 @@ for more on how to build and install faiss.
 
 For building sdist, swig 3.0.12 or later needs to be available.
 
-### Linux
+### Building a wheel package
 
 By default, the following builds and installs the faiss-cpu package.
 
@@ -79,52 +71,18 @@ By default, the following builds and installs the faiss-cpu package.
 pip install --no-binary :all: faiss-cpu
 ```
 
-The following example shows static linking and CUDA support:
+The following example builds a GPU wheel.
 
 ```bash
 export FAISS_ENABLE_GPU=ON
-export FAISS_LDFLAGS='-l:libfaiss.a -l:libopenblas.a -lgfortran -lcudart_static -lcublas_static -lculibos'
 pip install --no-binary :all: faiss-gpu
 ```
 
-There are a few environment variables to specify build-time options.
+There are a few environment variables that specifies build-time options.
 
-- `CUDA_HOME`: Specifies CUDA install location.
-- `FAISS_INCLUDE`: Header locations of the installed faiss library. Default to
-    `/usr/local/include`.
-- `FAISS_LDFLAGS`: Linker flags for package build. Default to
-    `-l:libfaiss.a -l:libopenblas.a -lgfortran`.
-- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`.
+- `CUDA_HOME`: Specifies CUDA install location for building faiss-gpu package.
+- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`. When set
+    to `avx2`, the package internally builds `avx2` extension in addition to
+    `generic`. Note this option is only available in x86_64 arch.
 - `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds `faiss-gpu` package.
     Set this variable if faiss is built with GPU support.
-
-Below is an example for faiss built with `avx2` option and OpenBLAS backend.
-
-```bash
-export FAISS_OPT_LEVEL='avx2'
-export FAISS_LDFLAGS='-l:libfaiss_avx2.a -l:libopenblas.a -lgfortran'
-pip install --no-binary :all: faiss-cpu
-```
-
-### macOS
-
-On macOS, install `libomp` via Homebrew to build with OpenMP support. Mac has
-Accelerate framework for BLAS implementation. CUDA is not supported on macOS.
-
-```bash
-pip install --no-binary :all: faiss-cpu
-```
-
-To link to faiss library with `avx2` support, set appropriate environment
-variables.
-
-```bash
-export FAISS_OPT_LEVEL=avx2
-export FAISS_LDFLAGS="/usr/local/lib/libfaiss_avx2.a /usr/local/lib/libomp.a -framework Accelerate"
-pip install --no-binary :all: faiss-cpu
-```
-
-### Windows
-
-Windows environment requires BLAS/LAPACK and fortran library. See
-`.github/workflows/build.yml` for how the binary wheels are built.
