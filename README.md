@@ -13,31 +13,22 @@ faiss python wheel packages.
 This repository provides scripts to build wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
-- Builds CPU-only or CUDA-11.0+ compatible wheels with [cibuildwheel](https://github.com/pypa/cibuildwheel/).
+- Builds CPU-only version with [cibuildwheel](https://github.com/pypa/cibuildwheel/).
 - Bundles OpenBLAS in Linux/Windows
 - Uses Accelerate framework in macOS
-- Statically linked CUDA runtime
 
 There is also a source package to customize the build process.
 
+> **Note**
+> GPU package has been supported until version 1.7.2, but is not available as of version 1.7.3 due to [the PyPI limitation](https://github.com/kyamagu/faiss-wheels/issues/57).
+
 ### Install
 
-Install CPU-only version:
+Install a binary package by:
 
 ```bash
 pip install faiss-cpu
 ```
-
-Or, install GPU version in Linux:
-
-```bash
-pip install faiss-gpu
-```
-
-Note that CUDA toolkit is not required to run the GPU wheel. Only NVIDIA drivers
-should be installed to use gpu index. One can also install faiss-gpu to run
-cpu-only methods without a NVIDIA driver. For compatible NVIDIA driver versions,
-check [the developer documentation](https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver).
 
 ## Building source package
 
@@ -75,7 +66,7 @@ The following example builds a GPU wheel.
 
 ```bash
 export FAISS_ENABLE_GPU=ON
-pip install --no-binary :all: faiss-gpu
+pip install --no-binary :all: faiss-cpu
 ```
 
 There are a few environment variables that specifies build-time options.
