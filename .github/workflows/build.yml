@@ -54,10 +54,6 @@ jobs:
             arch: arm64
             gpu: OFF
             opt_level: generic
-          - os: ubuntu-latest
-            arch: auto64
-            gpu: ON
-            opt_level: avx2
 
     steps:
       - uses: actions/checkout@v3
