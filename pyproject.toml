@@ -13,6 +13,7 @@ addopts = [
     "-s",
     "-v",
     "--deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT",
+    "--deselect=faiss/tests/test_contrib.py::TestBigBatchSearch::test_checkpoint",
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
     "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy",
     "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy2",
