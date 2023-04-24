@@ -6,7 +6,7 @@ from setuptools.command.build_py import build_py
 from setuptools.extension import Extension
 
 NAME = 'faiss-cpu'
-VERSION = '1.7.3'
+VERSION = '1.7.4'
 
 LONG_DESCRIPTION = """
 Faiss is a library for efficient similarity search and clustering of dense

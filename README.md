@@ -20,7 +20,7 @@ This repository provides scripts to build wheel packages for the
 There is also a source package to customize the build process.
 
 > **Note**
-> GPU package has been supported until version 1.7.2, but is not available as of version 1.7.3 due to [the PyPI limitation](https://github.com/kyamagu/faiss-wheels/issues/57).
+> GPU package has been supported until version 1.7.2, but is not available since version 1.7.3 due to [the PyPI limitation](https://github.com/kyamagu/faiss-wheels/issues/57).
 
 ### Install
 

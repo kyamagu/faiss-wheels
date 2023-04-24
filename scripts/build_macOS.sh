@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
-LLVM_VERSION="llvmorg-15.0.4"
+LLVM_VERSION="llvmorg-16.0.2"
 
 HOST_ARCH=${HOST_ARCH:-$(uname -m)}
 TARGET_ARCH=${TARGET_ARCH:-$HOST_ARCH}
