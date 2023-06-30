@@ -199,6 +199,7 @@ setup(
     author_email='KotaYamaguchi1984@gmail.com',
     license='MIT',
     keywords='search nearest neighbors',
+    install_requires=['numpy'],
     setup_requires=['numpy'],
     packages=['faiss', 'faiss.contrib'],
     package_dir={
