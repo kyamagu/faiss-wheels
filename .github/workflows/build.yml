@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-python@v3
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Apply patch
         run: cd faiss && git apply ../patch/faiss-rename-swigfaiss.patch && cd ..
@@ -94,6 +94,11 @@ jobs:
     name: Upload packages to PyPI
     needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p//faiss-cpu
+    permissions:
+      id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/download-artifact@v3
@@ -102,6 +107,3 @@ jobs:
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: ${{ secrets.PYPI_USERNAME }}
-          password: ${{ secrets.PYPI_PASSWORD }}
