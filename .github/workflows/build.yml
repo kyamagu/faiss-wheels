@@ -37,26 +37,22 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.gpu }})
+    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
         arch: [auto64]
-        gpu: [OFF]
         opt_level: [avx2]
         include:
           - os: windows-latest
             arch: auto64
-            gpu: OFF
             opt_level: generic
           - os: ubuntu-latest
             arch: aarch64
-            gpu: OFF
             opt_level: generic
           - os: macos-latest
             arch: arm64
-            gpu: OFF
             opt_level: generic
 
     steps:
@@ -68,6 +64,12 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.16.2
 
@@ -77,7 +79,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_ENVIRONMENT_LINUX: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
-            FAISS_ENABLE_GPU=${{ matrix.gpu }}
+            FAISS_ENABLE_GPU=OFF
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             TARGET_ARCH=${{ matrix.arch }}
@@ -94,7 +96,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.gpu }}-${{ matrix.opt_level }}
+          name: wheel-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.opt_level }}
           path: ./wheelhouse/*.whl
 
   publish:
