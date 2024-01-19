@@ -31,9 +31,10 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          path: ./dist/*.tar.gz
+          name: name
+          path: dist/*.tar.gz
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.gpu }})
@@ -90,8 +91,9 @@ jobs:
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheel-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.gpu }}-${{ matrix.opt_level }}
           path: ./wheelhouse/*.whl
 
   publish:
@@ -102,9 +104,9 @@ jobs:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          merge-multiple: true
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@release/v1
