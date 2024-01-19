@@ -79,7 +79,7 @@ if sys.platform == 'win32':
     SWIG_OPTS += ['-DSWIGWIN']
 elif sys.platform == 'linux':
     EXTRA_COMPILE_ARGS += [
-        '-std=c++11',
+        '-std=c++17',
         '-Wno-sign-compare',
         '-fopenmp',
         '-fdata-sections',
@@ -108,7 +108,7 @@ elif sys.platform == 'linux':
     SWIG_OPTS += ['-DSWIGWORDSIZE64']
 elif sys.platform == 'darwin':
     EXTRA_COMPILE_ARGS += [
-        '-std=c++11',
+        '-std=c++17',
         '-Wno-sign-compare',
         '-Xpreprocessor',
         '-fopenmp',
