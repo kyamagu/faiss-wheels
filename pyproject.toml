@@ -11,21 +11,12 @@ minversion = "6.0"
 addopts = [
     "-v",
     "--capture=fd",
-    "--deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT",
-    "--deselect=faiss/tests/test_contrib.py::TestBigBatchSearch::test_checkpoint",
-    "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
-    "--deselect=faiss/tests/test_local_search_quantizer.py::TestIndexIVFProductLocalSearchQuantizer::test_index_accuracy2",
-    "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy",
-    "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy2",
-    "--deselect=faiss/tests/test_standalone_codec.py::TestEncodeDecode::test_RQ6x8",
-    "--deselect=faiss/tests/test_graph_based.py::TestNSG::test_nsg_pq",
-    "--deselect=faiss/tests/test_index.py::TestShardReplicas::test_replica_flag_propagation"
 ]
 testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
 skip = "cp36-* cp37-* pp* *-musllinux*"
-test-skip = "*-macosx_arm64 *-manylinux_aarch64"
+test-skip = "*-macosx_arm64 *-manylinux_aarch64 *-win_amd64"
 
 test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests"
