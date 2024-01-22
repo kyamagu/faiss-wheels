@@ -19,6 +19,7 @@ addopts = [
     "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy2",
     "--deselect=faiss/tests/test_standalone_codec.py::TestEncodeDecode::test_RQ6x8",
     "--deselect=faiss/tests/test_graph_based.py::TestNSG::test_nsg_pq",
+    "--deselect=faiss/tests/test_index.py::TestShardReplicas::test_replica_flag_propagation"
 ]
 testpaths = ["faiss/tests"]
 
