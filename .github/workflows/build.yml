@@ -37,7 +37,7 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }})
+    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.opt_level }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
         include:
           - os: windows-latest
             arch: auto64
-            opt_level: avx2
+            opt_level: generic
           - os: ubuntu-latest
             arch: aarch64
             opt_level: generic
