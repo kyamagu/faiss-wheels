@@ -1,29 +1,52 @@
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools",
     "wheel",
-    "numpy==1.13.3; python_version<'3.5'",
-    "oldest-supported-numpy; python_version>='3.5'",
+    "oldest-supported-numpy",
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "faiss-cpu"
+version = "1.7.4"
+authors = [
+    { name = "Kota Yamaguchi", email = "yamaguchi_kota@cyberagent.co.jp" },
+]
+description = "A library for efficient similarity search and clustering of dense vectors."
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["faiss", "similarity search", "clustering", "machine learning"]
+license = { text = "MIT License" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.urls]
+Repository = "https://github.com/kyamagu/faiss-wheels"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = [
-    "-s",
-    "-v",
-    "--deselect=faiss/tests/test_contrib.py::TestComputeGT::test_compute_GT",
-    "--deselect=faiss/tests/test_contrib.py::TestBigBatchSearch::test_checkpoint",
-    "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
-    "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy",
-    "--deselect=faiss/tests/test_residual_quantizer.py::TestIndexIVFProductResidualQuantizer::test_index_accuracy2",
-    "--deselect=faiss/tests/test_standalone_codec.py::TestEncodeDecode::test_RQ6x8",
-]
+addopts = ["--capture=fd"]
 testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
-skip = "cp36-* pp* *-musllinux*"
-test-skip = "*-macosx_arm64 *-manylinux_aarch64"
+skip = "pp* *-musllinux*"
+test-skip = "*-macosx_arm64 *-manylinux_aarch64 *-win_amd64"
 
 test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests"

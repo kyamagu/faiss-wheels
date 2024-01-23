@@ -14,70 +14,78 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
       - name: Apply patch
         run: cd faiss && git apply ../patch/faiss-rename-swigfaiss.patch && cd ..
 
-      - name: Build sdist
-        run: python setup.py sdist
+      - name: Install build dependencies
+        run: python -m pip install build
 
-      - uses: actions/upload-artifact@v3
+      - name: Build sdist
+        run: python -m build --sdist
+
+      - uses: actions/upload-artifact@v4
         with:
-          path: ./dist/*.tar.gz
+          name: sdist
+          path: dist/*.tar.gz
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.gpu }})
+    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.opt_level }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
         arch: [auto64]
-        gpu: [OFF]
         opt_level: [avx2]
         include:
           - os: windows-latest
             arch: auto64
-            gpu: OFF
             opt_level: generic
           - os: ubuntu-latest
             arch: aarch64
-            gpu: OFF
             opt_level: generic
           - os: macos-latest
             arch: arm64
-            gpu: OFF
             opt_level: generic
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
       - name: Set up QEMU
-        if: runner.os == 'Linux' && matrix.arch != 'auto64'
-        uses: docker/setup-qemu-action@v2
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.16.2
+
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.2
+        run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_ENVIRONMENT_LINUX: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
-            FAISS_ENABLE_GPU=${{ matrix.gpu }}
+            FAISS_ENABLE_GPU=OFF
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             TARGET_ARCH=${{ matrix.arch }}
             LIBOMP_USE_HIDDEN_HELPER_TASK=0
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
+            MACOSX_DEPLOYMENT_TARGET=10.14
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
@@ -86,24 +94,22 @@ jobs:
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheel-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.opt_level }}
           path: ./wheelhouse/*.whl
 
   publish:
     name: Upload packages to PyPI
     needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p//faiss-cpu
     permissions:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          merge-multiple: true
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@release/v1
