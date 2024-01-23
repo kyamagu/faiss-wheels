@@ -14,7 +14,7 @@ authors = [
 ]
 description = "A library for efficient similarity search and clustering of dense vectors."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 keywords = ["faiss", "similarity search", "clustering", "machine learning"]
 license = { text = "MIT License" }
 classifiers = [
@@ -45,7 +45,7 @@ addopts = ["--capture=fd"]
 testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
-skip = "cp36-* cp37-* pp* *-musllinux*"
+skip = "pp* *-musllinux*"
 test-skip = "*-macosx_arm64 *-manylinux_aarch64 *-win_amd64"
 
 test-requires = ["pytest", "scipy"]
