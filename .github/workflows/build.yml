@@ -47,7 +47,7 @@ jobs:
         include:
           - os: windows-latest
             arch: auto64
-            opt_level: generic
+            opt_level: avx2
           - os: ubuntu-latest
             arch: aarch64
             opt_level: generic
