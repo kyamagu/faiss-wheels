@@ -1,17 +1,47 @@
 [build-system]
 requires = [
-    "setuptools>=68.0",
+    "setuptools",
     "wheel",
-    "oldest-supported-numpy; python_version>='3.5'",
+    "oldest-supported-numpy",
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "faiss-cpu"
+version = "1.7.4"
+authors = [
+    { name = "Kota Yamaguchi", email = "yamaguchi_kota@cyberagent.co.jp" },
+]
+description = "A library for efficient similarity search and clustering of dense vectors."
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["faiss", "similarity search", "clustering", "machine learning"]
+license = { text = "MIT License" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.urls]
+Repository = "https://github.com/kyamagu/faiss-wheels"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = [
-    "-v",
-    "--capture=fd",
-]
+addopts = ["--capture=fd"]
 testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
