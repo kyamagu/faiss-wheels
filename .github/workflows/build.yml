@@ -43,7 +43,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         arch: [auto64]
-        opt_level: [avx2]
+        opt_level: [avx2]  # Default is avx2 for now
         include:
           - os: windows-latest
             arch: auto64

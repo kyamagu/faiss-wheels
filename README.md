@@ -70,9 +70,7 @@ pip install --no-binary :all: faiss-cpu
 
 There are a few environment variables that specifies build-time options.
 
-- `CUDA_HOME`: Specifies CUDA install location for building faiss-gpu package.
-- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`. When set
-    to `avx2`, the package internally builds `avx2` extension in addition to
-    `generic`. Note this option is only available in x86_64 arch.
-- `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds `faiss-gpu` package.
-    Set this variable if faiss is built with GPU support.
+- `CUDA_HOME`: Specifies CUDA install location for building GPU wrappers, default to `/usr/local/cuda`.
+- `FAISS_ROOT`: Specifies the install location of faiss library, default to `/usr/local`.
+- `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`, `avx512`. Note that AVX option is only available in x86_64 arch.
+- `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds GPU wrappers. Set this variable if faiss is built with GPU support.
