@@ -5,20 +5,22 @@ import numpy as np
 from setuptools import Extension, setup
 from setuptools.command.build_py import build_py
 
-# CMake variables for faiss
-FAISS_ROOT = os.getenv("FAISS_ROOT", "/usr/local")
-FAISS_INCLUDE = os.getenv("FAISS_INCLUDE", os.path.join(FAISS_ROOT, "include"))
-FAISS_LIBRARY_DIR = os.getenv("FAISS_LIBRARY_DIR", os.path.join(FAISS_ROOT, "lib"))
+# Faiss conifgurations
+FAISS_INSTALL_PREFIX = os.getenv("FAISS_INSTALL_PREFIX", "/usr/local")
 FAISS_OPT_LEVEL = os.getenv("FAISS_OPT_LEVEL", "generic")
 FAISS_ENABLE_GPU = (os.getenv("FAISS_ENABLE_GPU", "").lower() in ("on", "true"))
 
 # Common configurations
+FAISS_ROOT = "faiss"  # relative to the setup.py file
+
 DEFINE_MACROS = [("FINTEGER", "int")]
-INCLUDE_DIRS = [np.get_include(), FAISS_INCLUDE]
-LIBRARY_DIRS: list[str] = [FAISS_LIBRARY_DIR]
+INCLUDE_DIRS = [
+    np.get_include(), FAISS_ROOT, os.path.join(FAISS_INSTALL_PREFIX, "include")]
+LIBRARY_DIRS: list[str] = [os.path.join(FAISS_INSTALL_PREFIX, "lib")]
 EXTRA_COMPILE_ARGS: list[str] = []
 EXTRA_LINK_ARGS: list[str] = []
-SWIG_OPTS = ["-c++", "-Doverride=", "-doxygen"] + [f"-I{x}" for x in INCLUDE_DIRS]
+SWIG_OPTS = ["-c++", "-Doverride=", "-doxygen", f"-I{FAISS_ROOT}"] + [
+    f"-I{x}" for x in INCLUDE_DIRS]
 
 # GPU options
 if FAISS_ENABLE_GPU:
@@ -212,7 +214,8 @@ setup(
         "faiss": os.path.join(FAISS_ROOT, "faiss", "python"),
         "faiss.contrib": os.path.join(FAISS_ROOT, "contrib"),
     },
-    package_data={"faiss": ["*.i", "*.h"]},
+    include_package_data=False,
+    package_data={"": ["*.i", "*.h"]},
     ext_modules=ext_modules,
     cmdclass={"build_py": CustomBuildPy},
 )
