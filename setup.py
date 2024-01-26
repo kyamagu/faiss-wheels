@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import List
 
 import numpy as np
 from setuptools import Extension, setup
@@ -16,9 +17,9 @@ FAISS_ROOT = "faiss"  # relative to the setup.py file
 DEFINE_MACROS = [("FINTEGER", "int")]
 INCLUDE_DIRS = [
     np.get_include(), FAISS_ROOT, os.path.join(FAISS_INSTALL_PREFIX, "include")]
-LIBRARY_DIRS: list[str] = [os.path.join(FAISS_INSTALL_PREFIX, "lib")]
-EXTRA_COMPILE_ARGS: list[str] = []
-EXTRA_LINK_ARGS: list[str] = []
+LIBRARY_DIRS: List[str] = [os.path.join(FAISS_INSTALL_PREFIX, "lib")]
+EXTRA_COMPILE_ARGS: List[str] = []
+EXTRA_LINK_ARGS: List[str] = []
 SWIG_OPTS = ["-c++", "-Doverride=", "-doxygen", f"-I{FAISS_ROOT}"] + [
     f"-I{x}" for x in INCLUDE_DIRS]
 
@@ -32,9 +33,9 @@ if FAISS_ENABLE_GPU:
 
 # Platform options
 def win32_options(
-    extra_compile_args: list[str],
-    extra_link_args: list[str],
-    swig_opts: list[str],
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
 ) -> dict:
     """Windows options."""
     return dict(
@@ -52,9 +53,9 @@ def win32_options(
 
 
 def linux_options(
-    extra_compile_args: list[str],
-    extra_link_args: list[str],
-    swig_opts: list[str],
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
 ) -> dict:
     """Linux options."""
     default_link_args = [
@@ -88,9 +89,9 @@ def linux_options(
 
 
 def darwin_options(
-    extra_compile_args: list[str],
-    extra_link_args: list[str],
-    swig_opts: list[str],
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
 ) -> dict:
     """macOS options."""
     return dict(
@@ -123,9 +124,9 @@ PLATFORM_CONFIGS = {
 
 # Optimization options
 def generic_options(
-    extra_compile_args: list[str],
-    extra_link_args: list[str],
-    swig_opts: list[str],
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
 ) -> dict:
     """Add generic extension options."""
     return dict(
@@ -137,9 +138,9 @@ def generic_options(
 
 
 def avx2_options(
-    extra_compile_args: list[str],
-    extra_link_args: list[str],
-    swig_opts: list[str],
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
 ) -> dict:
     """Add AVX2 extension options."""
     if sys.platform == "win32":
@@ -155,9 +156,9 @@ def avx2_options(
 
 
 def avx512_options(
-    extra_compile_args: list[str],
-    extra_link_args: list[str],
-    swig_opts: list[str],
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
 ) -> dict:
     """Add AVX512 extension options."""
     if sys.platform == "win32":
