@@ -43,11 +43,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         arch: [auto64]
-        opt_level: [avx2]  # Default is avx2 for now
+        opt_level: [avx512]
         include:
           - os: windows-latest
             arch: auto64
-            opt_level: generic
+            opt_level: generic  # Upstream incompatible with AVX2 and AVX512
           - os: ubuntu-latest
             arch: aarch64
             opt_level: generic
