@@ -41,7 +41,7 @@ Build and install the faiss library first.
 
 ```bash
 cd faiss
-cmake . -B build -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DFAISS_OPT_LEVEL=avx2
+cmake . -B build -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=OFF -DFAISS_OPT_LEVEL=avx512
 cmake --build build --config Release -j
 cmake --install build install
 cd ..
@@ -55,9 +55,10 @@ For building sdist, swig 3.0.12 or later needs to be available.
 
 ### Building a wheel package
 
-By default, the following builds and installs the faiss-cpu package.
+The following builds and installs the faiss-cpu source package with AVX512.
 
 ```bash
+export FAISS_OPT_LEVEL=avx512
 pip install --no-binary :all: faiss-cpu
 ```
 
@@ -69,8 +70,7 @@ pip install --no-binary :all: faiss-cpu
 ```
 
 There are a few environment variables that specifies build-time options.
-
-- `CUDA_HOME`: Specifies CUDA install location for building GPU wrappers, default to `/usr/local/cuda`.
-- `FAISS_ROOT`: Specifies the install location of faiss library, default to `/usr/local`.
+- `FAISS_INSTALL_PREFIX`: Specifies the install location of faiss library, default to `/usr/local`.
 - `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`, `avx512`. Note that AVX option is only available in x86_64 arch.
 - `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds GPU wrappers. Set this variable if faiss is built with GPU support.
+- `CUDA_HOME`: Specifies CUDA install location for building GPU wrappers, default to `/usr/local/cuda`.
