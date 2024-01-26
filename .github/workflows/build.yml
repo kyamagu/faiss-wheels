@@ -41,19 +41,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        arch: [auto64]
-        opt_level: [avx512]
         include:
-          - os: windows-latest
+          - os: ubuntu-latest
             arch: auto64
-            opt_level: generic  # Upstream incompatible with AVX2 and AVX512
+            opt_level: avx512
           - os: ubuntu-latest
             arch: aarch64
             opt_level: generic
           - os: macos-latest
+            arch: auto64
+            opt_level: avx2
+          - os: macos-latest
             arch: arm64
             opt_level: generic
+          - os: windows-latest
+            arch: auto64
+            opt_level: generic  # Upstream incompatible with AVX2 and AVX512
 
     steps:
       - uses: actions/checkout@v4
