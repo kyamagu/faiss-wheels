@@ -53,7 +53,7 @@ for more on how to build and install faiss.
 
 For building sdist, swig 3.0.12 or later needs to be available.
 
-### Building a wheel package
+### Building a source distribution
 
 The following builds and installs the faiss-cpu source package with AVX512.
 
