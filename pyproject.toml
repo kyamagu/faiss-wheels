@@ -40,11 +40,9 @@ Repository = "https://github.com/kyamagu/faiss-wheels"
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = [
-    "-s",
     # Failing tests for numerical issues.
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
 ]
-python_files = ["test_*.py", "torch_test_contrib.py"]
 testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
