@@ -96,6 +96,7 @@ jobs:
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
+          CIBW_BEFORE_TEST_LINUX: pip install torch --index-url https://download.pytorch.org/whl/cpu
           CIBW_TEST_COMMAND: env -u FAISS_OPT_LEVEL pytest {project}/faiss/tests
 
       - uses: actions/upload-artifact@v4

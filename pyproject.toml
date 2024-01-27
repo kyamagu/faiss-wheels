@@ -32,9 +32,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-dependencies = [
-    "numpy",
-]
+dependencies = ["numpy"]
 
 [project.urls]
 Repository = "https://github.com/kyamagu/faiss-wheels"
@@ -46,13 +44,14 @@ addopts = [
     # Failing tests for numerical issues.
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
 ]
+python_files = ["test_*.py", "torch_test_contrib.py"]
 testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
 skip = "pp* *-musllinux*"
 test-skip = "*-macosx_arm64 *-manylinux_aarch64 *-win_amd64"
 
-test-requires = ["pytest", "scipy"]
+test-requires = ["pytest", "scipy", "torch"]
 test-command = "pytest {project}/faiss/tests"
 
 [tool.cibuildwheel.windows]
