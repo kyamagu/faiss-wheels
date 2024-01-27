@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+set -eux
+
 export CXXFLAGS="-fvisibility=hidden -fdata-sections -ffunction-sections"
 
 FAISS_ENABLE_GPU=${FAISS_ENABLE_GPU:-"OFF"}
-FAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"}
 
 CUDA_VERSION=${CUDA_VERSION:-"12.3"}
 CUDA_PKG_VERSION=${CUDA_PKG_VERSION:-${CUDA_VERSION//./-}}
@@ -49,7 +50,7 @@ cd faiss && \
         -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
         -DFAISS_ENABLE_PYTHON=OFF \
         -DBUILD_TESTING=OFF \
-        -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
+        -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"} \
         -DCMAKE_BUILD_TYPE=Release && \
     cmake --build build --config Release -j3 && \
     cmake --install build && \
