@@ -51,7 +51,7 @@ cd faiss && \
         -DBUILD_TESTING=OFF \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL} \
         -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build build -j3 && \
+    cmake --build build --config Release -j3 && \
     cmake --install build && \
     git apply ../patch/faiss-rename-swigfaiss.patch && \
     cd ..
