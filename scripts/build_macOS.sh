@@ -18,7 +18,7 @@ git clone \
         --depth 1 \
         --filter=blob:none \
         --sparse \
-        --branch ${LLVM_VERSION:-"llvmorg-17.0.6"} \
+        --branch ${LLVM_VERSION:-"llvmorg-11.1.0"} \
         https://github.com/llvm/llvm-project.git \
         third-party/llvm-project && \
     cd third-party/llvm-project && \
