@@ -88,6 +88,7 @@ jobs:
             TARGET_ARCH=${{ matrix.arch }}
             LIBOMP_USE_HIDDEN_HELPER_TASK=0
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
+            KMP_DUPLICATE_LIB_OK=TRUE
             MACOSX_DEPLOYMENT_TARGET=10.14
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
@@ -96,7 +97,10 @@ jobs:
             LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
             CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
-          CIBW_TEST_COMMAND: env -u FAISS_OPT_LEVEL pytest {project}/faiss/tests
+          CIBW_BEFORE_TEST_LINUX: pip install torch --index-url https://download.pytorch.org/whl/cpu
+          CIBW_TEST_COMMAND: >
+            env -u FAISS_OPT_LEVEL pytest {project}/faiss/tests &&
+            env -u FAISS_OPT_LEVEL pytest -s {project}/faiss/tests/torch_test_contrib.py
 
       - uses: actions/upload-artifact@v4
         with:
