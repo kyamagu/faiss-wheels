@@ -56,7 +56,7 @@ jobs:
             opt_level: generic
           - os: windows-latest
             arch: auto64
-            opt_level: generic  # Upstream incompatible with AVX2 and AVX512
+            opt_level: avx2
 
     steps:
       - uses: actions/checkout@v4
