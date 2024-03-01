@@ -111,6 +111,9 @@ jobs:
     name: Upload packages to PyPI
     needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/faiss-cpu
     permissions:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
