@@ -40,7 +40,7 @@ def win32_options(
     """Windows options."""
     return dict(
         extra_compile_args=extra_compile_args + [
-            "/openmp",
+            "/openmp:llvm",
             "/std:c++17",
             "/Zc:inline",
             "/wd4101",  # unreferenced local variable.
