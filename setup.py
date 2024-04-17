@@ -216,7 +216,6 @@ setup(
         "faiss.contrib": os.path.join(FAISS_ROOT, "contrib"),
     },
     include_package_data=False,
-    install_requires=["packaging"],
     package_data={"": ["*.i", "*.h"]},
     ext_modules=ext_modules,
     cmdclass={"build_py": CustomBuildPy},
