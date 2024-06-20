@@ -9,6 +9,12 @@ if [[ ${TARGET_ARCH} == auto* || ${TARGET_ARCH} == native ]]; then
 fi
 echo "TARGET_ARCH=${TARGET_ARCH}"
 
+# Fix directory structure
+sudo mkdir -p /usr/local/include && \
+    sudo chown -R $(whoami) /usr/local/include
+sudo mkdir -p /usr/local/lib && \
+    sudo chown -R $(whoami) /usr/local/lib
+
 # Install system dependencies
 brew install swig
 
