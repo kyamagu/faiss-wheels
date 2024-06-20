@@ -14,6 +14,8 @@ sudo mkdir -p /usr/local/include && \
     sudo chown -R $(whoami) /usr/local/include
 sudo mkdir -p /usr/local/lib && \
     sudo chown -R $(whoami) /usr/local/lib
+sudo mkdir -p /usr/local/share && \
+    sudo chown -R $(whoami) /usr/local/share
 
 # Install system dependencies
 brew install swig
