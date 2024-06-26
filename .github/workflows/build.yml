@@ -48,8 +48,8 @@ jobs:
           - os: ubuntu-latest
             arch: aarch64
             opt_level: generic
-          - os: macos-latest
-            arch: auto64
+          - os: macos-13
+            arch: x86_64
             opt_level: avx2
           - os: macos-latest
             arch: arm64
