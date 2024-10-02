@@ -47,7 +47,7 @@ testpaths = ["faiss/tests"]
 
 [tool.cibuildwheel]
 skip = "pp* *-musllinux*"
-test-skip = "*-macosx_arm64 *-manylinux_aarch64 *-win_amd64 cp312-*"
+test-skip = "*-macosx_x86_64 *-manylinux_aarch64 *-win_amd64 cp312-*"
 
 test-requires = ["pytest", "scipy", "torch"]
 test-command = "pytest {project}/faiss/tests"
