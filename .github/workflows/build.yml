@@ -54,7 +54,7 @@ jobs:
           - os: macos-latest
             arch: arm64
             opt_level: generic
-          - os: windows-latest
+          - os: windows-2019
             arch: auto64
             opt_level: avx2
 
