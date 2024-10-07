@@ -45,6 +45,7 @@ if ! command -v swig &> /dev/null; then
     echo "swig is not available. Please install swig."
     exit 1
 fi
+swig -version
 
 # Install system dependencies
 yum install -y openblas-devel openblas-static
