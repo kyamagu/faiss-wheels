@@ -18,28 +18,30 @@ sudo mkdir -p /usr/local/share && \
     sudo chown -R $(whoami) /usr/local/share
 
 # Install system dependencies
-brew install swig
+brew install swig libomp
 
 # Build libomp: needed for cross compilation
-echo "Building libomp"
-git clone \
-        --depth 1 \
-        --filter=blob:none \
-        --sparse \
-        --branch ${LLVM_VERSION:-"llvmorg-17.0.6"} \
-        https://github.com/llvm/llvm-project.git \
-        third-party/llvm-project && \
-    cd third-party/llvm-project && \
-    git sparse-checkout set openmp cmake && \
-    cd openmp && \
-    cmake . \
-        -B build \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_OSX_ARCHITECTURES=${TARGET_ARCH} \
-        -DLIBOMP_ENABLE_SHARED=ON && \
-    cmake --build build -j && \
-    cmake --install build && \
-    cd ../../..
+function build_libomp() {
+    echo "Building libomp"
+    git clone \
+            --depth 1 \
+            --filter=blob:none \
+            --sparse \
+            --branch ${LLVM_VERSION:-"llvmorg-17.0.6"} \
+            https://github.com/llvm/llvm-project.git \
+            third-party/llvm-project && \
+        cd third-party/llvm-project && \
+        git sparse-checkout set openmp cmake && \
+        cd openmp && \
+        cmake . \
+            -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES=${TARGET_ARCH} \
+            -DLIBOMP_ENABLE_SHARED=ON && \
+        cmake --build build -j && \
+        cmake --install build && \
+        cd ../../..
+}
 
 # Build and patch faiss
 echo "Building faiss"
