@@ -231,7 +231,7 @@ class CustomBuildPy(build_py):
 
 
 setup(
-    packages=["faiss", "faiss.contrib"],
+    packages=["faiss", "faiss.contrib", "faiss.contrib.torch"],
     package_dir={
         "faiss": os.path.join(FAISS_ROOT, "faiss", "python"),
         "faiss.contrib": os.path.join(FAISS_ROOT, "contrib"),
