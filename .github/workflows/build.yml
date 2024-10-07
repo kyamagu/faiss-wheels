@@ -93,6 +93,8 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             TARGET_ARCH=${{ matrix.arch }}
+            LDFLAGS="${LDFLAGS} -L/opt/homebrew/opt/libomp/lib"
+            CPPFLAGS="${CPPFLAGS} -I/opt/homebrew/opt/libomp/include"
             LIBOMP_USE_HIDDEN_HELPER_TASK=0
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
             KMP_DUPLICATE_LIB_OK=TRUE
