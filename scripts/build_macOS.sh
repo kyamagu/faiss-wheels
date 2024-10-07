@@ -18,7 +18,7 @@ sudo mkdir -p /usr/local/share && \
     sudo chown -R $(whoami) /usr/local/share
 
 # Install system dependencies
-brew install swig libomp
+brew install swig
 
 # Build libomp: needed for cross compilation
 function build_libomp() {
@@ -27,7 +27,7 @@ function build_libomp() {
             --depth 1 \
             --filter=blob:none \
             --sparse \
-            --branch ${LLVM_VERSION:-"llvmorg-17.0.6"} \
+            --branch ${LLVM_VERSION:-"llvmorg-19.1.1"} \
             https://github.com/llvm/llvm-project.git \
             third-party/llvm-project && \
         cd third-party/llvm-project && \
@@ -42,6 +42,8 @@ function build_libomp() {
         cmake --install build && \
         cd ../../..
 }
+
+build_libomp()
 
 # Build and patch faiss
 echo "Building faiss"
