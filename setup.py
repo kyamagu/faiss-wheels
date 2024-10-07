@@ -15,6 +15,7 @@ FAISS_ENABLE_GPU = (os.getenv("FAISS_ENABLE_GPU", "").lower() in ("on", "true"))
 FAISS_ROOT = "faiss"  # relative to the setup.py file
 
 # DEFINE_MACROS = [("FINTEGER", "int")]
+DEFINE_MACROS = []
 INCLUDE_DIRS = [
     np.get_include(), FAISS_ROOT, os.path.join(FAISS_INSTALL_PREFIX, "include")]
 LIBRARY_DIRS: List[str] = [os.path.join(FAISS_INSTALL_PREFIX, "lib")]
