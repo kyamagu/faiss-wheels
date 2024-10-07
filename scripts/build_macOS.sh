@@ -43,7 +43,7 @@ function build_libomp() {
         cd ../../..
 }
 
-build_libomp()
+build_libomp
 
 # Build and patch faiss
 echo "Building faiss"
