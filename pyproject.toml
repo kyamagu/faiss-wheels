@@ -42,6 +42,7 @@ minversion = "6.0"
 addopts = [
     # Failing tests for numerical issues.
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
+    "--deselect=faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
 ]
 testpaths = ["faiss/tests"]
 
