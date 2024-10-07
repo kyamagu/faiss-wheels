@@ -235,6 +235,7 @@ setup(
     package_dir={
         "faiss": os.path.join(FAISS_ROOT, "faiss", "python"),
         "faiss.contrib": os.path.join(FAISS_ROOT, "contrib"),
+        "faiss.contrib.torch": os.path.join(FAISS_ROOT, "contrib", "torch"),
     },
     include_package_data=False,
     package_data={"": ["*.i", "*.h"]},
