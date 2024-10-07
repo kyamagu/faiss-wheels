@@ -8,7 +8,7 @@ CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 env
 
 # Install system dependencies
-conda.bat install -y -c conda-forge openblas
+conda install -y -c conda-forge openblas
 
 # Build and patch faiss
 cd faiss && \
