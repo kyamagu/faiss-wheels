@@ -40,8 +40,14 @@ if [[ ${FAISS_ENABLE_GPU} == "ON" ]]; then
     export CUDAFLAGS="--compiler-options=${CXXFLAGS// /,}"
 fi
 
+# Check if swig is available
+if ! command -v swig &> /dev/null; then
+    echo "swig is not available. Please install swig."
+    exit 1
+fi
+
 # Install system dependencies
-yum install -y openblas-devel openblas-static swig3
+yum install -y openblas-devel openblas-static
 
 # Build and patch faiss
 cd faiss && \
