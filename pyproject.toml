@@ -2,7 +2,7 @@
 requires = [
     "setuptools",
     "wheel",
-    "numpy>=2.0,<3",
+    "numpy>=1.25.0,<2",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -31,7 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-dependencies = ["numpy>=1.25.0,<3.0", "packaging"]
+dependencies = ["numpy>=1.25.0,<2.0", "packaging"]
 
 [project.urls]
 Repository = "https://github.com/kyamagu/faiss-wheels"
@@ -48,7 +48,7 @@ python_files = "test_*.py torch_test_*.py"
 
 [tool.cibuildwheel]
 skip = "pp* cp38-* cp313-* *-musllinux*"
-test-skip = "*-macosx_x86_64 *-manylinux_aarch64 *-win_amd64 cp312-*"
+test-skip = "*-manylinux_aarch64 *-win_amd64"
 
 test-requires = ["pytest", "scipy", "torch"]
 test-command = "pytest {project}/faiss/tests"
