@@ -32,7 +32,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-dependencies = ["numpy>=1.0,<2.0", "packaging"]
+dependencies = ["numpy>=1.25.0,<3.0", "packaging"]
 
 [project.urls]
 Repository = "https://github.com/kyamagu/faiss-wheels"
