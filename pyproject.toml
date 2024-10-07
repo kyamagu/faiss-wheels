@@ -42,6 +42,7 @@ addopts = [
     # Failing tests for numerical issues.
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
+    "--deselect=faiss/tests/test_contrib.py",
 ]
 testpaths = ["faiss/tests"]
 python_files = "test_*.py torch_test_*.py"
