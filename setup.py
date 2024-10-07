@@ -84,7 +84,7 @@ def linux_options(
             "-s",
             "-Wl,--gc-sections",
         ] + (extra_link_args or default_link_args),
-        swig_opts=swig_opts + ["-DSWIGWORDSIZE64"],
+        swig_opts=swig_opts,
     )
 
 
