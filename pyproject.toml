@@ -45,9 +45,10 @@ addopts = [
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
 ]
 testpaths = ["faiss/tests"]
+python_files = "test_*.py torch_test_*.py"
 
 [tool.cibuildwheel]
-skip = "pp* *-musllinux*"
+skip = "pp* cp313-* *-musllinux*"
 test-skip = "*-macosx_x86_64 *-manylinux_aarch64 *-win_amd64 cp312-*"
 
 test-requires = ["pytest", "scipy", "torch"]
