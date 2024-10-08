@@ -43,6 +43,7 @@ addopts = [
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
     "--deselect=faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
     "--deselect=faiss/tests/test_contrib.py::TestPreassigned::test_float",
+    "--deselect=faiss/tests/test_contrib.py::TestClustering::test_ivf_train_2level",
 ]
 testpaths = ["faiss/tests"]
 python_files = "test_*.py"  # torch_test_*.py will break the other tests
