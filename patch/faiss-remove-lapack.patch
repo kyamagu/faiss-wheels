@@ -1,16 +1,17 @@
 diff --git a/faiss/CMakeLists.txt b/faiss/CMakeLists.txt
-index 22dac7cb..e330cf36 100644
+index 2871d974..f823348c 100644
 --- a/faiss/CMakeLists.txt
 +++ b/faiss/CMakeLists.txt
-@@ -307,11 +307,6 @@ else()
-   target_link_libraries(faiss PRIVATE ${BLAS_LIBRARIES})
+@@ -365,12 +365,6 @@ else()
    target_link_libraries(faiss_avx2 PRIVATE ${BLAS_LIBRARIES})
    target_link_libraries(faiss_avx512 PRIVATE ${BLAS_LIBRARIES})
+   target_link_libraries(faiss_sve PRIVATE ${BLAS_LIBRARIES})
 -
 -  find_package(LAPACK REQUIRED)
 -  target_link_libraries(faiss PRIVATE ${LAPACK_LIBRARIES})
 -  target_link_libraries(faiss_avx2 PRIVATE ${LAPACK_LIBRARIES})
 -  target_link_libraries(faiss_avx512 PRIVATE ${LAPACK_LIBRARIES})
+-  target_link_libraries(faiss_sve PRIVATE ${LAPACK_LIBRARIES})
  endif()
  
  install(TARGETS faiss
