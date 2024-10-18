@@ -67,6 +67,7 @@ def linux_options(
         "-l:libfaiss.a",
         "-l:libopenblas.a",
         "-lgfortran",
+        "-L/usr/lib",
     ]
     if FAISS_ENABLE_GPU:
         default_link_args += [
