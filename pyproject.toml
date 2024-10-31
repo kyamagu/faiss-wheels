@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = ["numpy>=1.25.0,<3.0", "packaging"]
@@ -49,10 +50,10 @@ testpaths = ["faiss/tests"]
 python_files = "test_*.py"  # torch_test_*.py will break the other tests
 
 [tool.cibuildwheel]
-skip = "pp* cp38-* cp313-* *-musllinux*"
+skip = "pp* cp38-* *-musllinux*"
 test-skip = "*-manylinux_aarch64 *-win_amd64"
 
-test-requires = ["pytest", "scipy", "torch"]
+test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests"
 
 [tool.cibuildwheel.windows]
