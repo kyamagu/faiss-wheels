@@ -23,7 +23,8 @@ cd faiss && \
         -DBUILD_TESTING=OFF \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DBLA_STATIC=ON && \
+        -DBLA_STATIC=ON \
+        -DOpenMP_RUNTIME_MSVC="llvm" && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix "${CMAKE_PREFIX_PATH}" && \
     git apply ../patch/faiss-rename-swigfaiss.patch && \
