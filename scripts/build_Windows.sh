@@ -8,7 +8,7 @@ CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 env
 
 # Install system dependencies
-conda install -y -c conda-forge openblas
+conda install -y -c conda-forge openblas cmake
 
 # Build and patch faiss
 cd faiss && \
@@ -23,8 +23,7 @@ cd faiss && \
         -DBUILD_TESTING=OFF \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DBLA_STATIC=ON \
-        -DOpenMP_RUNTIME_MSVC="llvm" && \
+        -DBLA_STATIC=ON && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix "${CMAKE_PREFIX_PATH}" && \
     git apply ../patch/faiss-rename-swigfaiss.patch && \
