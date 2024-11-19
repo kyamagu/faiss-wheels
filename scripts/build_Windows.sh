@@ -8,7 +8,7 @@ CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 env
 
 # Install system dependencies
-conda install -y -c conda-forge openblas "cmake<3.30.0"
+conda install -y -c conda-forge openblas libflang openmp
 
 # Build and patch faiss
 cd faiss && \
