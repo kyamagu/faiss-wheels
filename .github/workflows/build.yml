@@ -44,7 +44,7 @@ jobs:
         include:
           - os: ubuntu-24.04
             arch: auto64
-            opt_level: avx512_spr
+            opt_level: avx512
           - os: ubuntu-24.04-arm
             arch: aarch64
             opt_level: generic
