@@ -84,6 +84,8 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             FAISS_ENABLE_GPU=OFF
+            CIBW_MANYLINUX_X86_64_IMAGE=manylinux_2_28
+            CIBW_MANYLINUX_AARCH64_IMAGE=manylinux_2_28
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             TARGET_ARCH=${{ matrix.arch }}
