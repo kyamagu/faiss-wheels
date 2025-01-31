@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "faiss-cpu"
-version = "1.9.0.post1"
+version = "1.10.0"
 authors = [
     { name = "Kota Yamaguchi", email = "yamaguchi_kota@cyberagent.co.jp" },
 ]
@@ -51,7 +51,7 @@ python_files = "test_*.py"  # torch_test_*.py will break the other tests
 
 [tool.cibuildwheel]
 skip = "pp* cp38-* *-musllinux*"
-test-skip = "*-manylinux_aarch64 *-win_amd64"
+test-skip = "*-win_amd64"
 
 test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests"
