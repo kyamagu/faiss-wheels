@@ -44,7 +44,7 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: auto64
-            opt_level: avx512
+            opt_level: avx512_spr
           - os: ubuntu-latest
             arch: aarch64
             opt_level: generic
