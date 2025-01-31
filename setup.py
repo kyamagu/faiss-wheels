@@ -195,10 +195,31 @@ def avx512_options(
     )
 
 
+def avx512_spr_options(
+    extra_compile_args: List[str],
+    extra_link_args: List[str],
+    swig_opts: List[str],
+) -> dict:
+    """Add AVX512 SPR extension options."""
+    if sys.platform == "win32":
+        flags = ["/arch:AVX512", "/bigobj"]
+    else:
+        flags = ["-march=sapphirerapids", "-mtune=sapphirerapids"]
+    return dict(
+        name="faiss._swigfaiss_avx512_spr",
+        extra_compile_args=extra_compile_args + flags,
+        extra_link_args=[x.replace("faiss", "faiss_avx512_spr") for x in extra_link_args],
+        swig_opts=swig_opts + ["-module", "swigfaiss_avx512_spr"],
+    )
+
+# NOTE: SVE requires arch-specific compiler flags like -march=armv8-a+sve, or -march=native enables sve.
+# There is no generic option for SVE, so we are not adding it here.
+
 OPT_CONFIGS = {
     "generic": [generic_options],
     "avx2": [generic_options, avx2_options],
     "avx512": [generic_options, avx2_options, avx512_options],
+    "avx512_spr": [generic_options, avx2_options, avx512_options, avx512_spr_options],
 }
 
 platform_config = PLATFORM_CONFIGS[sys.platform](
