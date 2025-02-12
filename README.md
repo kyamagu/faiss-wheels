@@ -40,7 +40,7 @@ Also, there should be all the required prerequisites for building faiss itself, 
 
 ## Building faiss
 
-The source package assumes faiss is already built and installed in the system.
+*The source package assumes faiss is already built and installed in the system.*
 If not done so elsewhere, build and install the faiss library first.
 The following example builds and installs faiss with GPU support and avx512 instruction set.
 
@@ -57,7 +57,7 @@ See the official
 [faiss installation instruction](https://github.com/facebookresearch/faiss/blob/master/INSTALL.md)
 for more on how to build and install faiss.
 
-### Building a source package
+### Building and installing a source package
 
 Once faiss is built and installed, build the source package.
 The following builds and installs the faiss-cpu source package with GPU and AVX512.
@@ -72,6 +72,13 @@ There are a few environment variables that specifies build-time options.
 - `FAISS_OPT_LEVEL`: Faiss SIMD optimization, one of `generic`, `avx2`, `avx512`. Note that AVX option is only available in x86_64 arch.
 - `FAISS_ENABLE_GPU`: Setting this variable to `ON` builds GPU wrappers. Set this variable if faiss is built with GPU support.
 - `CUDA_HOME`: Specifies CUDA install location for building GPU wrappers, default to `/usr/local/cuda`.
+
+Note that you can build a custom wheel package without installing it. The resulting package can be installed in the other python environment as long as the ABI is the same. Otherwise, use [`auditwheel`](https://github.com/pypa/auditwheel) or similar tools to package the binary dependency after building a wheel.
+
+```bash
+export FAISS_ENABLE_GPU=ON FAISS_OPT_LEVEL=avx512
+pip wheel --no-binary :all: faiss-cpu
+```
 
 ## Development
 
