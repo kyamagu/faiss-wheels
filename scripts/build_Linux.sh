@@ -2,7 +2,8 @@
 
 set -eux
 
-export CXXFLAGS="-fvisibility=hidden -fdata-sections -ffunction-sections"
+# Default compiler flags
+export CXXFLAGS=${CXXFLAGS:-"-fvisibility=hidden -fdata-sections -ffunction-sections"}
 
 # Check if swig is available
 if ! command -v swig &> /dev/null; then
@@ -18,7 +19,7 @@ dnf install -y openblas-devel openblas-static
 cd faiss && \
     cmake . \
         -B build \
-        -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
+        -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU:-"OFF"} \
         -DFAISS_ENABLE_PYTHON=OFF \
         -DBUILD_TESTING=OFF \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"} \
