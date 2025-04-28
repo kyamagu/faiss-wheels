@@ -26,7 +26,7 @@ cd faiss && \
         -DBUILD_TESTING=OFF \
         -DFAISS_OPT_LEVEL=${FAISS_OPT_LEVEL:-"generic"} \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations" && \
+        -DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -Wno-format" && \
     cmake --build build --config Release -j && \
     cmake --install build && \
     git apply ../patch/faiss-rename-swigfaiss.patch && \
