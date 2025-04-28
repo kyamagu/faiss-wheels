@@ -21,7 +21,7 @@ cd faiss && \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DBLA_STATIC=ON \
-        -DCMAKE_CXX_FLAGS="-D_CRT_SECURE_NO_WARNINGS -Wno-unused-function" && \
+        -DCMAKE_CXX_FLAGS="-D_CRT_SECURE_NO_WARNINGS -Wno-unused-function -Wno-format" && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix "${CMAKE_PREFIX_PATH}" && \
     git apply ../patch/faiss-rename-swigfaiss.patch && \
