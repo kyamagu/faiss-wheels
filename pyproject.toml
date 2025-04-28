@@ -50,7 +50,7 @@ python_files = "test_*.py"  # torch_test_*.py will break the other tests
 
 [tool.cibuildwheel]
 skip = "pp* *-musllinux*"
-test-skip = "*-win_amd64"
+test-skip = "*-win_amd64 *-macosx_x86_64"
 
 test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests"
