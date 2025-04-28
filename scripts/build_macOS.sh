@@ -15,6 +15,7 @@ brew install swig libomp
 
 # Workaround for libomp
 export OpenMP_ROOT=$(brew --prefix)/opt/libomp
+ls -lh $(brew --prefix)/opt/libomp/include
 
 # Build and patch faiss
 echo "Building faiss"
