@@ -92,7 +92,7 @@ jobs:
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
             KMP_DUPLICATE_LIB_OK=TRUE
             OMP_NUM_THREADS=1
-            MACOSX_DEPLOYMENT_TARGET=10.14
+            MACOSX_DEPLOYMENT_TARGET=14.0
             CPPFLAGS=-I/opt/homebrew/opt/libomp/include
             LDFLAGS=-L/opt/homebrew/opt/libomp/lib
           CIBW_ENVIRONMENT_WINDOWS: >
