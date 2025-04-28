@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "faiss-cpu"
-version = "1.10.0"
+version = "1.11.0"
 authors = [
     { name = "Kota Yamaguchi", email = "yamaguchi_kota@cyberagent.co.jp" },
 ]
@@ -16,12 +16,11 @@ description = "A library for efficient similarity search and clustering of dense
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["faiss", "similarity search", "clustering", "machine learning"]
-license = { text = "MIT License" }
+license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
@@ -50,8 +49,8 @@ testpaths = ["faiss/tests"]
 python_files = "test_*.py"  # torch_test_*.py will break the other tests
 
 [tool.cibuildwheel]
-skip = "pp* cp38-* *-musllinux*"
-test-skip = "*-win_amd64"
+skip = "pp* *-musllinux*"
+test-skip = "*-win_amd64 *-macosx_x86_64"
 
 test-requires = ["pytest", "scipy"]
 test-command = "pytest {project}/faiss/tests"
