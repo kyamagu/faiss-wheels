@@ -99,8 +99,16 @@ def darwin_options(
     homebrew_prefix = (
         "/opt/homebrew" if platform.mac_ver()[2] == "arm64" else "/usr/local"
     )
-    OPENMP_ROOT = os.getenv("OPENMP_ROOT", os.path.join(homebrew_prefix, "/opt/libomp"))
-    default_link_args = ["-lfaiss", "-lomp", "-framework", "Accelerate"]
+    OPENMP_ROOT = os.getenv(
+        "OPENMP_ROOT", os.path.join(homebrew_prefix, "opt", "libomp")
+    )
+    default_link_args = [
+        "-lfaiss",
+        "-lomp",
+        "-framework",
+        "Accelerate",
+        "-L" + os.path.join(OPENMP_ROOT, "lib"),
+    ]
     return dict(
         extra_compile_args=extra_compile_args
         + [
@@ -110,12 +118,7 @@ def darwin_options(
             "-fopenmp",
             "-I" + os.path.join(OPENMP_ROOT, "include"),
         ],
-        extra_link_args=[
-            "-Xpreprocessor",
-            "-fopenmp",
-            "-dead_strip",
-            "-L" + os.path.join(OPENMP_ROOT, "lib"),
-        ]
+        extra_link_args=["-Xpreprocessor", "-fopenmp", "-dead_strip"]
         + (extra_link_args or default_link_args),
         swig_opts=swig_opts,
     )
