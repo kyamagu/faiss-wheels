@@ -93,8 +93,6 @@ jobs:
             KMP_DUPLICATE_LIB_OK=TRUE
             OMP_NUM_THREADS=1
             MACOSX_DEPLOYMENT_TARGET=14.0
-            CPPFLAGS=-I/opt/homebrew/opt/libomp/include
-            LDFLAGS=-L/opt/homebrew/opt/libomp/lib
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"

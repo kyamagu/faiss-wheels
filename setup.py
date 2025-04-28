@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 from typing import List
 
@@ -93,6 +94,12 @@ def darwin_options(
     swig_opts: List[str],
 ) -> dict:
     """macOS options."""
+
+    # NOTE: Homebrew defaults to /usr/local on intel mac.
+    homebrew_prefix = (
+        "/opt/homebrew" if platform.mac_ver()[2] == "arm64" else "/usr/local"
+    )
+    OPENMP_ROOT = os.getenv("OPENMP_ROOT", os.path.join(homebrew_prefix, "/opt/libomp"))
     default_link_args = ["-lfaiss", "-lomp", "-framework", "Accelerate"]
     return dict(
         extra_compile_args=extra_compile_args
@@ -101,8 +108,14 @@ def darwin_options(
             "-Wno-sign-compare",
             "-Xpreprocessor",
             "-fopenmp",
+            "-I" + os.path.join(OPENMP_ROOT, "include"),
         ],
-        extra_link_args=["-Xpreprocessor", "-fopenmp", "-dead_strip"]
+        extra_link_args=[
+            "-Xpreprocessor",
+            "-fopenmp",
+            "-dead_strip",
+            "-L" + os.path.join(OPENMP_ROOT, "lib"),
+        ]
         + (extra_link_args or default_link_args),
         swig_opts=swig_opts,
     )
@@ -231,7 +244,7 @@ ext_modules = [
 
 class CustomBuildPy(build_py):
     """Run build_ext before build_py to compile swig code.
-    
+
     Without this, setuptools fails to include the compiled swig code in the package.
     https://bugs.python.org/issue7562
     """
