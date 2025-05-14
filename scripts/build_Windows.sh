@@ -12,7 +12,6 @@ cd faiss && \
     git apply ../patch/faiss-remove-lapack.patch && \
     cmake . \
         -B build \
-        -A x64 \
         -T ClangCL \
         -DFAISS_ENABLE_GPU=OFF \
         -DFAISS_ENABLE_PYTHON=OFF \
