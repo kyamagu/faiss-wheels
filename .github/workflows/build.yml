@@ -57,6 +57,9 @@ jobs:
           - os: windows-latest
             arch: auto64
             opt_level: avx2
+          - os: windows-11-arm
+            arch: auto64
+            opt_level: generic
 
     steps:
       - uses: actions/checkout@v4
