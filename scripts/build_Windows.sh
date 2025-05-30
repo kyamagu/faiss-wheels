@@ -5,7 +5,7 @@ set -eux
 CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
 
 # Install system dependencies
-conda install -y -c conda-forge openblas libflang openmp
+vcpkg install openblas
 
 # Build and patch faiss
 cd faiss && \
