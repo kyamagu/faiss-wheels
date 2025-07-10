@@ -78,6 +78,7 @@ jobs:
             PATH="${PATH};${CMAKE_PREFIX_PATH}\\bin"
           CIBW_SKIP: "cp38-* cp39-win_arm64 cp310-win_arm64"
           CIBW_BEFORE_ALL: bash scripts/build_Windows_ARM64.sh
+          CIBW_TEST_SKIP: "*-win_arm64"
           # CIBW_TEST_COMMAND: >
           #   env -u FAISS_OPT_LEVEL pytest {project}/faiss/tests  #SciPy for Windows ARM64 is unavailable, so skip testing
             
