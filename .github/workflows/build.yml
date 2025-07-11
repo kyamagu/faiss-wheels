@@ -92,7 +92,7 @@ jobs:
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
             KMP_DUPLICATE_LIB_OK=TRUE
             OMP_NUM_THREADS=1
-            MACOSX_DEPLOYMENT_TARGET=14.0
+            MACOSX_DEPLOYMENT_TARGET=${{ matrix.os == 'macos-13' && '13.0' || '14.0' }}
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH=${{ matrix.os == 'windows-11-arm' && '"c:\\opt\\OpenBLAS"' || '"c:\\opt"' }}
