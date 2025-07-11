@@ -8,10 +8,12 @@ zipPath="$RUNNER_TEMP/OpenBLAS.zip"
 destPath="C:/opt"
 curl -L "$url" -o "$zipPath"
 mkdir -p "$destPath"
+
+# Extract to destination
 powershell.exe -Command "Expand-Archive -Path '$zipPath' -DestinationPath '$destPath' -Force"
+powershell.exe -Command "Move-Item C:/opt/OpenBLAS/* C:/opt/ -Force; Remove-Item C:/opt/OpenBLAS -Recurse"
 
-CMAKE_PREFIX_PATH="C:/opt/OpenBLAS"
-
+CMAKE_PREFIX_PATH="C:/opt"
 # Build and patch faiss
 cd faiss && \
 git apply ../patch/faiss-remove-lapack.patch && \
