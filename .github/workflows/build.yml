@@ -95,10 +95,10 @@ jobs:
             MACOSX_DEPLOYMENT_TARGET=14.0
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
-            CMAKE_PREFIX_PATH="c:\\opt"
-            LIB="${LIB};${CMAKE_PREFIX_PATH}\\lib;${CONDA}\\Library\\lib"
-            CPATH="${CPATH};${CMAKE_PREFIX_PATH}\\include;${CONDA}\\Library\\include"
-            PATH="${PATH};${CMAKE_PREFIX_PATH}\\bin"
+            CMAKE_PREFIX_PATH=${{ matrix.os == 'windows-11-arm' && '"c:\\opt\\OpenBLAS"' || '"c:\\opt"' }}
+            LIB="${LIB};${{ matrix.os == 'windows-11-arm' && 'c:\\opt\\OpenBLAS\\lib' || '${CMAKE_PREFIX_PATH}\\lib' }};${CONDA}\\Library\\lib"
+            CPATH="${CPATH};${{ matrix.os == 'windows-11-arm' && 'c:\\opt\\OpenBLAS\\include\\openblas' || '${CMAKE_PREFIX_PATH}\\include' }};${CONDA}\\Library\\include"
+            PATH="${PATH};${{ matrix.os == 'windows-11-arm' && 'c:\\opt\\OpenBLAS\\bin' || '${CMAKE_PREFIX_PATH}\\bin' }}"
           CIBW_BEFORE_ALL: bash scripts/build_${{ matrix.os == 'windows-11-arm' && 'Windows_ARM64' || runner.os }}.sh
           CIBW_SKIP: ${{ matrix.os == 'windows-11-arm' && 'cp38-* cp39-win_arm64 cp310-win_arm64' || '' }}
           CIBW_TEST_SKIP: ${{ matrix.os == 'windows-11-arm' && '*-win_arm64' || '' }}
