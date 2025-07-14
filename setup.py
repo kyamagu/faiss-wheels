@@ -43,18 +43,26 @@ def win32_options(
     swig_opts: List[str],
 ) -> dict:
     """Windows options."""
-    default_link_args = ["faiss.lib", "openblas.lib"]
+    default_link_args = [
+        "faiss.lib", 
+        "openblas.lib"
+    ]
+    arch = platform.machine().lower()
+    is_arm64 = arch in ('arm64', 'aarch64')
+    compile_args = [
+        "/std:c++17",
+        "/Zc:inline",
+        "/wd4101",  # unreferenced local variable.
+        "/MD",  # Bugfix: https://bugs.python.org/issue38597
+    ]
+    link_args = ["/OPT:ICF", "/OPT:REF"]
+    if is_arm64:
+        compile_args.append("/openmp")
+    else:
+        compile_args.append("/openmp:llvm")
     return dict(
-        extra_compile_args=extra_compile_args
-        + [
-            "/openmp:llvm",
-            "/std:c++17",
-            "/Zc:inline",
-            "/wd4101",  # unreferenced local variable.
-            "/MD",  # Bugfix: https://bugs.python.org/issue38597
-        ],
-        extra_link_args=["/OPT:ICF", "/OPT:REF"]
-        + (extra_link_args or default_link_args),
+        extra_compile_args=extra_compile_args + compile_args,
+        extra_link_args=link_args + (extra_link_args or default_link_args),
         swig_opts=swig_opts + ["-DSWIGWIN"],
     )
 
