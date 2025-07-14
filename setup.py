@@ -43,12 +43,7 @@ def win32_options(
     swig_opts: List[str],
 ) -> dict:
     """Windows options."""
-    default_link_args = [
-        "faiss.lib", 
-        "openblas.lib"
-    ]
-    arch = platform.machine().lower()
-    is_arm64 = arch in ('arm64', 'aarch64')
+    default_link_args = ["faiss.lib", "openblas.lib"]
     compile_args = [
         "/std:c++17",
         "/Zc:inline",
@@ -56,15 +51,27 @@ def win32_options(
         "/MD",  # Bugfix: https://bugs.python.org/issue38597
     ]
     link_args = ["/OPT:ICF", "/OPT:REF"]
-    if is_arm64:
-        compile_args.append("/openmp")
-    else:
-        compile_args.append("/openmp:llvm")
+    compile_args.append("/openmp" if platform.machine() == "ARM64" else "/openmp:llvm")
     return dict(
         extra_compile_args=extra_compile_args + compile_args,
         extra_link_args=link_args + (extra_link_args or default_link_args),
         swig_opts=swig_opts + ["-DSWIGWIN"],
     )
+
+
+def get_linux_openblas_link_args() -> List[str]:
+    """Get OpenBLAS link arguments for Linux."""
+    possible_dirs = [
+        "/usr/lib/x86_64-linux-gnu",
+        "/usr/lib64",
+        "/usr/lib",
+        "/usr/local/lib",
+    ]
+    for dir_path in possible_dirs:
+        if os.path.exists(os.path.join(dir_path, "libopenblas.a")):
+            return ["-l:libopenblas.a", "-lgfortran"]
+    # Fallback if OpenBLAS static library is not found
+    return ["-lopenblas", "-lgfortran"]
 
 
 def linux_options(
@@ -73,7 +80,7 @@ def linux_options(
     swig_opts: List[str],
 ) -> dict:
     """Linux options."""
-    default_link_args = ["-l:libfaiss.a", "-l:libopenblas.a", "-lgfortran"]
+    default_link_args = ["-l:libfaiss.a"] + get_linux_openblas_link_args()
     if FAISS_ENABLE_GPU:
         default_link_args += [
             "-lcublas_static",
