@@ -24,11 +24,13 @@ if [[ "$PROCESSOR_IDENTIFIER" == ARM* ]]; then
     install_openblas_arm64
     CMAKE_GENERATOR_PLATFORM="ARM64"
     CMAKE_GENERATOR_TOOLSET="v143"  # Use MSVC toolset for ARM64
+    CMAKE_CXX_FLAGS=""
 else
     echo "Installing OpenBLAS for x86_64..."
     conda install -y -c conda-forge openblas
     CMAKE_GENERATOR_PLATFORM="x64"
     CMAKE_GENERATOR_TOOLSET="ClangCL"
+    CMAKE_CXX_FLAGS="-D_CRT_SECURE_NO_WARNINGS -Wno-unused-function -Wno-format"
 fi
 
 # Build and patch faiss
@@ -45,7 +47,7 @@ cd faiss && \
         -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DBLA_STATIC=ON \
-        -DCMAKE_CXX_FLAGS="-D_CRT_SECURE_NO_WARNINGS -Wno-unused-function -Wno-format" && \
+        -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix "${CMAKE_PREFIX_PATH}" && \
     git apply ../patch/faiss-rename-swigfaiss.patch && \
