@@ -13,7 +13,16 @@ fi
 swig -version
 
 # Install system dependencies
-dnf install -y openblas-devel openblas-static
+if command -v apk &> /dev/null; then
+    apk add --no-cache openblas-dev
+elif command -v dnf &> /dev/null; then
+    dnf install -y openblas-devel openblas-static
+elif command -v apt &> /dev/null; then
+    apt install -y libopenblas-dev
+else
+    echo "Unsupported package manager. Please install dependencies manually."
+    exit 1
+fi
 
 # Build and patch faiss
 cd faiss && \

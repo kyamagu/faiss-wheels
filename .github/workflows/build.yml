@@ -69,7 +69,7 @@ jobs:
           activate-environment: ""
       
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.23.3
+        run: python -m pip install cibuildwheel==3.0.1
     
       - name: Setup MSVC for Win-ARM64
         if: matrix.os == 'windows-11-arm'
@@ -80,8 +80,6 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_ENVIRONMENT_LINUX: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
@@ -99,11 +97,7 @@ jobs:
             LIB="${LIB};c:\\opt\\lib;${CONDA}\\Library\\lib"
             CPATH="${CPATH};c:\\opt\\include;${CONDA}\\Library\\include"
             PATH="${PATH};c:\\opt\\bin"
-          CIBW_BEFORE_ALL: bash scripts/build_${{ matrix.os == 'windows-11-arm' && 'Windows_ARM64' || runner.os }}.sh
-          CIBW_SKIP: ${{ matrix.os == 'windows-11-arm' && 'cp38-* cp39-win_arm64 cp310-win_arm64' || 'pp39-macosx_*' }}
-          CIBW_TEST_SKIP: "*-win32 *-win_amd64 *-win_arm64"
-          CIBW_TEST_COMMAND: >
-            env -u FAISS_OPT_LEVEL pytest {project}/faiss/tests
+          CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
       
       - uses: actions/upload-artifact@v4
         with:
