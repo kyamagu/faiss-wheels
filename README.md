@@ -40,7 +40,7 @@ Also, there should be all the required prerequisites for building faiss itself, 
 
 ## Building faiss
 
-*The source package assumes faiss is already built and installed in the system.*
+*The source package assumes faiss and OpenBLAS are already built and installed in the system.*
 If not done so elsewhere, build and install the faiss library first.
 The following example builds and installs faiss with GPU support and avx512 instruction set.
 
@@ -79,6 +79,9 @@ Note that you can build a custom wheel package without installing it. The result
 export FAISS_ENABLE_GPU=ON FAISS_OPT_LEVEL=avx512
 pip wheel --no-binary :all: faiss-cpu
 ```
+
+> **Note**
+> Currently, the source package only supports the OpenBLAS backend; other BLAS implementation is not supported.
 
 ## Development
 
