@@ -3,6 +3,7 @@
 set -eux
 
 CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH:-"c:\\opt"}
+CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM:-"x64"}
 
 # Function to install OpenBLAS for Windows ARM64
 function install_openblas_arm64() {
@@ -18,10 +19,11 @@ function install_openblas_arm64() {
     powershell.exe -Command "Move-Item $DEST_PATH/OpenBLAS/* $DEST_PATH/ -Force; Remove-Item $DEST_PATH/OpenBLAS -Recurse"
 }
 
-# Install system dependencies
-if [[ "${PROCESSOR_ARCHITECTURE}" == "ARM64" ]]; then
+# Install system dependencies to build faiss
+if [[ "$PROCESSOR_IDENTIFIER" == ARM* ]]; then
+    # NOTE: PROCESSOR_ARCHITECTURE is incorrectly set to "AMD64" on emulated ARM64 Windows runners.
     install_openblas_arm64
-    ARCH="ARM64"
+    CMAKE_GENERATOR_PLATFORM="ARM64"
 else
     echo "Installing OpenBLAS for x86_64..."
     conda install -y -c conda-forge openblas
@@ -32,6 +34,7 @@ cd faiss && \
     git apply ../patch/faiss-remove-lapack.patch && \
     cmake . \
         -B build \
+        -A ${CMAKE_GENERATOR_PLATFORM} \
         -T ClangCL \
         -DFAISS_ENABLE_GPU=OFF \
         -DFAISS_ENABLE_PYTHON=OFF \
