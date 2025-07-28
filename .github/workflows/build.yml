@@ -73,6 +73,7 @@ jobs:
             FAISS_ENABLE_GPU=OFF
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
+            MACOSX_DEPLOYMENT_TARGET=10.13
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
