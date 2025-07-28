@@ -94,8 +94,8 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
-            LIB="${LIB};c:\\opt\\lib;${CONDA}\\Library\\lib"
-            CPATH="${CPATH};c:\\opt\\include;${CONDA}\\Library\\include"
+            LIB="${LIB};c:\\opt\\lib"
+            CPATH="${CPATH};c:\\opt\\include"
             PATH="${PATH};c:\\opt\\bin"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
       
