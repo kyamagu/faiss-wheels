@@ -15,7 +15,7 @@ function install_openblas() {
 
     # Extract to destination
     powershell.exe -Command "Expand-Archive -Path '$ZIP_PATH' -DestinationPath '$DEST_PATH' -Force"
-    powershell.exe -Command "Move-Item $DEST_PATH/OpenBLAS/* $DEST_PATH/ -Force; Remove-Item $DEST_PATH/OpenBLAS -Recurse"
+    powershell.exe -Command "Move-Item $DEST_PATH/OpenBLAS*/* $DEST_PATH/ -Force; Remove-Item $DEST_PATH/OpenBLAS* -Recurse"
 }
 
 # Install system dependencies to build faiss
