@@ -25,6 +25,7 @@ if [[ "$PROCESSOR_IDENTIFIER" == ARM* ]]; then
     CMAKE_GENERATOR_PLATFORM="ARM64"
 else
     install_openblas x64
+    powershell.exe -Command "New-Item -Path $DEST_PATH/lib/openblas.lib -ItemType SymbolicLink -Target $DEST_PATH/lib/libopenblas.lib"
     CMAKE_GENERATOR_PLATFORM="x64"
 fi
 
