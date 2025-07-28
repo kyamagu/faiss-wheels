@@ -1,0 +1,13 @@
+Copyright (c) 2019 Kota Yamaguchi
+
+The following components are included in this project:
+
+faiss
+https://github.com/facebookresearch/faiss
+Copyright (c) Facebook, Inc. and its affiliates.
+Licensed under the MIT License
+
+OpenBLAS
+https://github.com/OpenMathLib/OpenBLAS
+Copyright (c) 2011-2014, The OpenBLAS Project
+Licensed under the BSD 3-Clause License

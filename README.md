@@ -13,7 +13,7 @@ This repository provides scripts to build wheel packages for the
 [faiss](https://github.com/facebookresearch/faiss) library.
 
 - Builds CPU-only version with [cibuildwheel](https://github.com/pypa/cibuildwheel/).
-- Bundles OpenBLAS in Linux/Windows
+- Bundles [OpenBLAS](https://github.com/OpenMathLib/OpenBLAS) in Linux/Windows
 - Uses Accelerate framework in macOS
 
 There is also a source package to customize the build process.

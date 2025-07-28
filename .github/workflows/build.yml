@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.x"
       - name: Apply patch
-        run: git apply --directory faiss patch/faiss-rename-swigfaiss.patch
+        run: git apply --directory third-party/faiss patch/faiss-rename-swigfaiss.patch
       - name: Install build dependencies
         run: python -m pip install build
       - name: Build sdist
@@ -30,7 +30,7 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.opt_level }})
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -44,7 +44,7 @@ jobs:
           - os: macos-13
             arch: x86_64
             opt_level: avx2
-          - os: macos-latest
+          - os: macos-14
             arch: arm64
             opt_level: generic
           - os: windows-latest
@@ -61,21 +61,8 @@ jobs:
         with:
           python-version: "3.x"
       
-      - name: Set up conda
-        if: runner.os == 'Windows' && matrix.os != 'windows-11-arm'
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-activate-base: true
-          activate-environment: ""
-      
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==3.0.1
-    
-      - name: Setup MSVC for Win-ARM64
-        if: matrix.os == 'windows-11-arm'
-        uses: bus1/cabuild/action/msdevshell@e22aba57d6e74891d059d66501b6b5aed8123c4d  # v1
-        with:
-          architecture: arm64
+        run: python -m pip install cibuildwheel==3.1.1
       
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
@@ -86,16 +73,12 @@ jobs:
             FAISS_ENABLE_GPU=OFF
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
-            LIBOMP_USE_HIDDEN_HELPER_TASK=0
-            LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
-            KMP_DUPLICATE_LIB_OK=TRUE
-            OMP_NUM_THREADS=1
-            MACOSX_DEPLOYMENT_TARGET=${{ matrix.os == 'macos-13' && '13.0' || '14.0' }}
+            MACOSX_DEPLOYMENT_TARGET=${{ matrix.os == 'macos-13' && '13.0' || '14.0'}}
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
-            LIB="${LIB};c:\\opt\\lib;${CONDA}\\Library\\lib"
-            CPATH="${CPATH};c:\\opt\\include;${CONDA}\\Library\\include"
+            LIB="${LIB};c:\\opt\\lib"
+            CPATH="${CPATH};c:\\opt\\include"
             PATH="${PATH};c:\\opt\\bin"
           CIBW_BEFORE_ALL: bash scripts/build_${{ runner.os }}.sh
       

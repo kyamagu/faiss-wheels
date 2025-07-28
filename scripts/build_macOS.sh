@@ -2,13 +2,11 @@
 
 set -eux
 
-# Fix directory structure
-sudo mkdir -p /usr/local/include && \
-    sudo chown -R $(whoami) /usr/local/include
-sudo mkdir -p /usr/local/lib && \
-    sudo chown -R $(whoami) /usr/local/lib
-sudo mkdir -p /usr/local/share && \
-    sudo chown -R $(whoami) /usr/local/share
+# Fix directory structure on homebrew for intel macOS
+for dir in "include" "lib" "share"; do
+    sudo mkdir -p "/usr/local/$dir"
+    sudo chown -R $(whoami) "/usr/local/$dir"
+done
 
 # Install system dependencies
 brew install swig libomp
@@ -18,7 +16,7 @@ export OpenMP_ROOT=$(brew --prefix)/opt/libomp
 
 # Build and patch faiss
 echo "Building faiss"
-cd faiss && \
+cd third-party/faiss && \
     cmake . \
         -B build \
         -DFAISS_ENABLE_GPU=OFF \
@@ -29,5 +27,5 @@ cd faiss && \
         -DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -Wno-format" && \
     cmake --build build --config Release -j && \
     cmake --install build && \
-    git apply ../patch/faiss-rename-swigfaiss.patch && \
-    cd ..
+    git apply ../../patch/faiss-rename-swigfaiss.patch && \
+    cd ../..

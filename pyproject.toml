@@ -14,9 +14,9 @@ authors = [
 ]
 description = "A library for efficient similarity search and clustering of dense vectors."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.15"
 keywords = ["faiss", "similarity search", "clustering", "machine learning"]
-license = "MIT"
+license = "MIT AND BSD-3-Clause"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = ["numpy>=1.25.0,<3.0", "packaging"]
@@ -40,20 +41,27 @@ Repository = "https://github.com/kyamagu/faiss-wheels"
 minversion = "6.0"
 addopts = [
     # Failing tests for numerical issues.
-    "--deselect=faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
-    "--deselect=faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
-    "--deselect=faiss/tests/test_contrib.py::TestPreassigned::test_float",
-    "--deselect=faiss/tests/test_contrib.py::TestClustering::test_ivf_train_2level",
+    "--deselect=third-party/faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
+    "--deselect=third-party/faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
+    "--deselect=third-party/faiss/tests/test_contrib.py::TestPreassigned::test_float",
+    "--deselect=third-party/faiss/tests/test_contrib.py::TestClustering::test_ivf_train_2level",
 ]
-testpaths = ["faiss/tests"]
+testpaths = ["third-party/faiss/tests"]
 python_files = "test_*.py"  # torch_test_*.py will break the other tests
 
 [tool.cibuildwheel]
 skip = "cp38-* cp39-win_arm64 cp310-win_arm64"
 test-skip = "*-musllinux* *-win* *-macosx_x86_64"
 test-requires = ["pytest", "scipy"]
-test-command = "env -u FAISS_OPT_LEVEL pytest {project}/faiss/tests"
+# Use absolute path; test-sources will not copy pyproject.toml and ignore options above
+test-command = "env -u FAISS_OPT_LEVEL pytest {project}/third-party/faiss/tests"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.macos.test-environment]
+LIBOMP_USE_HIDDEN_HELPER_TASK = "0"
+LIBOMP_NUM_HIDDEN_HELPER_THREADS = "0"
+KMP_DUPLICATE_LIB_OK = "TRUE"
+OMP_NUM_THREADS = "1"

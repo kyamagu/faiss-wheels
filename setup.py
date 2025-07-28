@@ -13,7 +13,7 @@ FAISS_OPT_LEVEL = os.getenv("FAISS_OPT_LEVEL", "generic")
 FAISS_ENABLE_GPU = os.getenv("FAISS_ENABLE_GPU", "").lower() in ("on", "true")
 
 # Common configurations
-FAISS_ROOT = "faiss"  # relative to the setup.py file
+FAISS_ROOT = "third-party/faiss"  # relative to the setup.py file
 
 DEFINE_MACROS: List[str] = []
 INCLUDE_DIRS = [
@@ -49,9 +49,9 @@ def win32_options(
         "/Zc:inline",
         "/wd4101",  # unreferenced local variable.
         "/MD",  # Bugfix: https://bugs.python.org/issue38597
+        "/openmp",  # If ClangCL is used, use /openmp:llvm instead.
     ]
     link_args = ["/OPT:ICF", "/OPT:REF"]
-    compile_args.append("/openmp" if platform.machine() == "ARM64" else "/openmp:llvm")
     return dict(
         extra_compile_args=extra_compile_args + compile_args,
         extra_link_args=link_args + (extra_link_args or default_link_args),
@@ -115,7 +115,7 @@ def darwin_options(
         "/opt/homebrew" if platform.mac_ver()[2] == "arm64" else "/usr/local"
     )
     OPENMP_ROOT = os.getenv(
-        "OPENMP_ROOT", os.path.join(homebrew_prefix, "opt", "libomp")
+        "OpenMP_ROOT", os.path.join(homebrew_prefix, "opt", "libomp")
     )
     default_link_args = [
         "-lfaiss",
