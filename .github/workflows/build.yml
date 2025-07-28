@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.x"
       - name: Apply patch
-        run: git apply --directory faiss patch/faiss-rename-swigfaiss.patch
+        run: git apply --directory third-party/faiss patch/faiss-rename-swigfaiss.patch
       - name: Install build dependencies
         run: python -m pip install build
       - name: Build sdist
