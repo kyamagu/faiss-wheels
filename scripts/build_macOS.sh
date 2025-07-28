@@ -4,10 +4,8 @@ set -eux
 
 # Fix directory structure on homebrew for intel macOS
 for dir in "include" "lib" "share"; do
-    if [ ! -d "/usr/local/$dir" ]; then
-        sudo mkdir -p "/usr/local/$dir"
-        sudo chown -R $(whoami) "/usr/local/$dir"
-    fi
+    sudo mkdir -p "/usr/local/$dir"
+    sudo chown -R $(whoami) "/usr/local/$dir"
 done
 
 # Install system dependencies
