@@ -61,13 +61,6 @@ jobs:
         with:
           python-version: "3.x"
       
-      - name: Set up conda
-        if: runner.os == 'Windows' && matrix.os != 'windows-11-arm'
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-activate-base: true
-          activate-environment: ""
-      
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==3.1.1
     
