@@ -25,7 +25,7 @@ else
 fi
 
 # Build and patch faiss
-cd faiss && \
+cd third-party/faiss && \
     cmake . \
         -B build \
         -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU:-"OFF"} \
@@ -35,5 +35,5 @@ cd faiss && \
         -DCMAKE_BUILD_TYPE=Release && \
     cmake --build build --config Release -j3 && \
     cmake --install build && \
-    git apply ../patch/faiss-rename-swigfaiss.patch && \
-    cd ..
+    git apply ../../patch/faiss-rename-swigfaiss.patch && \
+    cd ../..

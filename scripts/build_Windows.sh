@@ -34,8 +34,8 @@ else
 fi
 
 # Build and patch faiss
-cd faiss && \
-    git apply ../patch/faiss-remove-lapack.patch && \
+cd third-party/faiss && \
+    git apply ../../patch/faiss-remove-lapack.patch && \
     cmake . \
         -B build \
         -A $CMAKE_GENERATOR_PLATFORM \
@@ -50,5 +50,5 @@ cd faiss && \
         -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS && \
     cmake --build build --config Release -j && \
     cmake --install build --prefix "${CMAKE_PREFIX_PATH}" && \
-    git apply ../patch/faiss-rename-swigfaiss.patch && \
-    cd ..
+    git apply ../../patch/faiss-rename-swigfaiss.patch && \
+    cd ../..

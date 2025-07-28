@@ -1,3 +1,6 @@
 [submodule "faiss"]
-    path = faiss
+	path = third-party/faiss
     url = https://github.com/facebookresearch/faiss.git
+[submodule "third-party/OpenBLAS"]
+	path = third-party/OpenBLAS
+	url = https://github.com/OpenMathLib/OpenBLAS

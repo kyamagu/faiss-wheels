@@ -1,7 +1,7 @@
-diff --git a/faiss/CMakeLists.txt b/faiss/CMakeLists.txt
+diff --git a/third-party/faiss/CMakeLists.txt b/third-party/faiss/CMakeLists.txt
 index 6e9eb883a..a2dfa4cc3 100644
---- a/faiss/CMakeLists.txt
-+++ b/faiss/CMakeLists.txt
+--- a/third-party/faiss/CMakeLists.txt
++++ b/third-party/faiss/CMakeLists.txt
 @@ -385,13 +385,6 @@ else()
    target_link_libraries(faiss_avx512 PRIVATE ${BLAS_LIBRARIES})
    target_link_libraries(faiss_avx512_spr PRIVATE ${BLAS_LIBRARIES})
