@@ -49,9 +49,9 @@ def win32_options(
         "/Zc:inline",
         "/wd4101",  # unreferenced local variable.
         "/MD",  # Bugfix: https://bugs.python.org/issue38597
+        "/openmp",  # If ClangCL is used, use /openmp:llvm instead.
     ]
     link_args = ["/OPT:ICF", "/OPT:REF"]
-    compile_args.append("/openmp" if platform.machine() == "ARM64" else "/openmp:llvm")
     return dict(
         extra_compile_args=extra_compile_args + compile_args,
         extra_link_args=link_args + (extra_link_args or default_link_args),
