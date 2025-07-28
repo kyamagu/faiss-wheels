@@ -59,3 +59,9 @@ test-command = "env -u FAISS_OPT_LEVEL pytest"
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.macos.test-environment]
+LIBOMP_USE_HIDDEN_HELPER_TASK = "0"
+LIBOMP_NUM_HIDDEN_HELPER_THREADS = "0"
+KMP_DUPLICATE_LIB_OK = "TRUE"
+OMP_NUM_THREADS = "1"

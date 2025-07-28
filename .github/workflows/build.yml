@@ -73,10 +73,6 @@ jobs:
             FAISS_ENABLE_GPU=OFF
           CIBW_ENVIRONMENT_MACOS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
-            LIBOMP_USE_HIDDEN_HELPER_TASK=0
-            LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
-            KMP_DUPLICATE_LIB_OK=TRUE
-            OMP_NUM_THREADS=1
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"
