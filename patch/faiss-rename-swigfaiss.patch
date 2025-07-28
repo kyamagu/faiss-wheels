@@ -1,4 +1,4 @@
-diff --git a/third-party/faiss/python/swigfaiss.swig b/third-party/faiss/python/swigfaiss.i
+diff --git a/faiss/python/swigfaiss.swig b/faiss/python/swigfaiss.i
 similarity index 100%
-rename from third-party/faiss/python/swigfaiss.swig
-rename to third-party/faiss/python/swigfaiss.i
+rename from faiss/python/swigfaiss.swig
+rename to faiss/python/swigfaiss.i
