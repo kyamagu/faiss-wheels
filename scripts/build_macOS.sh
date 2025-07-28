@@ -2,13 +2,13 @@
 
 set -eux
 
-# Fix directory structure
-sudo mkdir -p /usr/local/include && \
-    sudo chown -R $(whoami) /usr/local/include
-sudo mkdir -p /usr/local/lib && \
-    sudo chown -R $(whoami) /usr/local/lib
-sudo mkdir -p /usr/local/share && \
-    sudo chown -R $(whoami) /usr/local/share
+# Fix directory structure on homebrew for intel macOS
+for dir in "include" "lib" "share"; do
+    if [ ! -d "/usr/local/$dir" ]; then
+        sudo mkdir -p "/usr/local/$dir"
+        sudo chown -R $(whoami) "/usr/local/$dir"
+    fi
+done
 
 # Install system dependencies
 brew install swig libomp
