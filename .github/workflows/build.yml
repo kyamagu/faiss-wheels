@@ -30,7 +30,7 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} (${{ matrix.arch }}, ${{ matrix.opt_level }})
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -44,7 +44,7 @@ jobs:
           - os: macos-13
             arch: x86_64
             opt_level: avx2
-          - os: macos-latest
+          - os: macos-14
             arch: arm64
             opt_level: generic
           - os: windows-latest
@@ -77,7 +77,6 @@ jobs:
             LIBOMP_NUM_HIDDEN_HELPER_THREADS=0
             KMP_DUPLICATE_LIB_OK=TRUE
             OMP_NUM_THREADS=1
-            MACOSX_DEPLOYMENT_TARGET=${{ matrix.os == 'macos-13' && '13.0' || '14.0' }}
           CIBW_ENVIRONMENT_WINDOWS: >
             FAISS_OPT_LEVEL=${{ matrix.opt_level }}
             CMAKE_PREFIX_PATH="c:\\opt"

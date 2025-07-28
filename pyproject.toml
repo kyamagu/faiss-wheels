@@ -53,7 +53,8 @@ python_files = "test_*.py"  # torch_test_*.py will break the other tests
 skip = "cp38-* cp39-win_arm64 cp310-win_arm64"
 test-skip = "*-musllinux* *-win* *-macosx_x86_64"
 test-requires = ["pytest", "scipy"]
-test-command = "env -u FAISS_OPT_LEVEL pytest {project}/third-party/faiss/tests"
+test-sources = ["third-party/faiss/tests"]
+test-command = "env -u FAISS_OPT_LEVEL pytest"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
