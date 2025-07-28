@@ -54,7 +54,7 @@ skip = "cp38-* cp39-win_arm64 cp310-win_arm64"
 test-skip = "*-musllinux* *-win* *-macosx_x86_64"
 test-requires = ["pytest", "scipy"]
 test-sources = ["third-party/faiss/tests"]
-test-command = "env -u FAISS_OPT_LEVEL pytest"
+test-command = "env -u FAISS_OPT_LEVEL pytest third-party/faiss/tests"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
