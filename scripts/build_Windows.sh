@@ -32,7 +32,6 @@ fi
 # Build and patch faiss
 cd third-party/faiss && \
     git apply ../../patch/faiss-remove-lapack.patch && \
-    git apply ../../patch/faiss-fix-omp-loop-signed-index.patch && \
     cmake . \
         -B build \
         -A $CMAKE_GENERATOR_PLATFORM \
