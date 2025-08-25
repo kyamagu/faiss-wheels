@@ -7,10 +7,11 @@ import numpy as np
 from setuptools import Extension, setup
 from setuptools.command.build_py import build_py
 
-# Faiss conifgurations
+# Faiss configurations
 FAISS_INSTALL_PREFIX = os.getenv("FAISS_INSTALL_PREFIX", "/usr/local")
 FAISS_OPT_LEVEL = os.getenv("FAISS_OPT_LEVEL", "generic")
 FAISS_ENABLE_GPU = os.getenv("FAISS_ENABLE_GPU", "").lower() in ("on", "true")
+FAISS_BLAS = os.getenv("FAISS_BLAS", "openblas").lower()  # openblas or flexiblas
 
 # Common configurations
 FAISS_ROOT = "third-party/faiss"  # relative to the setup.py file
@@ -43,7 +44,7 @@ def win32_options(
     swig_opts: List[str],
 ) -> dict:
     """Windows options."""
-    default_link_args = ["faiss.lib", "openblas.lib"]
+    default_link_args = ["faiss.lib", f"{FAISS_BLAS}.lib"]
     compile_args = [
         "/std:c++17",
         "/Zc:inline",
@@ -59,7 +60,7 @@ def win32_options(
     )
 
 
-def get_linux_openblas_link_args() -> List[str]:
+def get_linux_blas_link_args() -> List[str]:
     """Get OpenBLAS link arguments for Linux."""
     possible_dirs = [
         "/usr/lib/x86_64-linux-gnu",
@@ -68,10 +69,10 @@ def get_linux_openblas_link_args() -> List[str]:
         "/usr/local/lib",
     ]
     for dir_path in possible_dirs:
-        if os.path.exists(os.path.join(dir_path, "libopenblas.a")):
-            return ["-l:libopenblas.a", "-lgfortran"]
+        if os.path.exists(os.path.join(dir_path, f"lib{FAISS_BLAS}.a")):
+            return [f"-l:lib{FAISS_BLAS}.a", "-lgfortran"]
     # Fallback if OpenBLAS static library is not found
-    return ["-lopenblas", "-lgfortran"]
+    return [f"-l{FAISS_BLAS}", "-lgfortran"]
 
 
 def linux_options(
@@ -80,7 +81,7 @@ def linux_options(
     swig_opts: List[str],
 ) -> dict:
     """Linux options."""
-    default_link_args = ["-l:libfaiss.a"] + get_linux_openblas_link_args()
+    default_link_args = ["-l:libfaiss.a"] + get_linux_blas_link_args()
     if FAISS_ENABLE_GPU:
         default_link_args += [
             "-lcublas_static",
