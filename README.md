@@ -1,9 +1,9 @@
-# faiss-wheels
+# faiss-wheels 🎡
 
 [![Build](https://github.com/kyamagu/faiss-wheels/actions/workflows/build.yml/badge.svg)](https://github.com/kyamagu/faiss-wheels/actions/workflows/build.yml)
 [![PyPI](https://img.shields.io/pypi/v/faiss-cpu?label=faiss-cpu)](https://pypi.org/project/faiss-cpu/)
 
-faiss python wheel packages.
+Faiss Python wheel packages.
 
 - [faiss](https://github.com/facebookresearch/faiss)
 
@@ -18,7 +18,7 @@ This repository provides CI scripts to build wheel packages for the
 - Support various build options.
 
 > **Note**
-> GPU binary package is discontinued as of 1.7.3 release. Build a source package to support GPU features.
+> GPU binary package is discontinued as of 1.7.3 release. Build a custom wheel to support GPU features.
 
 ### Install
 
@@ -32,11 +32,11 @@ Note that the package name is `faiss-cpu`.
 
 ## Building customized wheels
 
-The PyPI binary package does not support GPU by default. To support GPU methods or use faiss with different build configuration, build a source package. For building a wheel package, there are a few requirements.
+The PyPI binary package does not support GPU by default. To support GPU methods or use faiss with a different build configuration, build a custom wheel. For building a wheel package, there are a few requirements.
 
-- BLAS: There must be a BLAS implementation available on the Linux and Windows platform.
+- BLAS: There must be a BLAS implementation available on the Linux and Windows platforms.
 - OpenMP: macOS requires `libomp` (available via Homebrew).
-- CUDA or ROCm: GPU development toolkit is necessary to support GPU features.
+- CUDA or ROCm: A GPU development toolkit is necessary to support GPU features.
 
 See `scripts/install_*` scripts for details.
 
@@ -49,7 +49,7 @@ git clone --recursive https://github.com/kyamagu/faiss-wheels.git
 cd faiss-wheels
 ```
 
-You can use a standard python packaging tool like `pipx` to build a wheel.
+You can use a standard Python environment manager like `pipx` to build a wheel.
 
 ```bash
 pipx run build --wheel
@@ -63,7 +63,7 @@ uv build --wheel
 
 ### Build options
 
-You can set environment variables to customize the build options. The following example builds a wheel with avx2 and CUDA support.
+You can set environment variables to customize the build options. The following example builds a wheel with AVX2 and CUDA support.
 
 ```bash
 export FAISS_OPT_LEVELS=avx2
@@ -71,7 +71,7 @@ export FAISS_GPU_SUPPORT=CUDA
 pipx run build --wheel
 ```
 
-Alternatively, you may directly pass cmake options via command line. See [the scikit-build-core documentation](https://scikit-build-core.readthedocs.io/en/latest/configuration/index.html#configuring-cmake-arguments-and-defines) for details on how to specify CMake defines.
+Alternatively, you may directly pass CMake options via the command line. See [the scikit-build-core documentation](https://scikit-build-core.readthedocs.io/en/latest/configuration/index.html#configuring-cmake-arguments-and-defines) for details on how to specify CMake defines.
 
 ```bash
 pipx run build --wheel \
@@ -81,7 +81,7 @@ pipx run build --wheel \
 
 The following options are available for configuration.
 
-- `FAISS_OPT_LEVELS`: Optimization levels. You may set a semicolon-separated list of values from `<generic|avx2|avx512|avx512_spr|sve>`. For example, setting `generic,avx2` will include both `generic` and `avx2` binary extensions in the resulting wheel. This option offers more flexibility than the upstream config variable `FAISS_OPT_LEVEL` which cannot specify arbitrary combinations.
+- `FAISS_OPT_LEVELS`: Optimization levels. You may set a semicolon-separated list of values from `<generic|avx2|avx512|avx512_spr|sve>`. For example, setting `generic,avx2` will include both `generic` and `avx2` binary extensions in the resulting wheel. This option offers more flexibility than the upstream config variable `FAISS_OPT_LEVEL`, which cannot specify arbitrary combinations.
 - `FAISS_GPU_SUPPORT`: GPU support. You may set a value from `<OFF|CUDA|CUVS|ROCM>`. For example, setting `CUDA` will enable CUDA support. For CUDA, you will need the [CUDA toolkit](https://developer.nvidia.com/cuda-toolkit) installed on the system. For ROCm, you will need the [ROCm](https://rocm.docs.amd.com/en/latest/).
 - `FAISS_ENABLE_MKL`: Intel MKL support. Default is `OFF`. Setting `FAISS_ENABLE_MKL=ON` links Intel oneAPI Math Kernel Library on Linux. You will need to install [Intel oneAPI MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html) before building a wheel. When `OFF`, the system needs a BLAS backend that CMake can find, such as OpenBLAS.
 - `FAISS_USE_LTO`: Enable link time optimization. Default is `ON`. Set `FAISS_USE_LTO=OFF` to disable.
