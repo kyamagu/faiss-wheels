@@ -1,10 +1,6 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel",
-    "numpy>=2.0,<3",
-]
-build-backend = "setuptools.build_meta"
+requires = ["scikit-build-core>=0.10", "swig>=3.0.12", "numpy>=2.0,<3.0"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "faiss-cpu"
@@ -37,31 +33,73 @@ dependencies = ["numpy>=1.25.0,<3.0", "packaging"]
 [project.urls]
 Repository = "https://github.com/kyamagu/faiss-wheels"
 
+[dependency-groups]
+dev = ["pytest>=8.4.1", "scipy>=1.13.1"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
+testpaths = ["third-party/faiss/tests"]
+python_files = "test_*.py"  # torch_test_*.py will break the other tests.
 addopts = [
     # Failing tests for numerical issues.
     "--deselect=third-party/faiss/tests/test_local_search_quantizer.py::TestProductLocalSearchQuantizer::test_lut",
     "--deselect=third-party/faiss/tests/test_local_search_quantizer.py::TestComponents::test_update_codebooks_with_double",
     "--deselect=third-party/faiss/tests/test_contrib.py::TestPreassigned::test_float",
     "--deselect=third-party/faiss/tests/test_contrib.py::TestClustering::test_ivf_train_2level",
+    # Tests randomly segfault on musllinux, perhaps due to multiprocessing threading issues.
+    # Below are tests that have been observed to segfault on musllinux.
+    # "--deselect=third-party/faiss/tests/test_binary_io.py::test_binary_from_float",
+    # "--deselect=third-party/faiss/tests/test_graph_based.py::test_io_no_storage"
 ]
-testpaths = ["third-party/faiss/tests"]
-python_files = "test_*.py"  # torch_test_*.py will break the other tests
+
+[tool.scikit-build]
+cmake.build-type = "Release"
+sdist.exclude = [
+    ".github",
+    "scripts",
+    "third-party/faiss/benchs",
+    "third-party/faiss/c_api",
+    "third-party/faiss/conda",
+    "third-party/faiss/demos",
+    "third-party/faiss/*tests",
+    "third-party/faiss/tutorial"
+]
+
+[[tool.scikit-build.overrides]]
+if.platform-system = "^(darwin|linux)"  # NOTE: Windows ABI3 results in broken DLLs.
+if.abi-flags = "^$"  # NOTE: Free-threaded Python does not support stable ABI.
+wheel.py-api = "cp39"
 
 [tool.cibuildwheel]
-skip = "cp38-* cp39-win_arm64 cp310-win_arm64"
-test-skip = "*-musllinux* *-win* *-macosx_x86_64"
+archs = "native"
+# NOTE: We do not support cp39 and cp310 on Windows ARM64
+# NOTE: cp3*t-win issue: https://gitlab.kitware.com/cmake/cmake/-/issues/26926
+# NOTE: cp3*t does not support stable API and we skip them for now.
+skip = "cp39-win_arm64 cp310-win_arm64 cp3*t-*"
 test-requires = ["pytest", "scipy"]
-# Use absolute path; test-sources will not copy pyproject.toml and ignore options above
-test-command = "env -u FAISS_OPT_LEVEL pytest {project}/third-party/faiss/tests"
+test-command = "pytest {project}/third-party/faiss/tests"
+
+[[tool.cibuildwheel.overrides]]
+# Skip scipy tests for platforms not supporting binary wheels.
+select = "cp39-musllinux_aarch64 *-win_arm64"
+test-requires = ["pytest"]
+test-command = """
+pytest {project}/third-party/faiss/tests/ \
+    --ignore={project}/third-party/faiss/tests/test_contrib_with_scipy.py \
+    --ignore={project}/third-party/faiss/tests/test_extra_distances.py \
+    --ignore={project}/third-party/faiss/tests/test_residual_quantizer.py
+"""
+
+[tool.cibuildwheel.linux]
+# NOTE: Linux needs a setup from before-all hook, because they are inside containers.
+before-all = "bash scripts/install_Linux.sh"
 
 [tool.cibuildwheel.windows]
-before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair -v -w {dest_dir} {wheel}"
+# NOTE: You may set CMAKE_GENERATOR_TOOLSET=ClangCL on Windows, but results in broken DLLs on ARM64.
+repair-wheel-command = ["pipx run delvewheel repair -v -w {dest_dir} {wheel}"]
 
-[tool.cibuildwheel.macos.test-environment]
-LIBOMP_USE_HIDDEN_HELPER_TASK = "0"
-LIBOMP_NUM_HIDDEN_HELPER_THREADS = "0"
-KMP_DUPLICATE_LIB_OK = "TRUE"
-OMP_NUM_THREADS = "1"
+[[tool.cibuildwheel.overrides]]
+# Run abi3audit on manylinux, musllinux, and macOS abi3 wheels.
+select = "*-manylinux* *-musllinux* *-macos*"
+inherit.repair-wheel-command = "append"
+repair-wheel-command = "pipx run abi3audit --strict --report {wheel}"
